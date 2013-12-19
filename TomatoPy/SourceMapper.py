@@ -6,13 +6,11 @@ from TomatoPy.SourceMapperItem import *
 
 
 class DirectoryMapper:
-	files = []
-	path = ""
-	filter
 
 	def __init__(self, path, filter=FileFilter()):
 		self.path = path
 		self.filter = filter
+		self.files = []
 		self.map()
 
 	def map(self):

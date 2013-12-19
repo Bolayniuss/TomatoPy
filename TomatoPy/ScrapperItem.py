@@ -1,21 +1,26 @@
 __author__ = 'bolay'
 
+
 class TorrentItem:
-	url = ""
-	name = ""
-	seeds = ""
-	leeches = ""
-	size = ""
-	date = ""
-	link = ""
-	isMagnetLink = False
-	author = ""
-	title = ""
 
 	def __init__(self):
 		self.url = ""
+		self.name = ""
+		self.seeds = ""
+		self.leeches = ""
+		self.size = ""
+		self.date = ""
+		self.link = ""
+		self.isMagnetLink = False
+		self.author = ""
+		self.title = ""
+
 
 class BetaserieRSSFeedItem:
-	title = ""
-	content = ""
-	published = ""
+
+	def __init__(self):
+		self.title = ""
+		self.content = ""
+		self.published = ""
+		self.filter = None
+		self.tvShow = ""

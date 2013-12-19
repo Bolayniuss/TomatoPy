@@ -1,23 +1,23 @@
+import XbmcLibraryManager
+
 __author__ = 'bolay'
 
-from TomatoPy.Scrapper import *
-from TomatoPy.SourceMapper import *
-
 from TomatoPy.TorrentRPC import *
+from TomatoPy.TvShowManager import *
+from DatabaseManager import DatabaseManager
+from XbmcLibraryManager import XbmcLibraryManager
 
 if __name__ == "__main__":
-	#TPBScrapper("the mentalist")
-	#for item in BetaserieRSSScrapper("bolayniuss").items:
-	#	print item.title
-	#	TPBScrapper(item.title)
-	for file in DirectoryMapper("/Users/bolay/Desktop", FileFilter(".*", ["jpg", "pdf"])).files:
-		print file.name
+	DatabaseManager.Instance().connect("replicator", "root", None, "127.0.0.1")
+	torrentMng = TransmissionTorrentRPC()
+	tvShowMng = TvShowManager(torrentMng)
+	print "Look for new downloads"
+	tvShowMng.addNewToTorrentManager(torrentMng)
+	print "Look for finished downloads"
+	tvShowMng.executeOnTorrentDownloadedActions()
+	print "Execute XBMC Library Manager pending requests"
+	XbmcLibraryManager.Instance().executePendingRequests()
+	print "End of script"
 
-	tc = TransmissionTorrentRPC("192.168.0.11", 8181, "admin", "admin")
-	for l in tc.getTorrents():
-		print l.hashString, l.name
-
-	for l in tc.getTorrentFiles("e8e09e4e45ad9f56af3a4c8ed0c3e941e9d47712"):
-		print l.name
 
 

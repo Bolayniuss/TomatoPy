@@ -10,20 +10,19 @@ from TomatoPy.ScrapperItem import *
 
 
 class TPBScrapper:
-	searchString = ""
-	torrents = []
-	error = False
 
-	def __init__(self, searchString):
+
+	def __init__(self, searchString, filter=None):
+		self.torrents = []
 		self.searchString = searchString
+		self.filter = filter
 		self.parse()
 
 	def parse(self):
-		url = "http://thepiratebay.sx/search/" + urllib.quote(self.searchString) + "/0/7/0"
+		url = "http://thepiratebay.se/search/" + urllib.quote(self.searchString) + "/0/7/0"
 		page = urllib2.urlopen(url)
 		soup = bs4.BeautifulSoup(page.read())
 		_torrents = soup.select("tr div.detName")
-		print url
 		for eachTorrent in _torrents:
 			eachTorrent = eachTorrent.parent.parent
 			item = TorrentItem()
@@ -39,8 +38,11 @@ class TPBScrapper:
 			item.author = unicode(textTag.find(["a", "i"]).string)
 			prescaler = m.group(2)
 			item.size *= self.prescalerConverter(prescaler)
-			print item.title, item.size, item.seeds, item.author
-			self.torrents.append(item);
+			if self.filter is not None:
+				if self.filter.test(item):
+					self.torrents.append(item)
+			else:
+				self.torrents.append(item)
 
 	def prescalerConverter(self, prescaler):
 		if prescaler is "T":
@@ -55,15 +57,16 @@ class TPBScrapper:
 
 
 class BetaserieRSSScrapper:
-	items = []
-	rssFeedUser = ""
+
+	baseurl = "http://www.betaseries.com/rss/episodes/all/"
 
 	def __init__(self, user):
+		self.items = []
 		self.rssFeedUser = user
 		self.parse()
 
 	def parse(self):
-		url = "http://www.betaseries.com/rss/episodes/all/"+self.rssFeedUser
+		url = self.baseurl+self.rssFeedUser
 		page = urllib2.urlopen(url)
 		soup = bs4.BeautifulSoup(page.read(), "xml")
 
@@ -73,6 +76,6 @@ class BetaserieRSSScrapper:
 			item.title = unicode(eachItem.find("title").string)
 			item.content = unicode(eachItem.content.string)
 			item.published = unicode(eachItem.published.string)
-			print item.published, item.title, item.content
+			item.filter = None
 			self.items.append(item)
 

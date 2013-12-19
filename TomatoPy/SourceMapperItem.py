@@ -4,8 +4,9 @@ import re
 
 
 class SourceMapperItem:
-	name = ""
-	source = ""
+	def __init__(self):
+		self.name = ""
+		self.source = ""
 
 
 class FileItem(SourceMapperItem):
