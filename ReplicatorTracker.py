@@ -45,7 +45,7 @@ class TrackedTorrent:
 	@staticmethod
 	def fromSqlQuery(sqlQuery):
 		if len(sqlQuery) >= 4:
-			tt = TrackedTorrent(sqlQuery[0], sqlQuery[1],, sqlQuery[3])
+			tt = TrackedTorrent(sqlQuery[0], sqlQuery[1], sqlQuery[3])
 			tt.torrentFileData = sqlQuery[2]
 			return tt
 		return None

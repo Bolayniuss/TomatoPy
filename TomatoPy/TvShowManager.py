@@ -31,7 +31,7 @@ class TvShowManager:
 		dbm.cursor.execute(query)
 		filter = None
 		for (title, nameFilter, authorFilter, sizeLimits) in dbm.cursor:
-			sizes = None
+			sizes = {}
 			sizeLimits = sizeLimits.split(":")
 			if len(sizeLimits[0]) > 0:
 				sizes["gt"] = int(sizeLimits[0])
