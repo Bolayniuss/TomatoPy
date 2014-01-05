@@ -297,8 +297,9 @@ class FileTracer:
 					if tt is not None:
 						sql = "INSERT INTO ReplicatorActions (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath)" \
 						      " VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
-						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName, tt.magnet, destination.name,
-						                              destination.getRelativePath(destinationFile.fullPath)))
+						relPath = destination.getRelativePath(destinationFile.fullPath)
+						print relPath
+						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName, tt.magnet, destination.name, relPath))
 						self.dbm.connector.commit()
 					else:
 						print "Unable to create TrackedTorrent with query", res
