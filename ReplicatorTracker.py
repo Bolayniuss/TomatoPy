@@ -122,10 +122,6 @@ class DoneTorrentFilter:
 							sql = "INSERT INTO TrackedTorrents (hash, name, torrentFile, magnet) VALUES (%s, %s, %s, %s)" \
 							      " ON DUPLICATE KEY UPDATE hash=VALUES(hash);"
 							t = TrackedTorrent.fromTorrent(torrent)
-							print t.hash
-							print t.name
-							print t.torrentFileData
-							print t.magnet
 							DatabaseManager.Instance().cursor.execute(sql, (t.hash, t.name, t.torrentFileData, t.magnet))
 							DatabaseManager.Instance().connector.commit()
 
@@ -302,7 +298,7 @@ class FileTracer:
 						sql = "INSERT INTO ReplicatorActions (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath)" \
 						      " VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
 						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName, tt.magnet, destination.name,
-						                              destinationFile.relativePath))
+						                              destination.getRelativePath(destinationFile.fullPath)))
 						self.dbm.connector.commit()
 					else:
 						print "Unable to create TrackedTorrent with query", res
