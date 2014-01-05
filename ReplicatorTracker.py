@@ -122,6 +122,10 @@ class DoneTorrentFilter:
 							sql = "INSERT INTO TrackedTorrents (hash, name, torrentFile, magnet) VALUES (%s, %s, %s, %s)" \
 							      " ON DUPLICATE KEY UPDATE hash=VALUES(hash);"
 							t = TrackedTorrent.fromTorrent(torrent)
+							print t.hash
+							print t.name
+							print t.torrentFileData
+							print t.magnet
 							DatabaseManager.Instance().cursor.execute(sql, (t.hash, t.name, t.torrentFileData, t.magnet))
 							DatabaseManager.Instance().connector.commit()
 
