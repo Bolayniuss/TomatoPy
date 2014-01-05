@@ -52,7 +52,7 @@ class TrackedTorrent:
 
 	@staticmethod
 	def fromTorrent(torrent):
-		return TrackedTorrent(torrent.hashString, torrent.name, torrent.torrentFile, torrent.magnetLink)
+		return TrackedTorrent(torrent.hashString, torrent.name, torrent.magnetLink, torrent.torrentFile)
 
 
 class InterestingFile:
@@ -289,6 +289,7 @@ class FileTracer:
 			for d in self.destinations:
 				d.map()
 				d.lookForInterestingFiles(self.dtf.interestingFiles)
+		self.dbm.connector.commit()
 		for destination in self.destinations:
 			for trackedFile, destinationFile in destination.validInterestingFiles:
 				sql = "SELECT * FROM TrackedTorrents WHERE hash=%s;"
