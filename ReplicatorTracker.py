@@ -210,7 +210,6 @@ class Destination:
 			return Destination(query[1], query[0], RFileFilter(query[2]))
 		return None
 
-
 class File:
 	def __init__(self, path):
 		"""
