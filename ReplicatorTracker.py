@@ -36,7 +36,7 @@ class TrackedTorrent:
 		"""
 		self.name = name
 		self.hash = hash
-		self.torrentFileData = None
+		self.torrentFileData = ''
 		self.magnet = magnet
 		if torrentFile is not None and os.path.exists(torrentFile):
 			f = open(torrentFile, "rb")
