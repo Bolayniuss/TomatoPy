@@ -296,13 +296,13 @@ class FileTracer:
 				if res is not None:
 					tt = TrackedTorrent.fromSqlQuery(res)
 					if tt is not None:
-						sql = "INSERT INTO ReplicatorActions (torrentFileName, torrentData, destinationName, destinationRelativePath)" \
+						sql = "INSERT INTO ReplicatorActions (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath)" \
 						      " VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
-						self.dbm.cursor.execute(sql, (trackedFile.torrentFileName, tt.magnet, destination.name,
+						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName, tt.magnet, destination.name,
 						                              destinationFile.relativePath))
 						self.dbm.connector.commit()
 					else:
-						print "Unable to create TrackedTorrent with quey", res
+						print "Unable to create TrackedTorrent with query", res
 				else:
 					print "res is None for hash=", trackedFile.torrentHash
 
