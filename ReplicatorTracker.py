@@ -122,7 +122,8 @@ class DoneTorrentFilter:
 							sql = "INSERT INTO TrackedTorrents (hash, name, torrentFile, magnet) VALUES (%s, %s, %s, %s)" \
 							      " ON DUPLICATE KEY UPDATE hash=VALUES(hash);"
 							t = TrackedTorrent.fromTorrent(torrent)
-							DatabaseManager.Instance().cursor.execute(sql, (t.hash, t.name, t.torrentFileData, t.magnet))
+							DatabaseManager.Instance().cursor.execute(sql,
+							                                          (t.hash, t.name, t.torrentFileData, t.magnet))
 							DatabaseManager.Instance().connector.commit()
 
 						#for a, iF in self.interestingFiles.iteritems():
@@ -210,6 +211,7 @@ class Destination:
 			return Destination(query[1], query[0], RFileFilter(query[2]))
 		return None
 
+
 class File:
 	def __init__(self, path):
 		"""
@@ -296,12 +298,9 @@ class FileTracer:
 					tt = TrackedTorrent.fromSqlQuery(res)
 					if tt is not None:
 						sql = "INSERT INTO ReplicatorActions (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath)" \
-						      " VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
-						relPath = destination.getRelativePath(destinationFile.fullPath)
-						print destination.path
-						print destinationFile.fullPath
-						print relPath
-						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName, tt.magnet, destination.name, relPath))
+						      " VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
+						self.dbm.cursor.execute(sql, (
+							tt.name, trackedFile.torrentFileName, tt.magnet, destination.name, destinationFile.fullPath))
 						self.dbm.connector.commit()
 					else:
 						print "Unable to create TrackedTorrent with query", res
@@ -433,4 +432,4 @@ if __name__ == "__main__":
 	DatabaseManager.Instance().connect('replicator', 'root', None, '127.0.0.1')
 	ft = FileTracer()
 	ft.run()
-	#ft.clean()
+#ft.clean()
