@@ -6,7 +6,6 @@ from ScrapperItem import *
 
 
 class FileFilter:
-
 	def __init__(self, name=".*", extensions=[".*"]):
 		self.name = name
 		self.extensions = extensions
@@ -21,10 +20,18 @@ class FileFilter:
 
 
 class TorrentFilter:
-
-	def __init__(self, nameFilters, authorFilter):
+	def __init__(self, nameFilters, authorFilter, size=None):
+		"""
+		:type size : dict
+		:type authorFilter : str
+		:type nameFilters : str
+		:param nameFilters:
+		:param authorFilter:
+		:param size:
+		"""
 		self.nameFilters = nameFilters
 		self.authorFilter = authorFilter
+		self.sizeFilter = size
 
 	def test(self, torrent):
 		accepted = False
@@ -32,7 +39,7 @@ class TorrentFilter:
 			#print "TorrentFilter: test pattern, ", nameFilter, " in ", torrent.title,
 			if re.search(nameFilter, torrent.title, re.IGNORECASE) is not None:
 				accepted = True
-			#	print " return True"
+				#	print " return True"
 				break
 			#else:
 			#	print " return False"
@@ -44,4 +51,9 @@ class TorrentFilter:
 			else:
 			#	print " return True"
 				accepted &= True
+		if self.sizeFilter is not None:
+			if "gt" in self.sizeFilter:
+				accepted &= torrent.size >= self.sizeFilter["gt"]
+			if "lt" in self.sizeFilter:
+				accepted &= torrent <= self.sizeFilter["lt"]
 		return accepted

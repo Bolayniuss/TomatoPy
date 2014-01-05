@@ -11,7 +11,6 @@ from TomatoPy.ScrapperItem import *
 
 class TPBScrapper:
 
-
 	def __init__(self, searchString, filter=None):
 		self.torrents = []
 		self.searchString = searchString

@@ -431,4 +431,4 @@ if __name__ == "__main__":
 	DatabaseManager.Instance().connect('replicator', 'root', None, '127.0.0.1')
 	ft = FileTracer()
 	ft.run()
-	ft.clean()
+	#ft.clean()

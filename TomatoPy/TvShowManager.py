@@ -27,11 +27,18 @@ class TvShowManager:
 		self.bUser = parameters[1]
 		self.tvShowDirectory = parameters[0]
 
-		query = "SELECT title, filter, authorFilter FROM TrackedTvShows;"
+		query = "SELECT title, filter, authorFilter, sizeLimits FROM TrackedTvShows;"
 		dbm.cursor.execute(query)
 		filter = None
-		for (title, nameFilter, authorFilter) in dbm.cursor:
-			filter = TorrentFilter(nameFilter.split(":"), authorFilter)
+		for (title, nameFilter, authorFilter, sizeLimits) in dbm.cursor:
+			sizes = None
+			sizeLimits = sizeLimits.split(":")
+			if len(sizeLimits[0]) > 0:
+				sizes["gt"] = int(sizeLimits[0])
+			if len(sizeLimits) > 1:
+				if len(sizeLimits[1]) > 0:
+					sizes["lt"] = int(sizeLimits[1])
+			filter = TorrentFilter(nameFilter.split(":"), authorFilter, sizes)
 			self.trackedTvShows.append((title, filter))
 		dbm.connector.commit()
 
