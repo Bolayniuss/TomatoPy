@@ -118,7 +118,7 @@ class TvShowManager:
 					print "TvShowManager: move action"
 					dstDir = os.path.join(self.tvShowDirectory, tvShow, "Saison " + self.getSeasonFromTitle(episodeName))
 					print "TvShowManager: try to move ", torrent.name, " to ", dstDir
-					if self.torrentManager.moveFile(torrent, filter, dstDir, episodeName):
+					if self.torrentManager.selectAndMoveFile(torrent, filter, dstDir, episodeName):
 						print "TvShowManager: move succeed"
 						time.sleep(0.5)
 						XbmcLibraryManager.Instance().scanVideoLibrary()

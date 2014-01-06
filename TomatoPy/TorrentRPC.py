@@ -82,7 +82,7 @@ class TorrentManager(object):
 			return os.path.join(self.downloadDirectory, torrentName, filename)
 		return None
 
-	def moveFile(self, torrent, filter, destinationPath, filename):
+	def selectAndMoveFile(self, torrent, filter, destinationPath, filename):
 		files = self.getTorrentFiles(torrent.hashString)
 		rarFilter = FileFilter(".*", ["rar"])
 		validFiles = []
@@ -123,7 +123,12 @@ class TorrentManager(object):
 				pass
 			shutil.move(src, dst)
 			os.chmod(dst, 0777)
-			os.chown(dst, pwd.getpwnam("guest").pw_uid, grp.getgrnam("guest").gr_gid)
+			try:
+				os.chown(dst, pwd.getpwnam("guest").pw_uid, grp.getgrnam("guest").gr_gid)
+			except KeyError, e:
+				pass
+			finally:
+				pass
 			return True
 		return False
 
