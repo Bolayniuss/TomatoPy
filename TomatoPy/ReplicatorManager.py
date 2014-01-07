@@ -37,7 +37,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 			print "ReplicatorManager : Loading actions from remote server, ", server["name"]
 			url = server["url"]+"?q=getReplicatorActions&user="+self.user
 
-			jsonData = urllib2.urlopen(url)
+			jsonData = urllib2.urlopen(url).read()
 			print "ReplicatorManager : jsonData=", jsonData
 			self.replicatorActions.append(json.loads(jsonData))
 
