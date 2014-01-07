@@ -40,33 +40,36 @@ class ReplicatorManager(AutomatedActionsExecutor):
 			jsonData = urllib2.urlopen(url).read()
 			print "ReplicatorManager : jsonData=", jsonData
 			data = json.loads(jsonData)
-			self.replicatorActions.append()
+			if server["name"] not in self.replicatorActions:
+				self.replicatorActions[server["name"]] = []
+			self.replicatorActions[server["name"]].append(data)
 
 	def processReplicatorActions(self):
-		for torrentName, actions in self.replicatorActions.iteritems():
-			for action in actions:
+		for serverName, serverActions in self.replicatorActions.iteritems():
+			for torrentName, actions in serverActions:
+				for action in actions:
 
-				# Test if source exist
-				if action.destinationName in self.destinations:
-					destinationPath = os.path.join(self.destinations[action.destinationName], action.destinationRelativePath)
-					# if path does not exist create directories (not here)
-					#try:
-					#	os.makedirs(os.path.dirname(destinationPath))
-					#except OSError:
-					#	pass
-					#finally:
-					#	pass
+					# Test if source exist
+					if action.destinationName in self.destinations:
+						destinationPath = os.path.join(self.destinations[action.destinationName], action.destinationRelativePath)
+						# if path does not exist create directories (not here)
+						#try:
+						#	os.makedirs(os.path.dirname(destinationPath))
+						#except OSError:
+						#	pass
+						#finally:
+						#	pass
 
-					# Test if destination file does not already exist
-					if not os.path.exists(destinationPath):
+						# Test if destination file does not already exist
+						if not os.path.exists(destinationPath):
 
-						# Add Torrent
-						t = self.torrentManager.addTorrentURL(action.torrentData)
+							# Add Torrent
+							t = self.torrentManager.addTorrentURL(action.torrentData)
 
-						# Add move action with torrentHash, fileName, destinationPath
-						aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
-						sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
-						self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
-						self.dbm.connector.commit()
+							# Add move action with torrentHash, fileName, destinationPath
+							aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
+							sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
+							self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
+							self.dbm.connector.commit()
 
-						print "ReplicatorManager : Add new automated action, ", aa
+							print "ReplicatorManager : Add new automated action from server=", serverName, ", ", aa
