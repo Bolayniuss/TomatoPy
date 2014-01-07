@@ -42,7 +42,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 			self.replicatorActions.append(json.loads(jsonData))
 
 	def processReplicatorActions(self):
-		for action in self.replicatorActions.iteritems():
+		for action in self.replicatorActions:
 
 			# Test if source exist
 			if action.destinationName in self.destinations:
