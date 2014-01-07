@@ -14,7 +14,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		self.serviceName = "Replicator"
 		self.dbm = DatabaseManager.Instance()
 		self.torrentManager = torrentManager
-		self.replicatorActions = []
+		self.replicatorActions = {}
 		self.replicatorServers = []
 
 		sql = "SELECT * FROM RemoteServices WHERE `ServiceName`=%s;"
@@ -39,33 +39,34 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
 			jsonData = urllib2.urlopen(url).read()
 			print "ReplicatorManager : jsonData=", jsonData
-			self.replicatorActions.append(json.loads(jsonData))
+			data = json.loads(jsonData)
+			self.replicatorActions.append()
 
 	def processReplicatorActions(self):
-		for action in self.replicatorActions:
+		for torrentName, actions in self.replicatorActions.iteritems():
+			for action in actions:
 
-			# Test if source exist
-			print action
-			if action.destinationName in self.destinations:
-				destinationPath = os.path.join(self.destinations[action.destinationName], action.destinationRelativePath)
-				# if path does not exist create directories (not here)
-				#try:
-				#	os.makedirs(os.path.dirname(destinationPath))
-				#except OSError:
-				#	pass
-				#finally:
-				#	pass
+				# Test if source exist
+				if action.destinationName in self.destinations:
+					destinationPath = os.path.join(self.destinations[action.destinationName], action.destinationRelativePath)
+					# if path does not exist create directories (not here)
+					#try:
+					#	os.makedirs(os.path.dirname(destinationPath))
+					#except OSError:
+					#	pass
+					#finally:
+					#	pass
 
-				# Test if destination file does not already exist
-				if not os.path.exists(destinationPath):
+					# Test if destination file does not already exist
+					if not os.path.exists(destinationPath):
 
-					# Add Torrent
-					t = self.torrentManager.addTorrentURL(action.torrentData)
+						# Add Torrent
+						t = self.torrentManager.addTorrentURL(action.torrentData)
 
-					# Add move action with torrentHash, fileName, destinationPath
-					aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
-					sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
-					self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
-					self.dbm.connector.commit()
+						# Add move action with torrentHash, fileName, destinationPath
+						aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
+						sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
+						self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
+						self.dbm.connector.commit()
 
-					print "ReplicatorManager : Add new automated action, ", aa
+						print "ReplicatorManager : Add new automated action, ", aa
