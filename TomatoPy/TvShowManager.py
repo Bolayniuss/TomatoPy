@@ -12,7 +12,7 @@ import time
 
 class TvShowManager(AutomatedActionsExecutor):
 	def __init__(self, torrentManager):
-		super(AutomatedActionsExecutor, self).__init__("TvShowManager")
+		super(AutomatedActionsExecutor, self).__init__(actionNotifierName="TvShowManager")
 		dbm = DatabaseManager.Instance()
 		self.torrentManager = torrentManager
 
