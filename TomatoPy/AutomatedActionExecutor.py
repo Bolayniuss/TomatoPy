@@ -12,7 +12,7 @@ class AutomatedActionsExecutor(object):
 	def loadActions(self, reload=False):
 		if not self.actionsLoaded or reload:
 			curs = DatabaseManager.Instance().cursor
-			query = "SELECT id, trigger, data FROM AutomatedActions WHERE notifier=%s;"
+			query = "SELECT id, `trigger`, data FROM AutomatedActions WHERE notifier=%s;"
 			curs.execute(query, (self.actionNotifierName, ))
 			for action in curs:
 				data = action[2].split("&&")
