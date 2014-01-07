@@ -17,7 +17,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		self.replicatorActions = []
 		self.replicatorServers = []
 
-		sql = "SELECT * RemoteServices WHERE ServiceName=%s;"
+		sql = "SELECT * FROM RemoteServices WHERE `ServiceName`=%s;"
 		self.dbm.cursor.execute(sql, (self.serviceName, ))
 		for res in self.dbm.cursor:
 			self.replicatorServers.append({"name": res[1], "url": res[2]})
