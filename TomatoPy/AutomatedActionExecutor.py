@@ -2,7 +2,8 @@ __author__ = 'bolay'
 
 from DatabaseManager import DatabaseManager
 
-class AutomatedActionsExecutor:
+
+class AutomatedActionsExecutor(object):
 	def __init__(self, actionNotifierName):
 		self.actionNotifierName = actionNotifierName
 		self.actions = {"onBegin": {}, "onTorrentDownloaded": {}, "onEnd": {}}
