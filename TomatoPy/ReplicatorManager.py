@@ -46,7 +46,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
 	def processReplicatorActions(self):
 		for serverName, serverActions in self.replicatorActions.iteritems():
-			for torrentName, actions in serverActions:
+			for torrentName, actions in serverActions.iteritems():
 				for action in actions:
 
 					# Test if source exist
