@@ -38,6 +38,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 			url = server["url"]+"?q=getReplicatorActions&user="+self.user
 
 			jsonData = urllib2.urlopen(url)
+			print "ReplicatorManager : jsonData=", jsonData
 			self.replicatorActions.append(json.loads(jsonData))
 
 	def processReplicatorActions(self):
