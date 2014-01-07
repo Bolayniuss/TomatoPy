@@ -136,7 +136,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		return False
 
 	def executeOnTorrentDownloadedActions(self):
-		#curs = DatabaseManager.Instance().cursor
+		curs = DatabaseManager.Instance().cursor
 		#query = "SELECT id, data FROM AutomatedActions WHERE `trigger`='onTorrentDownloaded' AND notifier='TvShowManager';"
 		#curs.execute(query)
 		actions = self.actions["onTorrentDownloaded"]
