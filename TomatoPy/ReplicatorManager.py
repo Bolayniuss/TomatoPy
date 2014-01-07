@@ -45,6 +45,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		for action in self.replicatorActions:
 
 			# Test if source exist
+			print action
 			if action.destinationName in self.destinations:
 				destinationPath = os.path.join(self.destinations[action.destinationName], action.destinationRelativePath)
 				# if path does not exist create directories (not here)
