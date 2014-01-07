@@ -34,6 +34,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
 	def loadRemoteActions(self):
 		for server in self.replicatorServers:
+			print "ReplicatorManager : Loading actions from remote server, ", server["name"]
 			url = server["url"]+"?q=getReplicatorActions&user="+self.user
 
 			jsonData = urllib2.urlopen(url)
@@ -64,3 +65,5 @@ class ReplicatorManager(AutomatedActionsExecutor):
 					sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
 					self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
 					self.dbm.connector.commit()
+
+					print "ReplicatorManager : Add new automated action, ", aa
