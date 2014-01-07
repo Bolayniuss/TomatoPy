@@ -51,8 +51,8 @@ class ReplicatorManager(AutomatedActionsExecutor):
 					for action in actions:
 
 						# Test if source exist
-						if action.destinationName in self.destinations:
-							destinationPath = os.path.join(self.destinations[action.destinationName], action.destinationRelativePath)
+						if action["destinationName"] in self.destinations:
+							destinationPath = os.path.join(self.destinations[action["destinationName"]], action["destinationRelativePath"])
 							# if path does not exist create directories (not here)
 							#try:
 							#	os.makedirs(os.path.dirname(destinationPath))
@@ -65,10 +65,10 @@ class ReplicatorManager(AutomatedActionsExecutor):
 							if not os.path.exists(destinationPath):
 
 								# Add Torrent
-								t = self.torrentManager.addTorrentURL(action.torrentData)
+								t = self.torrentManager.addTorrentURL(action["torrentData"])
 
 								# Add move action with torrentHash, fileName, destinationPath
-								aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
+								aa = "move&&"+t.hashString+"&&"+action["torrentFileName"]+"&&"+destinationPath
 								sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
 								self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
 								self.dbm.connector.commit()
