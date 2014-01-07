@@ -4,10 +4,12 @@ from DatabaseManager import DatabaseManager
 import urllib2
 import json
 import os
+from AutomatedActionExecutor import *
 
 
-class ReplicatorManager:
+class ReplicatorManager(AutomatedActionsExecutor):
 	def __init__(self, user, torrentManager):
+		super(ReplicatorManager, self).__init__("ReplicatorManager")
 		self.user = user
 		self.serviceName = "Replicator"
 		self.dbm = DatabaseManager.Instance()
@@ -60,5 +62,5 @@ class ReplicatorManager:
 					# Add move action with torrentHash, fileName, destinationPath
 					aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
 					sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
-					self.dbm.cursor.execute(sql, (self.serviceName, "onTorrentDownloaded", aa))
+					self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
 					self.dbm.connector.commit()

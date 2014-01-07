@@ -3,6 +3,33 @@ __author__ = 'bolay'
 from DatabaseManager import DatabaseManager
 
 
+class AutomatedAction:
+	def __init__(self, type, parameters):
+		"""
+		:type type : str
+		:type parameters : list
+		:param type:
+		:param parameters:
+		:return:
+		"""
+		self.type = type
+		self.parameters = parameters
+
+	def join(self, delimiter="&&"):
+		joined = delimiter.join(self.parameters)
+		if len(joined) > 0:
+			joined = type + delimiter + joined
+		return joined
+
+	@staticmethod
+	def fromString(str):
+		data = str.split("&&")
+		if len(data[0]) > 0:
+			type = data.pop(0)
+			return AutomatedAction(type, data)
+		return None
+
+
 class AutomatedActionsExecutor(object):
 	def __init__(self, actionNotifierName):
 		self.actionNotifierName = actionNotifierName
