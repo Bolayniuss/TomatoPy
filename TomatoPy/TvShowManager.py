@@ -1,5 +1,3 @@
-import XbmcLibraryManager
-
 __author__ = 'bolay'
 
 import re
@@ -8,11 +6,13 @@ from TomatoPy.Scrapper import *
 from TomatoPy.SourceMapper import *
 from DatabaseManager import DatabaseManager
 from XbmcLibraryManager import XbmcLibraryManager
+from AutomatedActionExecutor import *
 import time
 
 
-class TvShowManager:
+class TvShowManager(AutomatedActionsExecutor):
 	def __init__(self, torrentManager):
+		super(TransmissionTorrentRPC, self).__init__("TvShowManager")
 		dbm = DatabaseManager.Instance()
 		self.torrentManager = torrentManager
 
@@ -41,6 +41,7 @@ class TvShowManager:
 			filter = TorrentFilter(nameFilter.split(":"), authorFilter, sizes)
 			self.trackedTvShows.append((title, filter))
 		dbm.connector.commit()
+		self.loadActions()
 
 	def getNewTvShow(self):
 
@@ -104,7 +105,7 @@ class TvShowManager:
 		DatabaseManager.Instance().connector.commit()
 
 	def executeAction(self, actionData):
-		data = actionData.split("&&")
+		data = actionData#.split("&&")
 
 		hashString = data[1]
 		tvShow = data[2]
@@ -135,13 +136,13 @@ class TvShowManager:
 		return False
 
 	def executeOnTorrentDownloadedActions(self):
-		curs = DatabaseManager.Instance().cursor
-		query = "SELECT id, data FROM AutomatedActions WHERE `trigger`='onTorrentDownloaded' AND notifier='TvShowManager';"
-		curs.execute(query)
-		actions = []
+		#curs = DatabaseManager.Instance().cursor
+		#query = "SELECT id, data FROM AutomatedActions WHERE `trigger`='onTorrentDownloaded' AND notifier='TvShowManager';"
+		#curs.execute(query)
+		actions = self.actions["onTorrentDownloaded"]
 		for a in curs:
 			actions.append(a)
-		for (id, data, ) in actions:
+		for id, data in actions.iteritems():
 			delete = False
 			try:
 				print "TvShowManager: try to execute action id=", id
@@ -158,7 +159,6 @@ class TvShowManager:
 				print "TvShowManager: remove action with id=", id
 				delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
 				curs.execute(delQuery, (id, ))
-				#curs.fetchall()
 				DatabaseManager.Instance().connector.commit()
 
 	def getSeasonFromTitle(self, title):

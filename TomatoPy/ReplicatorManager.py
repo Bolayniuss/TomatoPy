@@ -52,10 +52,13 @@ class ReplicatorManager:
 				#	pass
 
 				# Test if destination file does not already exist
+				if not os.path.exists(destinationPath):
 
+					# Add Torrent
+					t = self.torrentManager.addTorrentURL(action.torrentData)
 
-				# Add Torrent
-				t = self.torrentManager.addTorrentURL(action.torrentData)
-
-				# Add move action with torrentHash, fileName, destinationPath
-				aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
+					# Add move action with torrentHash, fileName, destinationPath
+					aa = "move&&"+t.hashString+"&&"+action.torrentFileName+"&&"+destinationPath
+					sql = "INSERT INTO AutomatedActions (notifier, trigger, data) VALUES(%s, %s, %s);"
+					self.dbm.cursor.execute(sql, (self.serviceName, "onTorrentDownloaded", aa))
+					self.dbm.connector.commit()
