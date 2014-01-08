@@ -33,6 +33,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
 		self.loadRemoteActions()
 		self.processReplicatorActions()
+		self.loadActions()
 
 	def loadRemoteActions(self):
 		for server in self.replicatorServers:
@@ -105,7 +106,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		return False
 
 	def executeOnTorrentDownloadedActions(self):
-		print self.actions
+		#print self.actions
 		curs = DatabaseManager.Instance().cursor
 		actions = self.actions["onTorrentDownloaded"]
 		for a in curs:
