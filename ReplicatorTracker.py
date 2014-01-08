@@ -9,6 +9,7 @@ import sys
 import unicodedata
 import base64
 import Tools
+from Singleton import Singleton
 
 
 class TrackedTorrent:
@@ -129,6 +130,24 @@ class RFileFilter:
 		return re.search(self.extension, file.extension, re.IGNORECASE) is not None
 
 
+@Singleton
+class DestinationManager:
+	def __init__(self):
+		self.destinations = {}
+
+	def add(self, destination):
+		"""
+		:type destination : Destination
+		:param destination:
+		:return:
+		"""
+		if destination.name not in self.destinations:
+			self.destinations[destination.name] = destination
+
+	def get(self, name):
+		return self.destinations[name]
+
+
 class Destination:
 	def __init__(self, path, name, filter):
 		"""
@@ -141,6 +160,7 @@ class Destination:
 		self.files = {}
 		self.validInterestingFiles = []
 		self.filter = filter
+		DestinationManager.Instance().add(self)
 
 	def getRelativePath(self, path):
 		"""
@@ -171,7 +191,7 @@ class Destination:
 							# file already in DB, so use it
 							fwh = FileWithHash.fromSqlQuery(res)
 					if fwh is None:
-						fwh = FileWithHash(path, self.name)
+						fwh = FileWithHash(path, self.name, None, relativePath)
 						sql2 = "INSERT INTO DestinationsFilesList (hash, path, destinationName) VALUES(%s, %s, %s);"
 						print self.name, " add: ", relativePath
 						curs.execute(sql2, (fwh.hash, relativePath, fwh.destinationName))
@@ -218,7 +238,7 @@ class FileWithHash(File):
 	FileWithHash represent files present in destination directories
 	"""
 
-	def __init__(self, path, destinationName, hash=None):
+	def __init__(self, path, destinationName, hash=None, relativPath=None):
 		"""
 
 		:type destinationName : str
@@ -233,6 +253,9 @@ class FileWithHash(File):
 		self.destinationName = destinationName
 		if hash is None:
 			self.hash = Tools.getHash(self.fullPath)
+		self.relativePath = path
+		if relativPath is not None:
+			self.relativePath = relativPath
 
 
 	@staticmethod

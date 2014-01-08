@@ -8,6 +8,9 @@ from DatabaseManager import DatabaseManager
 from XbmcLibraryManager import XbmcLibraryManager
 from AutomatedActionExecutor import *
 import time
+import shutil
+import pwd
+import grp
 
 
 class TvShowManager(AutomatedActionsExecutor):
@@ -105,7 +108,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		DatabaseManager.Instance().connector.commit()
 
 	def executeAction(self, actionData):
-		data = actionData#.split("&&")
+		data = actionData
 
 		hashString = data[1]
 		tvShow = data[2]
@@ -117,9 +120,9 @@ class TvShowManager(AutomatedActionsExecutor):
 				filter = FileFilter(pattern, ["mkv", "avi", "mp4"])
 				if data[0] == "move":
 					print "TvShowManager: move action"
-					dstDir = os.path.join(self.tvShowDirectory, tvShow, "Saison " + self.getSeasonFromTitle(episodeName))
-					print "TvShowManager: try to move ", torrent.name, " to ", dstDir
-					if self.torrentManager.selectAndMoveFile(torrent, filter, dstDir, episodeName):
+					fileToMove = self.getTvShowFileFromTorrent(torrent, filter)
+
+					if self.moveTvShow(fileToMove, tvShow, episodeName):
 						print "TvShowManager: move succeed"
 						time.sleep(0.5)
 						XbmcLibraryManager.Instance().scanVideoLibrary()
@@ -134,6 +137,69 @@ class TvShowManager(AutomatedActionsExecutor):
 		finally:
 			pass
 		return False
+
+	def
+
+	def moveTvShow(self, file, tvShow, episodeName, user="guest", group="guest"):
+		"""
+		:type file : FileItem
+		:param file:
+		:param tvShow:
+		:param episodeName:
+		:param user:
+		:param group:
+		:return:
+		"""
+		if file is None:
+			return False
+		season = self.getSeasonFromTitle(episodeName)
+		dst = os.path.join(file.source, tvShow, "Saison " + season, episodeName + "." + file.extension)
+		sourceFilePath = file.getFullPath()
+		print "TvShowManager: try to move ", sourceFilePath, " to ", dst
+		if len(sourceFilePath) > 0:
+			print "move: ", sourceFilePath, " to ", dst
+			try:
+				os.makedirs(os.path.dirname(dst))
+			except OSError:
+				pass
+			finally:
+				pass
+			shutil.move(sourceFilePath, dst)
+			os.chmod(dst, 0777)
+			try:
+				os.chown(dst, pwd.getpwnam("guest").pw_uid, grp.getgrnam("guest").gr_gid)
+			except KeyError, e:
+				pass
+			finally:
+				pass
+			return True
+		return False
+
+	def getTvShowFileFromTorrent(self, torrent, filter):
+		files = self.torrentManager.getTorrentFiles(torrent.hashString)
+		rarFilter = FileFilter(".*", ["rar"])
+		validFiles = []
+		for file in files:
+			#print file.name
+			fileItem = FileItem(file.name, "")
+			if filter.test(fileItem):
+				validFiles.append(file)
+			elif rarFilter.test(fileItem):
+				extractedFile = self.extractFromRar(filter, self.getTorrentFilePath(torrent.name, file.name))
+				if extractedFile is not None:
+					validFiles.append(extractedFile)
+
+		if len(validFiles) == 0:
+			print "No valid files found"
+			return None
+		id = 0
+		i = 1
+		while i < len(validFiles):
+			if validFiles[i].size > validFiles[id].size:
+				id = i
+			i += 1
+		file = FileItem.fromCompletePath(self.torrentManager.getTorrentFilePath(torrent.name, validFiles[id].name))
+		return file
 
 	def executeOnTorrentDownloadedActions(self):
 		curs = DatabaseManager.Instance().cursor
