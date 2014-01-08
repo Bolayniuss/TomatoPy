@@ -117,7 +117,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		if file is None:
 			return False
 		season = self.getSeasonFromTitle(episodeName)
-		dst = os.path.join(file.source, tvShow, "Saison " + season, episodeName + "." + file.extension)
+		dst = os.path.join(self.tvShowDirectory, tvShow, "Saison " + season, episodeName + "." + file.extension)
 		sourceFilePath = file.getFullPath()
 		print "TvShowManager: try to move ", sourceFilePath, " to ", dst
 		if len(sourceFilePath) > 0:

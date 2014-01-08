@@ -28,14 +28,18 @@ def getHash(filePath, blocSizeMax=1000000):
 
 @Singleton
 class FileSystemHelper:
-	def __init__(self, fsUser=None, fsGroup=None):
+	def __init__(self):
+		self.fsGroup = None
+		self.fsUser = None
+
+	def set(self, fsUser=None, fsGroup=None):
 		self.fsUser = fsUser
 		self.fsGroup = fsGroup
 
 	def move(self, source, destination):
 		print "move: ", source, " to ", destination
 		try:
-			os.makedirs(os.path.dirname(destination))
+			os.makedirs(os.path.dirname(destination), 0777)
 		except OSError:
 			pass
 		finally:
