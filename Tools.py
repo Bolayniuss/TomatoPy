@@ -1,6 +1,11 @@
 __author__ = 'bolay'
 import os
 import hashlib
+import shutil
+import grp
+import pwd
+import os
+from Singleton import Singleton
 
 
 def getHash(filePath, blocSizeMax=1000000):
@@ -19,3 +24,28 @@ def getHash(filePath, blocSizeMax=1000000):
 	f.seek(-blocSize, 2)
 	d2 = f.read()
 	return hashlib.sha256(d2).hexdigest()
+
+
+@Singleton
+class FileSystemHelper:
+	def __init__(self, fsUser=None, fsGroup=None):
+		self.fsUser = fsUser
+		self.fsGroup = fsGroup
+
+	def move(self, source, destination):
+		print "move: ", source, " to ", destination
+		try:
+			os.makedirs(os.path.dirname(destination))
+		except OSError:
+			pass
+		finally:
+			pass
+		shutil.move(source, destination)
+		os.chmod(destination, 0777)
+		try:
+			os.chown(destination, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
+		except KeyError, e:
+			pass
+		finally:
+			pass
+		return True
