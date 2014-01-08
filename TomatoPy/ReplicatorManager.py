@@ -105,6 +105,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		return False
 
 	def executeOnTorrentDownloadedActions(self):
+		print self.actions
 		curs = DatabaseManager.Instance().cursor
 		actions = self.actions["onTorrentDownloaded"]
 		for a in curs:
