@@ -10,9 +10,9 @@ class SourceMapperItem:
 
 
 class FileItem(SourceMapperItem):
-	extension = ""
 
 	def __init__(self, filename, path):
+		self.filename = filename
 		m = re.compile(r"(.*)\.([^.]*)").match(filename)
 		if m is None:
 			self.extension = ""
@@ -23,7 +23,7 @@ class FileItem(SourceMapperItem):
 		self.source = path
 
 	def getFullPath(self):
-		return os.path.join(self.source, self.name)
+		return os.path.join(self.source, self.filename)
 
 	@staticmethod
 	def fromCompletePath(path):
