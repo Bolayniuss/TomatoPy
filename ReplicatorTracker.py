@@ -8,24 +8,7 @@ from TomatoPy.TorrentRPC import *
 import sys
 import unicodedata
 import base64
-
-
-def getHash(filePath, blocSizeMax=1000000):
-	"""
-
-	Get the hash of a file using the nth last bytes. n=min(blockSizeMax, file.size/2). The hash is compute using sha256.
-	:type filePath : unicode
-	:param filePath: path of the file to hash
-	:param blocSizeMax: number of bytes used to compute the hash
-	:rtype : str
-	"""
-	#filePath = unicodedata.normalize('NFKC', unicode(filePath, "utf8"))
-	size = os.path.getsize(filePath)
-	f = open(filePath, 'rb')
-	blocSize = min(blocSizeMax, size / 2)
-	f.seek(-blocSize, 2)
-	d2 = f.read()
-	return hashlib.sha256(d2).hexdigest()
+import Tools
 
 
 class TrackedTorrent:
@@ -56,15 +39,14 @@ class TrackedTorrent:
 
 
 class InterestingFile:
-	def __init__(self, name, torrentHash, torrentFileName, hash=None,
-	             timeout=2538000):  # default timeout set to 30 days
+	def __init__(self, name, torrentHash, torrentFileName, hash=None, timeout=2538000):  # default timeout set to 30 days
 		self.name = name
 		self.timeout = timeout
 		self.torrentHash = torrentHash
 		self.torrentFileName = torrentFileName
 		self.hash = hash
 		if (self.hash is None) or (len(self.hash)) == 0:
-			self.hash = getHash(self.name)
+			self.hash = Tools.getHash(self.name)
 
 	def setTimeout(self, timeout=2538000): # default timeout set to 30 days
 		sql = "UPDATE TrackedTorrentFiles SET timeout=UNIX_TIMESTAMP()+" + timeout + " WHERE name=%s;"
@@ -250,7 +232,7 @@ class FileWithHash(File):
 		self.hash = hash
 		self.destinationName = destinationName
 		if hash is None:
-			self.hash = getHash(self.fullPath)
+			self.hash = Tools.getHash(self.fullPath)
 
 
 	@staticmethod
@@ -290,146 +272,79 @@ class FileTracer:
 				d.map()
 				d.lookForInterestingFiles(self.dtf.interestingFiles)
 		self.dbm.connector.commit()
+		# For each destinations
 		for destination in self.destinations:
+			# For each tuple (trackedFile, destinationFile) in interestingFiles
 			for trackedFile, destinationFile in destination.validInterestingFiles:
 				sql = "SELECT * FROM TrackedTorrents WHERE hash=%s;"
 				self.dbm.cursor.execute(sql, (trackedFile.torrentHash, ))
 				res = self.dbm.cursor.fetchone()
+				# If torrent is in TrackedTorrents DB
 				if res is not None:
 					tt = TrackedTorrent.fromSqlQuery(res)
 					if tt is not None:
-						sql = "INSERT INTO ReplicatorActions (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath)" \
-						      " VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
-						self.dbm.cursor.execute(sql, (
-							tt.name, trackedFile.torrentFileName, tt.magnet, destination.name, destinationFile.fullPath))
+						print "New replicator action with file: ", trackedFile.torrentFileName
+						sql = "INSERT INTO ReplicatorActions " \
+						      "(torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) " \
+						      "VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
+						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName, tt.magnet, destination.name, destinationFile.fullPath))
+						self.dbm.connector.commit()
+
+						# Remove File from TrackedTorrentFiles DB
+						print "Remove TrackedTorrentFile ", trackedFile.name
+						sql = "DELETE FROM TrackedTorrentFiles WHERE hash=%s;"
+						self.dbm.cursor.execute(sql, (trackedFile.hash, ))
 						self.dbm.connector.commit()
 					else:
 						print "Unable to create TrackedTorrent with query", res
 				else:
 					print "res is None for hash=", trackedFile.torrentHash
 
-
 	def clean(self):
 		#self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE timeout<UNIX_TIMESTAMP()")
-		#torrents = {}
-		#for torrent in self.torrentManager.getTorrents():
-		#	torrents[torrent.hashString] = 1
+		print "Begining Clean up."
+		torrents = {}
+		for torrent in self.torrentManager.getTorrents():
+			torrents[torrent.hashString] = 1
 
+		deleteTTSql = "DELETE FROM TrackedTorrents WHERE hash=%s;"
+		getTTFWithTorrentHashSql = "SELECT 1 FROM TrackedTorrentFiles WHERE torrentHash=%s LIMIT 1;"
 		for iF in self.dtf.interestingFiles.itervalues():
+			# Clean up TrackedTorrentFiles DB
 			delete = False
+			# Remove if file does not exist (deleted, moved)
 			if not os.path.exists(iF.name):
 				delete = True
-			#if not (iF.torrentHash in torrents):
-			#	delete = True
+			# Remove if associated torrent does not exists
+			if not (iF.torrentHash in torrents):
+				delete = True
 			if delete:
+				print "Remove TrackedTorrentFile ", iF.name
 				self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE name=%s", (iF.name, ))
 				self.dbm.connector.commit()
 
+			# Clean up TrackedTorrents DB
+			sql = "SELECT hash FROM TrackedTorrents;"
+			self.dbm.cursor.execute(sql)
+			trackedTorrents = []
+			for res in self.dbm.cursor:
+				trackedTorrents.append(res[0])
 
-			# def __init__(self, sources, destinations, mysqlConnection):
-			# 	self._destinations = destinations
-			# 	self._sources = sources
-			# 	self._mysql = mysqlConnection
-			#
-			# def lookForChanges(self):
-			# 	"""
-			#
-			# 	Check for change in sources destinations directories
-			# 	"""
-			# 	hashes = {}
-			#
-			# 	###########################################################################
-			# 	# Get last snapshot from database
-			# 	last = {}
-			# 	getDuplicate = "SELECT * FROM filesTracerRegister WHERE 1;"
-			# 	cursor = self._mysql.cursor()
-			# 	cursor.execute(getDuplicate)
-			# 	for query in cursor:
-			# 		h = query[0]
-			# 	last[h] = query[1:]
-			# 	hashes[h] = 0
-			#
-			# 	#print last
-			#
-			# 	###########################################################################
-			# 	# Get new file list from sources and destinations directories
-			# 	current = {}
-			# 	for s in self._sources:
-			# 		print s
-			# 		for root, dirs, files in os.walk(s):
-			# 			for f in files:
-			# 				path = os.path.join(root, f)
-			# 				h = self.hash(path)
-			# 				s = os.path.getsize(path)
-			# 				current[h] = [root, f, s]
-			# 				if ~(h in hashes):
-			# 					hashes[h] = 1
-			# 				else:
-			# 					hashes[h] = 2
-			#
-			# 	###########################################################################
-			# 	# Compare the two lists above and sort files in:
-			# 	#   - new files
-			# 	#   - movements
-			# 	#   - deleted files
-			# 	newFiles = {}
-			# 	movements = {}
-			# 	deletedFiles = {}
-			# 	for h, s in hashes.items():
-			# 		if s == 2:
-			# 			f1 = current[h]
-			# 			f2 = last[h]
-			# 			p1 = os.path.join(f1[0], f1[1])
-			# 			p2 = os.path.join(f2[0], f2[1])
-			# 			if p1 != p2:
-			# 				movements[h] = [f1, f2]
-			# 		elif s == 1:
-			# 			f = current[h]
-			# 			newFiles[h] = f
-			# 		elif s == 0:
-			# 			deletedFiles[h] = last[h]
-			# 	print newFiles
-			# 	print movements
-			# 	print deletedFiles
-			#
-			# def hash(self, filePath, blocSizeMax=1048576):  # blockSizeMax = 1024*1024
-			# 	"""
-			# 	Get the hash of a file
-			# 	"""
-			# 	size = os.path.getsize(filePath)
-			# 	f = open(filePath, 'rb')
-			# 	blocSize = min(blocSizeMax, size/2)
-			# 	#f.seek(-1-size/2, 2)
-			# 	#d1 = f.read(blocSize)
-			# 	f.seek(-blocSize, 2)
-			# 	d2 = f.read()
-			# 	#data = (hash, size, path)
-			# 	#cursor.execute(add_line, data)
-			# 	return hashlib.sha256(d2).hexdigest()
+			for hashStr in trackedTorrents:
+				self.dbm.cursor.execute(getTTFWithTorrentHashSql, (hashStr, ))
+				res = self.dbm.cursor.fetchone()
+				# No TrackedTorrentFile associated with this TrackedTorrent => remove
+				if res is None:
+					print "Remove TrackedTorrent with hash=", hashStr
+					self.dbm.cursor.execute(deleteTTSql, (hashStr, ))
+					self.dbm.connector.commit()
+
+		print "End Clean up."
+
+
 
 
 if __name__ == "__main__":
-	#sources = ['/Volumes/Partage/bittorrent']
-	#destinations = []
-	#mysql = mysql.connector.connect(user='root', password=None, host='192.168.0.11', database='replicator')
-	#ft = FileTracer(sources, destinations, mysql)
-	#ft.lookForChanges()
-	# clean = False
-	# if len(sys.argv) > 1:
-	# 	DatabaseManager.Instance().connect('replicator', 'xbmc', 'xbmc', '192.168.0.11')
-	# 	dest = Destination("/Volumes/Partage/Film/VF", "test")
-	# 	clean = sys.argv[1] == "clean"
-	# else:
-	# 	DatabaseManager.Instance().connect('replicator', 'root', None, '127.0.0.1')
-	# 	dest = Destination(u"/Main/Partage/Film", "test")
-	#
-	# dest.map(RFileFilter("avi|mkv|mp4|wmv"), clean)
-	#
-	# dtf = DoneTorrentFilter()
-	# dtf.grabInterestingFiles()
-	#
-	# dest.lookForInterestingFiles(dtf.interestingFiles)
-
 	DatabaseManager.Instance().connect('replicator', 'root', None, '127.0.0.1')
 	ft = FileTracer()
 	ft.run()
