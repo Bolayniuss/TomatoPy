@@ -43,7 +43,8 @@ class FileSystemHelper:
 		shutil.move(source, destination)
 		os.chmod(destination, 0777)
 		try:
-			os.chown(destination, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
+			if self.fsUser is not None and self.fsGroup is not None:
+				os.chown(destination, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
 		except KeyError, e:
 			pass
 		finally:
