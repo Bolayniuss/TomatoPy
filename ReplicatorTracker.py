@@ -113,6 +113,7 @@ class DoneTorrentFilter:
 
 						#for a, iF in self.interestingFiles.iteritems():
 						#	print iF.hash, iF.name
+					print ""
 
 
 class RFileFilter:
