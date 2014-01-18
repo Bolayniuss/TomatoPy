@@ -137,7 +137,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			if filter.test(fileItem):
 				validFiles.append(file)
 			elif rarFilter.test(fileItem):
-				extractedFile = self.extractFromRar(filter, self.getTorrentFilePath(torrent.name, file.name))
+				extractedFile = self.extractFromRar(filter, self.torrentManager.getTorrentFilePath(torrent.name, file.name))
 				if extractedFile is not None:
 					validFiles.append(extractedFile)
 
