@@ -8,7 +8,6 @@ import transmissionrpc
 from DatabaseManager import DatabaseManager
 from SourceMapperItem import *
 from Filters import FileFilter
-import rarfile
 
 
 class Torrent:
@@ -55,25 +54,6 @@ class TorrentManager(object):
 			self.user = parameters[3]
 		if len(parameters) > 4:
 			self.password = parameters[4]
-
-	def extractFromRar(self, filter, file):
-		possibleFiles = []
-		rar = rarfile.RarFile(file)
-		for f in rar.infolist():
-			if filter.test(FileItem(f.filename, "")):
-				possibleFiles.append(f)
-		if len(possibleFiles) != 0:
-			theFile = possibleFiles[0]
-			for f in possibleFiles:
-				if f.file_size > theFile.file_size:
-					theFile = f
-			rar.extract(theFile, os.path.split(file)[0])
-			print "TorrentRPC: extract file, ", os.path.split(file)[0], " --- ", theFile.filename, " from rar, ", file
-			fakeTorrentFile = TorrentFile()
-			fakeTorrentFile.name = theFile.filename
-			fakeTorrentFile.size = theFile.file_size
-			return fakeTorrentFile
-		return None
 
 	def getTorrentFilePath(self, torrentName, filename):
 		if os.path.isfile(os.path.join(self.downloadDirectory, filename)):
