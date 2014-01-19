@@ -32,7 +32,7 @@ class TorrentObject:
 		self.torrentFilePath = ""   # torrentFile	/(dl dir)/_torrent_file/(torrentName).torrent
 		self.ratio = 0	            # uploadRatio	TORRENT_RATIO: 7
 		self.dlRate = 0	            # rateDownload (bps)	TORRENT_DOWNSPEED: 9
-		self.ulRate     	        # rateUpload (bps)	TORRENT_UPSPEED: 8
+		self.ulRate = 0    	        # rateUpload (bps)	TORRENT_UPSPEED: 8
 		self.isFinished = False     # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000'000
 
 
