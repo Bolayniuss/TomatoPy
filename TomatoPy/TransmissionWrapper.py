@@ -2,7 +2,7 @@ __author__ = 'bolay'
 from TorrentRPC import *
 import transmissionrpc
 
-
+transmissionrpc.Torrent
 class TransmissionTorrentRPC(TorrentManager):
 
 	def __init__(self):
@@ -17,6 +17,7 @@ class TransmissionTorrentRPC(TorrentManager):
 		torrents = []
 		rawTorrents = self.torrentClient.get_torrents(None, None)
 		for rawTorrent in rawTorrents:
+			print rawTorrent
 			torrents.append(self.buildTorrentObject(rawTorrent))
 		return torrents
 
