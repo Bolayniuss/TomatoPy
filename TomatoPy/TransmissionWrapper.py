@@ -17,7 +17,6 @@ class TransmissionTorrentRPC(TorrentManager):
 		torrents = []
 		rawTorrents = self.torrentClient.get_torrents(None, None)
 		for rawTorrent in rawTorrents:
-			print rawTorrent
 			torrents.append(self.buildTorrentObject(rawTorrent))
 		return torrents
 
@@ -78,13 +77,14 @@ class TransmissionTorrentRPC(TorrentManager):
 		:param transmissionTorrent:
 		:return:
 		"""
+		print transmissionTorrent._fields
 		torrent = TorrentObject(transmissionTorrent.hashString, transmissionTorrent.name)
 		#torrent.eta = transmissionTorrent.eta
 		torrent.size = transmissionTorrent.sizeWhenDone
 		torrent.downloaded = transmissionTorrent.downloadedEver
 		torrent.uploaded = transmissionTorrent.uploadedEver
 		torrent.seeders = transmissionTorrent.peersSendingToUs
-		torrent.totalSeeders = transmissionTorrent.seeders
+		#torrent.totalSeeders = transmissionTorrent.seeders
 		torrent.peers = transmissionTorrent.peersGettingFromUs
 		torrent.totalPeers = transmissionTorrent.peersKnown
 		torrent.magnetLink = transmissionTorrent.magnetLink
