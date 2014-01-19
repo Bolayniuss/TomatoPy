@@ -77,7 +77,7 @@ class TransmissionTorrentRPC(TorrentManager):
 		:param transmissionTorrent:
 		:return:
 		"""
-		torrent = _Torrent(transmissionTorrent.hashString, transmissionTorrent.name)
+		torrent = TorrentObject(transmissionTorrent.hashString, transmissionTorrent.name)
 		torrent.eta = transmissionTorrent.eta
 		torrent.size = transmissionTorrent.sizeWhenDone
 		torrent.downloaded = transmissionTorrent.downloadedEver

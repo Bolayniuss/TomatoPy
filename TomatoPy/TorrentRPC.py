@@ -7,7 +7,7 @@ from SourceMapperItem import *
 from Filters import FileFilter
 
 
-class _Torrent:
+class TorrentObject:
 	def __init__(self, hash, name):
 		self.name = ""
 		self.hash = ""

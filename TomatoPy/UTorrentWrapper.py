@@ -58,7 +58,7 @@ class UTorrentRPC(TorrentManager):
 		:param uTorrentTorrent:
 		:return:
 		"""
-		torrent = _Torrent(uTorrentTorrent[0], uTorrentTorrent[2])
+		torrent = TorrentObject(uTorrentTorrent[0], uTorrentTorrent[2])
 		torrent.eta = uTorrentTorrent[10]               # eta	TORRENT_ETA: 10
 		torrent.size = uTorrentTorrent[3]               # sizeWhenDone	TORRENT_SIZE: 3
 		torrent.downloaded = uTorrentTorrent[5]         # downloadedEver	TORRENT_DOWNLOADED: 5
