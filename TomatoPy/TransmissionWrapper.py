@@ -77,7 +77,7 @@ class TransmissionTorrentRPC(TorrentManager):
 		:param transmissionTorrent:
 		:return:
 		"""
-		print transmissionTorrent._fields
+		#print transmissionTorrent._fields
 		torrent = TorrentObject(transmissionTorrent.hashString, transmissionTorrent.name)
 		#torrent.eta = transmissionTorrent.eta
 		torrent.size = transmissionTorrent.sizeWhenDone
@@ -86,7 +86,7 @@ class TransmissionTorrentRPC(TorrentManager):
 		torrent.seeders = transmissionTorrent.peersSendingToUs
 		#torrent.totalSeeders = transmissionTorrent.seeders
 		torrent.peers = transmissionTorrent.peersGettingFromUs
-		torrent.totalPeers = transmissionTorrent.peersKnown
+		#torrent.totalPeers = transmissionTorrent.peersKnown
 		torrent.magnetLink = transmissionTorrent.magnetLink
 		torrent.torrentFilePath = transmissionTorrent.torrentFile
 		torrent.ratio = transmissionTorrent.uploadRatio
