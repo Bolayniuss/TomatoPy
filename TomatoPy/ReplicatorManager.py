@@ -7,6 +7,7 @@ import os
 from AutomatedActionExecutor import *
 import Tools
 from XbmcLibraryManager import XbmcLibraryManager
+from TransmissionWrapper import *
 
 
 class ReplicatorManager(AutomatedActionsExecutor):
@@ -84,7 +85,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		destinationPath = data[3]
 		try:
 			torrent = self.torrentManager.getTorrent(hashString)
-			if torrent.percentDone >= 1:
+			if torrent.isFinished:
 				if data[0] == "move":
 					print "ReplicatorManager: move action"
 					fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
@@ -109,8 +110,8 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		#print self.actions
 		curs = DatabaseManager.Instance().cursor
 		actions = self.actions["onTorrentDownloaded"]
-		for a in curs:
-			actions.append(a)
+		#for a in curs:
+		#	actions.append(a)
 		for id, data in actions.iteritems():
 			delete = False
 			try:

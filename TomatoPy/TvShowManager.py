@@ -161,7 +161,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		episodeName = data[3]
 		try:
 			torrent = self.torrentManager.getTorrent(hashString)
-			if torrent.percentDone >= 1:
+			if torrent.isFinished:
 				pattern = episodeName.replace(" ", ".")
 				filter = FileFilter(pattern, ["mkv", "avi", "mp4"])
 				if data[0] == "move":

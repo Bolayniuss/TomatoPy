@@ -4,7 +4,7 @@ import os
 import hashlib
 import re
 from DatabaseManager import DatabaseManager
-from TomatoPy.TorrentRPC import *
+from TomatoPy.TransmissionWrapper import *
 import sys
 import unicodedata
 import base64
@@ -91,8 +91,9 @@ class DoneTorrentFilter:
 		# Get new from torrent manager
 		torrents = self.torrentManager.getTorrents()
 		for torrent in torrents:
-			if torrent.leftUntilDone == 0:
-				for i, f in torrent.files().iteritems():
+			if torrent.isFinished:
+				torrentFiles = self.torrentManager.getTorrentFiles(torrent.hash)
+				for f in torrentFiles:
 					#print torrent.name
 					#print f["name"],": ",
 					file = File(os.path.join(self.torrentManager.downloadDirectory, f["name"]))
@@ -331,7 +332,7 @@ class FileTracer:
 		print "Begining Clean up."
 		torrents = {}
 		for torrent in self.torrentManager.getTorrents():
-			torrents[torrent.hashString] = 1
+			torrents[torrent.hash] = 1
 
 		deleteTTSql = "DELETE FROM TrackedTorrents WHERE hash=%s;"
 		getTTFWithTorrentHashSql = "SELECT 1 FROM TrackedTorrentFiles WHERE torrentHash=%s LIMIT 1;"

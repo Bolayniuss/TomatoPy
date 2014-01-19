@@ -1,34 +1,54 @@
 __author__ = 'bolay'
 
 import os
-import pwd
-import grp
-import shutil
-import transmissionrpc
+
 from DatabaseManager import DatabaseManager
 from SourceMapperItem import *
 from Filters import FileFilter
 
 
-class Torrent:
-	def __init__(self):
+class _Torrent:
+	def __init__(self, hash, name):
 		self.name = ""
 		self.hash = ""
 		self.size = ""
 
-		self.seeds = {"active": 0, "total": 0}
-		self.peers = {"active": 0, "total": 0}
+		self.isDownloaded = False
+		self.magnetLink = None
 
+		self.files = list()
+
+		self.hash = hash            # hashString	TORRENT_HASH: 0
+		self.name = name            # name	TORRENT_NAME: 2
+		self.eta = 0                # eta	TORRENT_ETA: 10
+		self.size = 0               # sizeWhenDone	TORRENT_SIZE: 3
+		self.downloaded = 0         # downloadedEver	TORRENT_DOWNLOADED: 5
+		self.uploaded = 0           # uploadedEver	TORRENT_UPLOADED: 6
+		self.seeders = 0            # peersSendingToUs	TORRENT_SEEDS_CONNECTED: 14
+		self.totalSeeders = 0       # seeders	TORRENT_SEEDS_SWARM: 15
+		self.peers = 0              # peersGettingFromUs	TORRENT_PEERS_CONNECTED: 12
+		self.totalPeers = 0         # peersKnown	TORRENT_PEERS_SWARM: 13
+		self.magnetLink = None      # magnetLink	create from torrent file
+		self.torrentFilePath = ""   # torrentFile	/(dl dir)/_torrent_file/(torrentName).torrent
+		self.ratio = 0	            # uploadRatio	TORRENT_RATIO: 7
+		self.dlRate = 0	            # rateDownload (bps)	TORRENT_DOWNSPEED: 9
+		self.ulRate     	        # rateUpload (bps)	TORRENT_UPSPEED: 8
+		self.isFinished = False     # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000'000
 
 
 class TorrentFile:
+	def __init__(self, name=None, size=None, completed=None, priority=None):
+		# FILE NAME (string),
+		# FILE SIZE (integer, in bytes),
+		# DOWNLOADED (integer, in bytes),
+		# PRIORITY* (integer, {0 = Don't Download, 1 = Low Priority, 2 = Normal Priority, 3 = High Priority})
 
-	def __init__(self, name=None, size=None, completed=None, priority=None, selected=None):
 		self.name = name
 		self.size = size
 		self.completed = completed
-		self.priority = priority
-		self.selected = selected
+		self.priority = priority        # '0:noDl'|'3:high'|'2:normal'|'1:low'
+
+
 	@staticmethod
 	def fromTorrentProp(tFile):
 		if len(tFile) >= 5:
@@ -37,6 +57,12 @@ class TorrentFile:
 
 
 class TorrentManager(object):
+	# getTorrent(hash)
+	# getTorrents
+	# getTorrentFiles(hash)
+	# addTorrentURL(torrentURL)
+	# addTorrent(torrentFilePath)
+	# removeTorrent(hash, deleteData)
 
 	def __init__(self):
 		query = "SELECT parameters FROM Parameters WHERE name='TorrentManager' LIMIT 1"
@@ -52,8 +78,13 @@ class TorrentManager(object):
 			self.port = parameters[2]
 		if len(parameters) > 3:
 			self.user = parameters[3]
-		if len(parameters) > 4:
+		if len(parameters) > 4 and parameters[4] != "":
 			self.password = parameters[4]
+		if len(parameters) > 5:
+			self.initWithExtraParams(parameters[5:])
+
+	def initWithExtraParams(self, extraParams):
+		pass
 
 	def getTorrentFilePath(self, torrentName, filename):
 		if os.path.isfile(os.path.join(self.downloadDirectory, filename)):
@@ -62,121 +93,78 @@ class TorrentManager(object):
 			return os.path.join(self.downloadDirectory, torrentName, filename)
 		return None
 
-	def selectAndMoveFile(self, torrent, filter, destinationPath, filename):
-		files = self.getTorrentFiles(torrent.hashString)
-		rarFilter = FileFilter(".*", ["rar"])
-		validFiles = []
-		for file in files:
-			#print file.name
-			fileItem = FileItem(file.name, "")
-			if filter.test(fileItem):
-				validFiles.append(file)
-			elif rarFilter.test(fileItem):
-				extractedFile = self.extractFromRar(filter, self.getTorrentFilePath(torrent.name, file.name))
-				if extractedFile is not None:
-					validFiles.append(extractedFile)
-
-		if len(validFiles) == 0:
-			print "No valid files found"
-			return False
-		id = 0
-		i = 1
-		while i < len(validFiles):
-			print validFiles[i].name, " size=", validFiles[i].size
-			if validFiles[i].size > validFiles[id].size:
-				print "    last id=", id, " new id=", i
-				id = i
-			i += 1
-		file = validFiles[id]
-		ext = FileItem(file.name, "").extension
-		src = self.getTorrentFilePath(torrent.name, file.name)
-		if src is None:
-			return False
-		dst = os.path.join(destinationPath, filename + "." + ext)
-		if len(src) > 0:
-			print "move: ", src, " to ", dst
-			try:
-				os.makedirs(destinationPath)
-			except OSError:
-				pass
-			finally:
-				pass
-			shutil.move(src, dst)
-			os.chmod(dst, 0777)
-			try:
-				os.chown(dst, pwd.getpwnam("guest").pw_uid, grp.getgrnam("guest").gr_gid)
-			except KeyError, e:
-				pass
-			finally:
-				pass
-			return True
-		return False
-
-
-class TransmissionTorrentRPC(TorrentManager):
-
-	def __init__(self):
-		super(TransmissionTorrentRPC, self).__init__()
-		self.torrentClient = transmissionrpc.Client(self.host, self.port, self.user, self.password)
-
 	def getTorrents(self):
-		"""
-
-		:rtype : list
-		"""
-		return self.torrentClient.get_torrents(None, None)
-
-	def getTorrentFiles(self, hash=None):
-		"""
-
-		:rtype : list
-		"""
-		files = {}
-		try:
-			for j, _files in self.torrentClient.get_files(hash).iteritems():
-				torrentFiles = []
-				for i, file in _files.iteritems():
-					tFile = TorrentFile(file["name"], file["size"], file["completed"], file["priority"], file["selected"])
-					#tFile.name = file["name"]
-					#tFile.size = file["size"]
-					#tFile.completed = file["completed"]
-					#tFile.priority = file["priority"]
-					#tFile.selected = file["selected"]
-					torrentFiles.append(tFile)
-				#break
-				files[j] = torrentFiles
-			if len(files) == 1:
-				return files[j]
-			return files
-			#return torrentFiles
-
-		except KeyError as e:
-			raise e
+		return list()
 
 	def getTorrent(self, hash):
-		try:
-			t = self.torrentClient.get_torrent(hash)
-			return t
-		except KeyError as e:
-			raise e
+		"""
 
-	def torrentExist(self, hash):
-		try:
-			self.torrentClient.get_torrent(hash, ["id"])
-			return True
-		except KeyError:
-			raise False
+		:type hash: str
+		"""
+		return None
+
+	def getTorrentFiles(self, torrentHash):
+		"""
+
+		:type torrentHash: str
+		"""
+		return list()
 
 	def addTorrent(self, torrentFilePath):
-		return
+		return None
 
 	def addTorrentURL(self, torrentUrl):
-		return self.torrentClient.add_torrent(torrentUrl)
+		return None
 
-	def removeTorrent(self, hash, deleteData):
-		try:
-			t = self.torrentClient.remove_torrent(hash, deleteData)
-			return t
-		except KeyError as e:
-			raise e
+	def removeTorrent(self, hash, deleteData=False):
+		return None
 
+	# def selectAndMoveFile(self, torrent, filter, destinationPath, filename):
+	# 	files = self.getTorrentFiles(torrent.hashString)
+	# 	rarFilter = FileFilter(".*", ["rar"])
+	# 	validFiles = []
+	# 	for file in files:
+	# 		#print file.name
+	# 		fileItem = FileItem(file.name, "")
+	# 		if filter.test(fileItem):
+	# 			validFiles.append(file)
+	# 		elif rarFilter.test(fileItem):
+	# 			extractedFile = self.extractFromRar(filter, self.getTorrentFilePath(torrent.name, file.name))
+	# 			if extractedFile is not None:
+	# 				validFiles.append(extractedFile)
+	#
+	# 	if len(validFiles) == 0:
+	# 		print "No valid files found"
+	# 		return False
+	# 	id = 0
+	# 	i = 1
+	# 	while i < len(validFiles):
+	# 		print validFiles[i].name, " size=", validFiles[i].size
+	# 		if validFiles[i].size > validFiles[id].size:
+	# 			print "    last id=", id, " new id=", i
+	# 			id = i
+	# 		i += 1
+	# 	file = validFiles[id]
+	# 	ext = FileItem(file.name, "").extension
+	# 	src = self.getTorrentFilePath(torrent.name, file.name)
+	# 	if src is None:
+	# 		return False
+	# 	dst = os.path.join(destinationPath, filename + "." + ext)
+	# 	if len(src) > 0:
+	# 		print "move: ", src, " to ", dst
+	# 		try:
+	# 			os.makedirs(destinationPath)
+	# 		except OSError:
+	# 			pass
+	# 		finally:
+	# 			pass
+	# 		shutil.move(src, dst)
+	# 		os.chmod(dst, 0777)
+	# 		try:
+	# 			os.chown(dst, pwd.getpwnam("guest").pw_uid, grp.getgrnam("guest").gr_gid)
+	# 		except KeyError, e:
+	# 			pass
+	# 		finally:
+	# 			pass
+	# 		return True
+	# 	return False
