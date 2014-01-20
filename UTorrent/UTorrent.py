@@ -116,6 +116,8 @@ class UTorrent:
 		headers["Authorization"] = "Basic " + self.webui_identity()
 		headers["Accept-Encoding"] = "gzip, deflate"
 		headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+		if self.cookie is not None:
+			headers["set-cookie"] = self.cookie
 
 		conn.request("GET", "/gui/", selector, headers)
 		webui_response = conn.getresponse()
