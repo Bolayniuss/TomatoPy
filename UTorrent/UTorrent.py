@@ -84,7 +84,7 @@ class UTorrent(HTTPConnection):
 
 	#        creates and fires off an HTTP request
 	#        all webui_ methods return a python object
-	def webui_action(self, selector, method=r'GET', headers=None, data=None):
+	def webui_action(self, selector, method=r'POST', headers=None, data=None):
 		selector = r"/gui/?token="+self.token+"&"+selector
 		self.putrequest(method, selector)
 		self.putheader('Authorization', 'Basic ' + self.authString)
