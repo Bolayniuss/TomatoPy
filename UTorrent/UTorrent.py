@@ -129,9 +129,9 @@ class UTorrent:
 			return None
 		#print webui_response
 		data = webui_response.read()
-		print "token =", self.token
+
+		print data
 		print selector
-		#print data
 		return json.loads(data)
 
 	#        gets torrent properties
