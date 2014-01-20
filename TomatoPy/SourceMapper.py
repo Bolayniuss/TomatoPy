@@ -16,7 +16,9 @@ class DirectoryMapper:
 		self.map()
 
 	def map(self):
-		fsEncoding = "utf-8" #sys.getfilesystemencoding()
+		reload(sys)
+		sys.setdefaultencoding('UTF8')
+		fsEncoding = "UTF8" #sys.getfilesystemencoding()
 		path = self.path.encode(fsEncoding)
 		for root, dirs, files in os.walk(path):
 			for file in files:
@@ -28,3 +30,4 @@ class DirectoryMapper:
 					self.files.append(item)
 
 
+sys.get
