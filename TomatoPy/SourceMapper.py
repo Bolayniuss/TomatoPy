@@ -19,11 +19,11 @@ class DirectoryMapper:
 		reload(sys)
 		sys.setdefaultencoding('UTF8')
 		fsEncoding = "UTF8" #sys.getfilesystemencoding()
-		path = self.path.encode(fsEncoding)
-		for root, dirs, files in os.walk(path):
+		#path = self.path.encode(fsEncoding)
+		for root, dirs, files in os.walk(self.path):
 			for file in files:
-				file = file.decode(fsEncoding)
-				root = root.decode(fsEncoding)
+				#file = file.decode(fsEncoding)
+				#root = root.decode(fsEncoding)
 				print file, type(file)
 				item = FileItem(file, root)
 				if self.filter.test(item):
