@@ -64,6 +64,7 @@ class UTorrent(HTTPConnection):
 			logging.error('401 Unauthorized Access')
 
 			return None
+		print webui_response
 		data = webui_response.read()
 		print data
 		return json.loads(data)
