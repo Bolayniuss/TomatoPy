@@ -39,6 +39,7 @@ class UTorrent:
 		self.password = password
 		self.token = None
 		self.cookie = None
+		self.conn = HTTPConnection(self.host, self.port)
 		if not self.requestToken():
 			logging.critical("Not able to request for a token.")
 			logging.shutdown()
@@ -47,7 +48,7 @@ class UTorrent:
 	def requestToken(self):
 		#self.putrequest("GET", "/gui/token.html")
 		#self.putheader('Authorization', 'Basic ' + self.authString)
-		conn = HTTPConnection(self.host, self.port)
+		conn = self.conn
 
 		conn.request("GET", "/gui/token.html", "", {"Authorization": "Basic " + self.webui_identity()})
 		#self.putheader('Authorization', 'Basic ' + self.authString)
@@ -112,7 +113,7 @@ class UTorrent:
 		#
 		# webui_response = self.getresponse()
 
-		conn = HTTPConnection(self.host, self.port)
+		conn = self.conn
 		headers["Authorization"] = "Basic " + self.webui_identity()
 		headers["Accept-Encoding"] = "gzip, deflate"
 		headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
