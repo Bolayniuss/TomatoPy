@@ -78,7 +78,7 @@ class TorrentManager(object):
 			self.port = parameters[2]
 		if len(parameters) > 3:
 			self.user = parameters[3]
-		if len(parameters) > 4 and parameters[4] != "":
+		if len(parameters) > 4:
 			self.password = parameters[4]
 		if len(parameters) > 5:
 			self.initWithExtraParams(parameters[5:])

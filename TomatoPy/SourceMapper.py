@@ -24,7 +24,7 @@ class DirectoryMapper:
 			for file in files:
 				#file = file.decode(fsEncoding)
 				#root = root.decode(fsEncoding)
-				print file, type(file)
+				#print file, type(file)
 				item = FileItem(file, root)
 				if self.filter.test(item):
 					self.files.append(item)
