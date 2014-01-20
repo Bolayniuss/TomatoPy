@@ -28,7 +28,7 @@ class UTorrent(HTTPConnection):
 			HTTPConnection.__init__(self, host, port)
 			self.connect()
 		except socket.error, exception:
-			logging.critical(exception.args[1])
+			logging.critical(exception)
 			logging.shutdown()
 			sys.exit(1)
 
