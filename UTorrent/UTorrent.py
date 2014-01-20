@@ -24,15 +24,15 @@ class UTorrent(HTTPConnection):
 
 	#        will be happy as long as you feed it valid uTorrent WebUI details
 	def __init__(self, host='localhost', port='8080', username='default', password='default'):
-		try:
-			print "host=", host, "port=", port
-			HTTPConnection.__init__(self, host, port)
-			print "host=", self.host, "port=", self.port
-			self.connect()
-		except socket.error, exception:
-			logging.critical(exception)
-			logging.shutdown()
-			sys.exit(1)
+		#try:
+		print "host=", host, "port=", port
+		HTTPConnection.__init__(self, host, port)
+		print "host=", self.host, "port=", self.port
+		self.connect()
+		#except socket.error, exception:
+		#	logging.critical(exception)
+		#	logging.shutdown()
+		#	sys.exit(1)
 
 		self.username = username
 		self.password = password
