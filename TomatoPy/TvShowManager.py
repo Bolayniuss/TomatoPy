@@ -28,7 +28,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		(parametersString, ) = dbm.cursor.fetchone()
 		parameters = parametersString.split("&&")
 		self.bUser = parameters[1]
-		self.tvShowDirectory = parameters[0]
+		self.tvShowDirectory = u""+parameters[0]
 
 		query = "SELECT title, filter, authorFilter, sizeLimits FROM TrackedTvShows;"
 		dbm.cursor.execute(query)

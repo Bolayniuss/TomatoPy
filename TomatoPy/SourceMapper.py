@@ -8,7 +8,7 @@ from TomatoPy.SourceMapperItem import *
 class DirectoryMapper:
 
 	def __init__(self, path, filter=FileFilter()):
-		self.path = path
+		self.path = u""+path
 		self.filter = filter
 		self.files = []
 		self.map()
