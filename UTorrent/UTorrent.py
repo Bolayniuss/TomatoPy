@@ -45,7 +45,7 @@ class UTorrent(HTTPConnection):
 		#	for (name, value) in headers.items():
 				#self.putheader(name, value)
 
-		#self.endheaders()
+		self.endheaders()
 
 		#if method == r'POST':
 		#	self.send(str(data))
