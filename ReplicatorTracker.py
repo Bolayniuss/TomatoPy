@@ -96,12 +96,12 @@ class DoneTorrentFilter:
 				for f in torrentFiles:
 					#print torrent.name
 					#print f["name"],": ",
-					file = File(os.path.join(self.torrentManager.downloadDirectory, f["name"]))
+					file = File(os.path.join(self.torrentManager.downloadDirectory, f.name))
 					if self.filter.test(file):
 						#print "filter test = ok",
 						if os.path.exists(file.fullPath):
 							#print "existence test = ok"
-							iF = InterestingFile(file.fullPath, torrent.hashString, f["name"])
+							iF = InterestingFile(file.fullPath, torrent.hashString, f.name)
 							iF.insertOrUpdateInDB()    # update timeout in any case
 							if not self.interestingFiles.has_key(file.fullPath):
 								self.interestingFiles[file.fullPath] = iF

@@ -17,7 +17,7 @@ import json
 logging.basicConfig(datefmt='%d %b %Y %H:%M:%S', format='%(asctime)s [%(levelname)s] %(message)s')
 
 
-class uTorrent(HTTPConnection):
+class UTorrent(HTTPConnection):
 	username = None
 	password = None
 	identity = None
