@@ -4,7 +4,7 @@ import socket
 import logging
 from base64 import b64encode
 from httplib import *
-from urllib import quote, quote_plus
+from urllib import quote, quote_plus, urlencode
 from constants import *
 import json
 import re
@@ -93,7 +93,7 @@ class UTorrent:
 	#        creates and fires off an HTTP request
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method='GET', headers={}, data=None):
-		selector = "token="+self.token+"&"+selector
+		selector = urlencode({"token": self.token}) + "&"+selector
 		# self.putrequest(method, selector, False, True)
 		# self.putheader('Authorization', 'Basic ' + self.authString)
 		# self.putheader("Accept-Encoding", "gzip, deflate")
