@@ -64,8 +64,6 @@ class UTorrent(HTTPConnection):
 			return None
 		#print webui_response
 		data = webui_response.read()
-		#print data
-		#<html><div id='token' style='display:none;'>hMmj0HgfyQjCTrk9LDb5i0LLbd8Z2yqNwByuHyU2-vnL_CzoCKo2bD4p3VI=</div></html>
 		m = re.compile(r"<html><div id='token' style='display:none;'>(.*)</div></html>.*").match(data)
 		if m is None:
 			return False
@@ -86,7 +84,7 @@ class UTorrent(HTTPConnection):
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method=r'POST', headers=None, data=None):
 		selector = r"/gui/?token="+self.token+"&"+selector
-		self.putrequest(method, selector)
+		self.putrequest(method, selector, False, True)
 		self.putheader('Authorization', 'Basic ' + self.authString)
 		self.putheader("Accept-Encoding", "gzip, deflate")
 		self.putheader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
