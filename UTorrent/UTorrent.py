@@ -7,6 +7,7 @@ from httplib import *
 from urllib import quote
 from constants import *
 import json
+import re
 
 #        uTorrent
 #
@@ -35,7 +36,12 @@ class UTorrent(HTTPConnection):
 		self.username = username
 		self.password = password
 		self.authString = self.webui_identity()
-		self.requestToken()
+		self.token = None
+		if not self.requestToken():
+			logging.critical("Not able to request for a token.")
+			logging.shutdown()
+			sys.exit(1)
+
 
 	def requestToken(self):
 		self.putrequest("GET", "/gui/token.html")
@@ -59,6 +65,13 @@ class UTorrent(HTTPConnection):
 		print webui_response
 		data = webui_response.read()
 		print data
+		#<html><div id='token' style='display:none;'>hMmj0HgfyQjCTrk9LDb5i0LLbd8Z2yqNwByuHyU2-vnL_CzoCKo2bD4p3VI=</div></html>
+		m = re.compile(r"<html><div id='token' style='display:none;'>(.*)</div></html>.*").match(data)
+		if m is None:
+			return False
+		else:
+			self.token = m.group(1)
+		return True
 		#return json.loads(data)
 
 	#        creates an HTTP Basic Authentication token
@@ -72,7 +85,7 @@ class UTorrent(HTTPConnection):
 	#        creates and fires off an HTTP request
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method=r'GET', headers=None, data=None):
-		self.putrequest(method, selector)
+		self.putrequest(method, selector+"&token="+self.token)
 		self.putheader('Authorization', 'Basic ' + self.authString)
 
 		if headers is not None:
