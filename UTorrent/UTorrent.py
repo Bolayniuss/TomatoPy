@@ -94,7 +94,7 @@ class UTorrent:
 	#        creates and fires off an HTTP request
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method='GET', headers={}, data=None):
-		selector = urlencode({"token": self.token, "getmsg": 1}) + "&"+selector
+		selector = "token="+self.token+"&getmsg=1&"+selector
 		# self.putrequest(method, selector, False, True)
 		# self.putheader('Authorization', 'Basic ' + self.authString)
 		# self.putheader("Accept-Encoding", "gzip, deflate")
