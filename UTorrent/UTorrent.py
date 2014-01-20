@@ -115,12 +115,12 @@ class UTorrent:
 
 		conn = self.conn
 		headers["Authorization"] = "Basic " + self.webui_identity()
-		headers["Accept-Encoding"] = "gzip, deflate"
-		headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+		#headers["Accept-Encoding"] = "deflate"
+		#headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
 		if self.cookie is not None:
 			headers["set-cookie"] = self.cookie
-
-		conn.request("GET", r"/gui/?"+selector, "", headers)
+		conn.set_debuglevel(1)
+		conn.request("GET", "/gui/?"+selector, "", headers)
 		webui_response = conn.getresponse()
 		print webui_response.getheaders()
 
