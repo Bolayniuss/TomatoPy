@@ -26,9 +26,8 @@ class UTorrent(HTTPConnection):
 	def __init__(self, host='localhost', port='8080', username='default', password='default'):
 		try:
 			print "host=", host, "port=", port
-			host
-			port
 			HTTPConnection.__init__(self, host, port)
+			print "host=", self.host, "port=", self.port
 			self.connect()
 		except socket.error, exception:
 			logging.critical(exception)
