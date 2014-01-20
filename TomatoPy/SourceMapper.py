@@ -28,6 +28,3 @@ class DirectoryMapper:
 				item = FileItem(file, root)
 				if self.filter.test(item):
 					self.files.append(item)
-
-
-sys.get
