@@ -40,6 +40,7 @@ class UTorrent:
 		self.token = None
 		self.cookie = None
 		self.conn = HTTPConnection(self.host, self.port)
+		self.conn.set_debuglevel(1)
 		if not self.requestToken():
 			logging.critical("Not able to request for a token.")
 			logging.shutdown()
@@ -119,7 +120,7 @@ class UTorrent:
 		headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
 		if self.cookie is not None:
 			headers["Set-Cookie"] = self.cookie
-		conn.set_debuglevel(1)
+
 		conn.request("GET", "/gui/?"+selector, "", headers)
 		webui_response = conn.getresponse()
 		print webui_response.getheaders()
