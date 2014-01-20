@@ -99,6 +99,7 @@ class UTorrent(HTTPConnection):
 			self.send(str(data))
 
 		webui_response = self.getresponse()
+		print(webui_response.status, webui_response.reason)
 
 		if webui_response.status == 401:
 			logging.error('401 Unauthorized Access')
