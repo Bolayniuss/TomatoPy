@@ -62,6 +62,8 @@ class UTorrent(HTTPConnection):
 			logging.error('401 Unauthorized Access')
 
 			return None
+		print "headers:"
+		print webui_response.getheaders()
 		#print webui_response
 		data = webui_response.read()
 		m = re.compile(r"<html><div id='token' style='display:none;'>(.*)</div></html>.*").match(data)
@@ -83,7 +85,7 @@ class UTorrent(HTTPConnection):
 	#        creates and fires off an HTTP request
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method=r'POST', headers=None, data=None):
-		selector = r"/gui/?token="+self.token+"&"+selector
+		selector = "/gui/?token="+self.token+"&"+selector
 		self.putrequest(method, selector, False, True)
 		self.putheader('Authorization', 'Basic ' + self.authString)
 		self.putheader("Accept-Encoding", "gzip, deflate")
@@ -99,6 +101,7 @@ class UTorrent(HTTPConnection):
 			self.send(str(data))
 
 		webui_response = self.getresponse()
+		print
 		print(webui_response.status, webui_response.reason)
 
 		if webui_response.status == 401:
