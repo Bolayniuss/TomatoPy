@@ -37,7 +37,6 @@ class UTorrent:
 		self.host = host
 		self.username = username
 		self.password = password
-		self.authString = self.webui_identity()
 		self.token = None
 		self.cookie = None
 		if not self.requestToken():
@@ -50,7 +49,7 @@ class UTorrent:
 		#self.putheader('Authorization', 'Basic ' + self.authString)
 		conn = HTTPConnection(self.host, self.port)
 
-		conn.request("GET", "/gui/token.html", "", {"Authorization": "Basic " + self.authString})
+		conn.request("GET", "/gui/token.html", "", {"Authorization": "Basic " + self.webui_identity()})
 		#self.putheader('Authorization', 'Basic ' + self.authString)
 
 		#if headers is not None:
@@ -113,7 +112,7 @@ class UTorrent:
 		# webui_response = self.getresponse()
 
 		conn = HTTPConnection(self.host, self.port)
-		headers["Authorization"] = "Basic " + self.authString
+		headers["Authorization"] = "Basic " + self.webui_identity()
 		#headers["Accept-Encoding"] = "gzip, deflate"
 		#headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
 
