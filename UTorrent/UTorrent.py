@@ -93,7 +93,7 @@ class UTorrent:
 	#        creates and fires off an HTTP request
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method='GET', headers={}, data=None):
-		selector = urlencode({"token": self.token}) + "&"+selector
+		selector = urlencode({"token": self.token}) +   "&"+selector
 		# self.putrequest(method, selector, False, True)
 		# self.putheader('Authorization', 'Basic ' + self.authString)
 		# self.putheader("Accept-Encoding", "gzip, deflate")
@@ -114,8 +114,8 @@ class UTorrent:
 
 		conn = HTTPConnection(self.host, self.port)
 		headers["Authorization"] = "Basic " + self.webui_identity()
-		#headers["Accept-Encoding"] = "gzip, deflate"
-		#headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+		headers["Accept-Encoding"] = "gzip, deflate"
+		headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
 
 		conn.request("GET", "/gui/", selector, headers)
 		webui_response = conn.getresponse()
