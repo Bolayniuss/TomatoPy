@@ -64,8 +64,9 @@ class UTorrent(HTTPConnection):
 			logging.error('401 Unauthorized Access')
 
 			return None
-
-		return json.loads(webui_response.read())
+		data = webui_response.read()
+		print data
+		return json.loads(data)
 
 	#        gets torrent properties
 	def webui_get_props(self, torrent_hash):
