@@ -62,9 +62,9 @@ class UTorrent(HTTPConnection):
 			logging.error('401 Unauthorized Access')
 
 			return None
-		print webui_response
+		#print webui_response
 		data = webui_response.read()
-		print data
+		#print data
 		#<html><div id='token' style='display:none;'>hMmj0HgfyQjCTrk9LDb5i0LLbd8Z2yqNwByuHyU2-vnL_CzoCKo2bD4p3VI=</div></html>
 		m = re.compile(r"<html><div id='token' style='display:none;'>(.*)</div></html>.*").match(data)
 		if m is None:
@@ -103,8 +103,9 @@ class UTorrent(HTTPConnection):
 			logging.error('401 Unauthorized Access')
 
 			return None
-		print webui_response
+		#print webui_response
 		data = webui_response.read()
+		print selector
 		print data
 		return json.loads(data)
 
