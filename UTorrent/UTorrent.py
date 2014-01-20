@@ -105,6 +105,7 @@ class UTorrent(HTTPConnection):
 			return None
 		#print webui_response
 		data = webui_response.read()
+		print "token =", self.token
 		print selector
 		print data
 		return json.loads(data)
