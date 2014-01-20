@@ -37,6 +37,7 @@ class UTorrent(HTTPConnection):
 		self.password = password
 		self.authString = self.webui_identity()
 		self.token = None
+		self.cookie = None
 		if not self.requestToken():
 			logging.critical("Not able to request for a token.")
 			logging.shutdown()
@@ -70,6 +71,7 @@ class UTorrent(HTTPConnection):
 		if m is None:
 			return False
 		else:
+			self.cookie = webui_response.getheader("set-cookie", None)
 			self.token = m.group(1)
 		return True
 		#return json.loads(data)
@@ -90,6 +92,8 @@ class UTorrent(HTTPConnection):
 		self.putheader('Authorization', 'Basic ' + self.authString)
 		self.putheader("Accept-Encoding", "gzip, deflate")
 		self.putheader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+		if self.cookie is not None:
+			self.putheader("set-cookie", self.cookie)
 
 		if headers is not None:
 			for (name, value) in headers.items():
