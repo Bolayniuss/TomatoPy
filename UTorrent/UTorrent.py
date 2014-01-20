@@ -18,21 +18,23 @@ import re
 logging.basicConfig(datefmt='%d %b %Y %H:%M:%S', format='%(asctime)s [%(levelname)s] %(message)s')
 
 
-class UTorrent(HTTPConnection):
+class UTorrent:
 	username = None
 	password = None
 	identity = None
 
 	#        will be happy as long as you feed it valid uTorrent WebUI details
 	def __init__(self, host='localhost', port='8080', username='default', password='default'):
-		try:
-			HTTPConnection.__init__(self, host, int(port))
-			self.connect()
-		except socket.error, exception:
-			logging.critical(exception)
-			logging.shutdown()
-			sys.exit(1)
+		#try:
+			#HTTPConnection.__init__(self, host, int(port))
+			#self.connect()
+		#except socket.error, exception:
+		#	logging.critical(exception)
+		#	logging.shutdown()
+		#	sys.exit(1)
 
+		self.port = port
+		self.host = host
 		self.username = username
 		self.password = password
 		self.authString = self.webui_identity()
@@ -43,21 +45,25 @@ class UTorrent(HTTPConnection):
 			logging.shutdown()
 			sys.exit(1)
 
-
 	def requestToken(self):
-		self.putrequest("GET", "/gui/token.html")
-		self.putheader('Authorization', 'Basic ' + self.authString)
+		#self.putrequest("GET", "/gui/token.html")
+		#self.putheader('Authorization', 'Basic ' + self.authString)
+		conn = HTTPConnection(self.host, self.port)
+
+		conn.request("GET", "/gui/token.html", "", {"Authorization": "Basic " + self.authString})
+		#self.putheader('Authorization', 'Basic ' + self.authString)
 
 		#if headers is not None:
 		#	for (name, value) in headers.items():
 				#self.putheader(name, value)
 
-		self.endheaders()
+		#self.endheaders()
 
 		#if method == r'POST':
 		#	self.send(str(data))
 
-		webui_response = self.getresponse()
+		#webui_response = self.getresponse()
+		webui_response = conn.getresponse()
 
 		if webui_response.status == 401:
 			logging.error('401 Unauthorized Access')
@@ -86,26 +92,33 @@ class UTorrent(HTTPConnection):
 
 	#        creates and fires off an HTTP request
 	#        all webui_ methods return a python object
-	def webui_action(self, selector, method=r'POST', headers=None, data=None):
-		selector = "/gui/?token="+self.token+"&"+selector
-		self.putrequest(method, selector, False, True)
-		self.putheader('Authorization', 'Basic ' + self.authString)
-		self.putheader("Accept-Encoding", "gzip, deflate")
-		self.putheader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-		if self.cookie is not None:
-			self.putheader("set-cookie", self.cookie)
+	def webui_action(self, selector, method='GET', headers={}, data=None):
+		selector = "token="+self.token+"&"+selector
+		# self.putrequest(method, selector, False, True)
+		# self.putheader('Authorization', 'Basic ' + self.authString)
+		# self.putheader("Accept-Encoding", "gzip, deflate")
+		# self.putheader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+		# if self.cookie is not None:
+		# 	self.putheader("set-cookie", self.cookie)
+		#
+		# if headers is not None:
+		# 	for (name, value) in headers.items():
+		# 		self.putheader(name, value)
+		#
+		# self.endheaders()
+		#
+		# if method == r'POST':
+		# 	self.send(str(data))
+		#
+		# webui_response = self.getresponse()
 
-		if headers is not None:
-			for (name, value) in headers.items():
-				self.putheader(name, value)
+		conn = HTTPConnection(self.host, self.port)
+		headers["Authorization"] = "Basic " + self.authString
+		#headers["Accept-Encoding"] = "gzip, deflate"
+		#headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
 
-		self.endheaders()
-
-		if method == r'POST':
-			self.send(str(data))
-
-		webui_response = self.getresponse()
-		print
+		conn.request("GET", "/gui/", selector, headers)
+		webui_response = conn.getresponse()
 		print(webui_response.status, webui_response.reason)
 
 		if webui_response.status == 401:
