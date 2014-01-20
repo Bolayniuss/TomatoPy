@@ -78,6 +78,7 @@ class UTorrent:
 		else:
 			self.cookie = webui_response.getheader("set-cookie", None)
 			self.token = m.group(1)
+			print "Request token: success, token =", self.token
 		return True
 		#return json.loads(data)
 
@@ -128,7 +129,7 @@ class UTorrent:
 		data = webui_response.read()
 		print "token =", self.token
 		print selector
-		print data
+		#print data
 		return json.loads(data)
 
 	#        gets torrent properties
