@@ -34,6 +34,32 @@ class UTorrent(HTTPConnection):
 
 		self.username = username
 		self.password = password
+		self.authString = self.webui_identity()
+		self.requestToken()
+
+	def requestToken(self):
+		self.putrequest("GET", "/gui/token.html")
+		self.putheader('Authorization', 'Basic ' + self.authString)
+
+		#if headers is not None:
+		#	for (name, value) in headers.items():
+				#self.putheader(name, value)
+
+		#self.endheaders()
+
+		#if method == r'POST':
+		#	self.send(str(data))
+
+		webui_response = self.getresponse()
+
+		if webui_response.status == 401:
+			logging.error('401 Unauthorized Access')
+
+			return None
+		print webui_response
+		data = webui_response.read()
+		print data
+		#return json.loads(data)
 
 	#        creates an HTTP Basic Authentication token
 	def webui_identity(self):
@@ -47,7 +73,7 @@ class UTorrent(HTTPConnection):
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method=r'GET', headers=None, data=None):
 		self.putrequest(method, selector)
-		self.putheader('Authorization', 'Basic ' + self.webui_identity())
+		self.putheader('Authorization', 'Basic ' + self.authString)
 
 		if headers is not None:
 			for (name, value) in headers.items():
