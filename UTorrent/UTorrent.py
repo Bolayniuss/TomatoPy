@@ -88,6 +88,8 @@ class UTorrent(HTTPConnection):
 		selector = selector+"&token="+self.token
 		self.putrequest(method, selector)
 		self.putheader('Authorization', 'Basic ' + self.authString)
+		self.putheader("Accept-Encoding","gzip, deflate")
+		self.putheader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 
 		if headers is not None:
 			for (name, value) in headers.items():
