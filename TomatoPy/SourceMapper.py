@@ -17,6 +17,7 @@ class DirectoryMapper:
 	def map(self):
 		for root, dirs, files in os.walk(self.path):
 			for file in files:
+				print file
 				item = FileItem(file, root)
 				if self.filter.test(item):
 					self.files.append(item)
