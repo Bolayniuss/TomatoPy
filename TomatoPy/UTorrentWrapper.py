@@ -1,6 +1,6 @@
 __author__ = 'bolay'
 from TorrentRPC import *
-from UTorrent import UTorrent
+from UTorrent.UTorrent import UTorrent
 
 
 class UTorrentRPC(TorrentManager):
