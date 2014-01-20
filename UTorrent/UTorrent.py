@@ -119,7 +119,7 @@ class UTorrent:
 		if self.cookie is not None:
 			headers["set-cookie"] = self.cookie
 
-		conn.request("GET", "/gui/", selector, headers)
+		conn.request("GET", r"/gui/?", selector, headers)
 		webui_response = conn.getresponse()
 		print(webui_response.status, webui_response.reason)
 
