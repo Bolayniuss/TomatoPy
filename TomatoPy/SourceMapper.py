@@ -10,7 +10,7 @@ import sys
 class DirectoryMapper:
 
 	def __init__(self, path, filter=FileFilter()):
-		self.path = (u""+path).encode("latin-1")
+		self.path = path.encode("ascii")
 		self.filter = filter
 		self.files = []
 		self.map()
