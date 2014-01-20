@@ -122,6 +122,8 @@ class UTorrent:
 
 		conn.request("GET", r"/gui/?"+selector, "", headers)
 		webui_response = conn.getresponse()
+		print webui_response.getheaders()
+
 		print(webui_response.status, webui_response.reason)
 
 		if webui_response.status == 401:
