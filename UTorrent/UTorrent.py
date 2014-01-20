@@ -33,7 +33,7 @@ class UTorrent:
 		#	logging.shutdown()
 		#	sys.exit(1)
 
-		self.port = port
+		self.port = int(port)
 		self.host = host
 		self.username = username
 		self.password = password
