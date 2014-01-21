@@ -72,7 +72,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 								t = self.torrentManager.addTorrentURL(action["torrentData"])
 
 								# Add move action with torrentHash, fileName, destinationPath
-								aa = "move&&"+t.hashString+"&&"+action["torrentFileName"]+"&&"+destinationPath
+								aa = "move&&"+t.hash+"&&"+action["torrentFileName"]+"&&"+destinationPath
 								sql = "INSERT INTO AutomatedActions (notifier, `trigger`, `data`) VALUES(%s, %s, %s);"
 								self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
 								self.dbm.connector.commit()
