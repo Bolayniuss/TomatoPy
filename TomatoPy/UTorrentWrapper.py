@@ -44,16 +44,18 @@ class UTorrentRPC(TorrentManager):
 		return files
 
 	def addTorrentURL(self, torrentURL):
-		old = self.torrents
+		old = self.torrents.copy()
 		self.client.webui_add_url(torrentURL)
 		self.getTorrents()
 		added = self.getTorrentListModifications(self.torrents, old)["added"]
+		print old
+		print self.torrents
 		if len(added) > 0:
 			return added[0]
 		return None
 
 	def addTorrent(self, torrentFilePath):
-		old = self.torrents
+		old = self.torrents.copy()
 		self.client.webui_add_file(torrentFilePath)
 		self.getTorrents()
 		added = self.getTorrentListModifications(self.torrents, old)["added"]
