@@ -14,9 +14,9 @@ class UTorrentRPC(TorrentManager):
 		self.torrents = dict()
 
 	def getTorrent(self, hash):
-		if len(self.torrents) == 0:
+		if hash not in self.torrents:
 			self.getTorrents()
-			return self.torrents[hash]
+		return self.torrents[hash]
 
 	def getTorrents(self):
 		rawTorrents = self.client.webui_ls()
