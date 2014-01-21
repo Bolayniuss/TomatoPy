@@ -48,8 +48,8 @@ class UTorrentRPC(TorrentManager):
 		self.client.webui_add_url(torrentURL)
 		self.getTorrents()
 		added = self.getTorrentListModifications(self.torrents, old)["added"]
-		print old
-		print self.torrents
+		#print old
+		#print self.torrents
 		if len(added) > 0:
 			return added[0]
 		return None
@@ -68,11 +68,11 @@ class UTorrentRPC(TorrentManager):
 		added = []
 		for h, n in new.iteritems():
 			if h not in old:
-				print n.name, "is new"
+				#print n.name, "is new"
 				added.append(n)
 		for h, o in old.iteritems():
 			if h not in new:
-				print o.name, "is old"
+				#print o.name, "is old"
 				removed.append(o)
 		return {"added": added, "removed": removed}
 

@@ -7,11 +7,18 @@ import os
 from AutomatedActionExecutor import *
 import Tools
 from XbmcLibraryManager import XbmcLibraryManager
-from TransmissionWrapper import *
+from TorrentRPC import *
 
 
 class ReplicatorManager(AutomatedActionsExecutor):
 	def __init__(self, user, torrentManager):
+		"""
+		:type user: str
+		:type torrentManager: TorrentManager
+		:param user:
+		:param torrentManager:
+		:return:
+		"""
 		super(ReplicatorManager, self).__init__("ReplicatorManager")
 		self.user = user
 		self.serviceName = "Replicator"
