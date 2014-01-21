@@ -208,7 +208,7 @@ class UTorrent:
 
 	#        returns a giant listing of uTorrentness files for a given torrent
 	def webui_ls_files(self, torrent_hash):
-		return self.webui_action(r'/gui/?action=getfiles&hash=' + torrent_hash)
+		return self.webui_action(r'action=getfiles&hash=' + torrent_hash)
 
 	#        starts a torrent
 	def webui_start_torrent(self, torrent_hash):
