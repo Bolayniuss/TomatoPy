@@ -115,9 +115,14 @@ class UTorrent:
 		# webui_response = self.getresponse()
 
 		conn = self.conn
+		headers["User-Agent"] = "Mozilla/5.0 Firefox/3.6.12"
+		headers["Accept"] = "text/html,application/xhtml+xml,application/xml, application/json;q=0.9,*/*;q=0.8"
+		headers["Accept-Language"] = "en-us,en;q=0.5"
+		headers["Accept-Encoding"] = "gzip, deflate"
+		headers["Accept-Charset"] = "UTF-8,utf-8;q=0.7,*;q=0.7"
+		headers["Connection"] = "keep-alive"
 		headers["Authorization"] = "Basic " + self.webui_identity()
-		headers["Accept-Encoding"] = "deflate"
-		headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+
 		if self.cookie is not None:
 			headers["Set-Cookie"] = self.cookie
 
