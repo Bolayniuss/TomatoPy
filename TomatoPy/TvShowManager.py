@@ -30,6 +30,9 @@ class TvShowManager(AutomatedActionsExecutor):
 		parameters = parametersString.split("&&")
 		self.bUser = parameters[1]
 		self.tvShowDirectory = u""+parameters[0]
+		self.fileSystemEncoding = None
+		if len(parameters) > 2:
+			self.fileSystemEncoding = parameters[2]
 
 		query = "SELECT title, filter, authorFilter, sizeLimits FROM TrackedTvShows;"
 		dbm.cursor.execute(query)
@@ -64,7 +67,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		betaserieEpisodes = _tmp
 		_tmp = []
 
-		tvShowInDir = DirectoryMapper(self.tvShowDirectory, FileFilter(".*", ["mkv", "avi", "mp4"])).files
+		tvShowInDir = DirectoryMapper(self.tvShowDirectory, FileFilter(".*", ["mkv", "avi", "mp4"]), self.fileSystemEncoding).files
 		for item in betaserieEpisodes:
 			for fileItem in tvShowInDir:
 				add = True

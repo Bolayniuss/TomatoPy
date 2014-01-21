@@ -39,8 +39,10 @@ class UTorrent:
 		self.password = password
 		self.token = None
 		self.cookie = None
+
 		self.conn = HTTPConnection(self.host, self.port)
-		self.conn.set_debuglevel(1)
+		self.conn.set_debuglevel(2)
+
 		if not self.requestToken():
 			logging.critical("Not able to request for a token.")
 			logging.shutdown()
@@ -49,6 +51,7 @@ class UTorrent:
 	def requestToken(self):
 		#self.putrequest("GET", "/gui/token.html")
 		#self.putheader('Authorization', 'Basic ' + self.authString)
+
 		conn = self.conn
 
 		conn.request("GET", "/gui/token.html", "", {"Authorization": "Basic " + self.webui_identity()})
@@ -74,13 +77,16 @@ class UTorrent:
 		print webui_response.getheaders()
 		#print webui_response
 		data = webui_response.read()
+		print
+		print data
+		print
 		m = re.compile(r"<html><div id='token' style='display:none;'>(.*)</div></html>.*").match(data)
 		if m is None:
 			return False
 		else:
 			self.cookie = webui_response.getheader("set-cookie", None)
 			self.token = m.group(1)
-			print "Request token: success, token =", self.token
+			print "Request token: success, token =", self.token, "type =", type(self.token)
 		return True
 		#return json.loads(data)
 
@@ -96,23 +102,7 @@ class UTorrent:
 	#        all webui_ methods return a python object
 	def webui_action(self, selector, method='GET', headers={}, data=None):
 		selector = "token="+self.token+"&getmsg=1&"+selector
-		## self.putrequest(method, selector, False, True)
-		# self.putheader('Authorization', 'Basic ' + self.authString)
-		# self.putheader("Accept-Encoding", "gzip, deflate")
-		# self.putheader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-		# if self.cookie is not None:
-		# 	self.putheader("set-cookie", self.cookie)
-		#
-		# if headers is not None:
-		# 	for (name, value) in headers.items():
-		# 		self.putheader(name, value)
-		#
-		# self.endheaders()
-		#
-		# if method == r'POST':
-		# 	self.send(str(data))
-		#
-		# webui_response = self.getresponse()
+
 
 		conn = self.conn
 		headers["User-Agent"] = "Mozilla/5.0 Firefox/3.6.12"
@@ -124,7 +114,7 @@ class UTorrent:
 		headers["Authorization"] = "Basic " + self.webui_identity()
 
 		if self.cookie is not None:
-			headers["Set-Cookie"] = self.cookie
+			headers["Cookie"] = self.cookie
 
 		conn.request("GET", "/gui/?"+selector, "", headers)
 		webui_response = conn.getresponse()

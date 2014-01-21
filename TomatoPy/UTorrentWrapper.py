@@ -5,8 +5,11 @@ from UTorrent.UTorrent import UTorrent
 
 class UTorrentRPC(TorrentManager):
 
-	def __init__(self):
-		super(UTorrentRPC, self).__init__()
+	def __init__(self, host=None, port=9090, user="admin", password="", dlDirectory=""):
+		parameters = None
+		if host is not None:
+			parameters = [dlDirectory, host, port, user, password]
+		super(UTorrentRPC, self).__init__(parameters)
 		self.client = UTorrent(self.host, self.port, self.user, self.password)
 		self.torrents = dict()
 

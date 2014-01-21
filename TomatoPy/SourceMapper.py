@@ -9,8 +9,9 @@ import sys
 
 class DirectoryMapper:
 
-	def __init__(self, path, filter=FileFilter()):
-		self.path = path.encode("ascii")
+	def __init__(self, path, filter=FileFilter(), encoding=None):
+		if encoding is not None:
+			self.path = path.encode(encoding)
 		self.filter = filter
 		self.files = []
 		self.map()

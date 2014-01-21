@@ -64,11 +64,12 @@ class TorrentManager(object):
 	# addTorrent(torrentFilePath)
 	# removeTorrent(hash, deleteData)
 
-	def __init__(self):
-		query = "SELECT parameters FROM Parameters WHERE name='TorrentManager' LIMIT 1"
-		DatabaseManager.Instance().cursor.execute(query)
-		(parametersString, ) = DatabaseManager.Instance().cursor.fetchone()
-		parameters = parametersString.split("&&")
+	def __init__(self, parameters=None):
+		if parameters is None:
+			query = "SELECT parameters FROM Parameters WHERE name='TorrentManager' LIMIT 1"
+			DatabaseManager.Instance().cursor.execute(query)
+			(parametersString, ) = DatabaseManager.Instance().cursor.fetchone()
+			parameters = parametersString.split("&&")
 		self.downloadDirectory = parameters[0]
 		self.host = parameters[1]
 		self.port = 9091
