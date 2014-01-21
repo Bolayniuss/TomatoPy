@@ -65,10 +65,12 @@ class UTorrentRPC(TorrentManager):
 		removed = []
 		added = []
 		for h, n in new.iteritems():
-			if not old.has_key(h):
+			if h not in old:
+				print n.name, "is new"
 				added.append(n)
 		for h, o in old.iteritems():
-			if not new.has_key(h):
+			if h not in new:
+				print o.name, "is old"
 				removed.append(o)
 		return {"added": added, "removed": removed}
 
