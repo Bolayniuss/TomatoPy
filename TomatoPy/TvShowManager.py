@@ -99,7 +99,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				rpbItems = TPBScrapper(episode.title, episode.filter).torrents
 				if len(rpbItems) > 0:
 					newTorrent = torrentManager.addTorrentURL(rpbItems[0].link)
-					self.addAutomatedActions(newTorrent.hashString, episode.tvShow, episode.title)
+					self.addAutomatedActions(newTorrent.hash, episode.tvShow, episode.title)
 				else:
 					print "No torrent found for ", episode.title
 

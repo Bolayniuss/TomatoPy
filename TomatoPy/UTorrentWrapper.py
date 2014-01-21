@@ -21,6 +21,7 @@ class UTorrentRPC(TorrentManager):
 	def getTorrents(self):
 		rawTorrents = self.client.webui_ls()
 		torrents = []
+		self.torrents.clear()
 		for rawTorrent in rawTorrents:
 			t = self.buildTorrentObject(rawTorrent)
 			self.torrents[t.hash] = t
@@ -43,10 +44,33 @@ class UTorrentRPC(TorrentManager):
 		return files
 
 	def addTorrentURL(self, torrentURL):
+		old = self.torrents
 		self.client.webui_add_url(torrentURL)
+		self.getTorrents()
+		added = self.getTorrentListModifications(self.torrents, old)["added"]
+		if len(added) > 0:
+			return added[0]
+		return None
 
 	def addTorrent(self, torrentFilePath):
+		old = self.torrents
 		self.client.webui_add_file(torrentFilePath)
+		self.getTorrents()
+		added = self.getTorrentListModifications(self.torrents, old)["added"]
+		if len(added) > 0:
+			return added[0]
+		return None
+
+	def getTorrentListModifications(self, new, old):
+		removed = []
+		added = []
+		for h, n in new.iteritems():
+			if not old.has_key(h):
+				added.append(n)
+		for h, o in old.iteritems():
+			if not new.has_key(h):
+				removed.append(o)
+		return {"added": added, "removed": removed}
 
 	def removeTorrent(self, hash, deleteData = False):
 		if deleteData:

@@ -41,7 +41,7 @@ class UTorrent:
 		self.cookie = None
 
 		self.conn = HTTPConnection(self.host, self.port)
-		self.conn.set_debuglevel(2)
+		#self.conn.set_debuglevel(2)
 
 		if not self.requestToken():
 			logging.critical("Not able to request for a token.")
@@ -73,20 +73,20 @@ class UTorrent:
 			logging.error('401 Unauthorized Access')
 
 			return None
-		print "headers:"
-		print webui_response.getheaders()
+		#print "headers:"
+		#print webui_response.getheaders()
 		#print webui_response
 		data = webui_response.read()
-		print
-		print data
-		print
+		#print
+		#print data
+		#print
 		m = re.compile(r"<html><div id='token' style='display:none;'>(.*)</div></html>.*").match(data)
 		if m is None:
 			return False
 		else:
 			self.cookie = webui_response.getheader("set-cookie", None)
 			self.token = m.group(1)
-			print "Request token: success, token =", self.token, "type =", type(self.token)
+			#print "Request token: success, token =", self.token, "type =", type(self.token)
 		return True
 		#return json.loads(data)
 
@@ -118,9 +118,9 @@ class UTorrent:
 
 		conn.request("GET", "/gui/?"+selector, "", headers)
 		webui_response = conn.getresponse()
-		print webui_response.getheaders()
+		#print webui_response.getheaders()
 
-		print(webui_response.status, webui_response.reason)
+		#print(webui_response.status, webui_response.reason)
 
 		if webui_response.status == 401:
 			logging.error('401 Unauthorized Access')
@@ -129,8 +129,8 @@ class UTorrent:
 		#print webui_response
 		data = webui_response.read()
 
-		print data
-		print selector
+		#print data
+		#print selector
 		return json.loads(data)
 
 	#        gets torrent properties
