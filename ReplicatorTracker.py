@@ -57,8 +57,11 @@ class InterestingFile:
 		sql = "INSERT INTO TrackedTorrentFiles (hash, name, timeout, torrentHash, torrentFileName) " \
 		      "VALUES (%s, %s, UNIX_TIMESTAMP()+%s, %s, %s) " \
 		      "ON DUPLICATE KEY UPDATE timeout=VALUES(timeout);"
-		DatabaseManager.Instance().cursor.execute(sql, (
-			self.hash, self.name, self.timeout, self.torrentHash, self.torrentFileName))
+		DatabaseManager.Instance().cursor.execute(sql, (self.hash,
+		                                                self.name,
+		                                                self.timeout,
+		                                                self.torrentHash,
+		                                                self.torrentFileName))
 		DatabaseManager.Instance().connector.commit()
 
 	@staticmethod
@@ -106,8 +109,10 @@ class DoneTorrentFilter:
 							sql = "INSERT INTO TrackedTorrents (hash, name, torrentFile, magnet) VALUES (%s, %s, %s, %s)" \
 							      " ON DUPLICATE KEY UPDATE hash=VALUES(hash);"
 							t = TrackedTorrent.fromTorrent(torrent)
-							DatabaseManager.Instance().cursor.execute(sql,
-							                                          (t.hash, t.name, t.torrentFileData, t.magnet))
+							DatabaseManager.Instance().cursor.execute(sql, (t.hash,
+							                                                t.name,
+							                                                t.torrentFileData,
+							                                                t.magnet))
 							DatabaseManager.Instance().connector.commit()
 
 						#for a, iF in self.interestingFiles.iteritems():
@@ -140,7 +145,7 @@ class DestinationManager:
 	def add(self, destination):
 		"""
 		:type destination : Destination
-		:param destination:
+		:param destination: the destination to add
 		:return:
 		"""
 		if destination.name not in self.destinations:
@@ -153,7 +158,11 @@ class DestinationManager:
 class Destination:
 	def __init__(self, path, name, filter):
 		"""
+		Constructor
 
+		:type path: str
+		:type name: str
+		:type filter: TomatoPy.Filters.FileFilter
 		:param path: path of the destination directory
 		:param name: name of the destination
 		"""
@@ -166,12 +175,19 @@ class Destination:
 
 	def getRelativePath(self, path):
 		"""
-
+		:type path: str
 		:param path: absolute path
 		"""
 		return os.path.relpath(path, self.path)
 
 	def map(self, clean=False):
+		"""
+		Build the list of files in this destination
+
+		:type clean: bool
+		:param clean: do we clean the database before
+		:return:
+		"""
 		self.files = {}
 		curs = DatabaseManager.Instance().cursor
 		if clean:
@@ -201,6 +217,11 @@ class Destination:
 					self.files[fwh.hash] = fwh
 
 	def lookForInterestingFiles(self, ifList):
+		"""
+		Build the list of all interesting
+		:param ifList:
+		:return:
+		"""
 		self.validInterestingFiles = []
 		for i, f in ifList.iteritems():
 			if f.hash in self.files:
@@ -240,7 +261,7 @@ class FileWithHash(File):
 	FileWithHash represent files present in destination directories
 	"""
 
-	def __init__(self, path, destinationName, hash=None, relativPath=None):
+	def __init__(self, path, destinationName, hash=None, relativePath=None):
 		"""
 
 		:type destinationName : str
@@ -256,8 +277,8 @@ class FileWithHash(File):
 		if hash is None:
 			self.hash = Tools.getHash(self.fullPath)
 		self.relativePath = path
-		if relativPath is not None:
-			self.relativePath = relativPath
+		if relativePath is not None:
+			self.relativePath = relativePath
 
 
 	@staticmethod
@@ -312,7 +333,10 @@ class FileTracer:
 						sql = "INSERT INTO ReplicatorActions " \
 						      "(torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) " \
 						      "VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
-						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName, tt.magnet, destination.name, destinationFile.fullPath))
+						self.dbm.cursor.execute(sql, (tt.name,
+						                              trackedFile.torrentFileName,
+						                              tt.magnet, destination.name,
+						                              destinationFile.relativePath))
 						self.dbm.connector.commit()
 
 						# Remove File from TrackedTorrentFiles DB
@@ -327,7 +351,7 @@ class FileTracer:
 
 	def clean(self):
 		#self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE timeout<UNIX_TIMESTAMP()")
-		print "Begining Clean up."
+		print "Beginning Clean up."
 		torrents = {}
 		for torrent in self.torrentManager.getTorrents():
 			torrents[torrent.hash] = 1
