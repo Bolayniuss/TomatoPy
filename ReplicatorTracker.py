@@ -34,7 +34,7 @@ class TrackedTorrent:
 
 	@staticmethod
 	def fromTorrent(torrent):
-		return TrackedTorrent(torrent.hashString, torrent.name, torrent.magnetLink, torrent.torrentFile)
+		return TrackedTorrent(torrent.hash, torrent.name, torrent.magnetLink, torrent.torrentFilePath)
 
 
 class InterestingFile:
@@ -99,7 +99,7 @@ class DoneTorrentFilter:
 						#print "filter test = ok",
 						if os.path.exists(file.fullPath):
 							#print "existence test = ok"
-							iF = InterestingFile(file.fullPath, torrent.hashString, f.name)
+							iF = InterestingFile(file.fullPath, torrent.hash, f.name)
 							iF.insertOrUpdateInDB()    # update timeout in any case
 							if not self.interestingFiles.has_key(file.fullPath):
 								self.interestingFiles[file.fullPath] = iF

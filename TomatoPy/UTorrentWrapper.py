@@ -73,6 +73,8 @@ class UTorrentRPC(TorrentManager):
 		:type torrentURL: str
 		:rtype: TorrentRPC.TorrentObject
 		"""
+		print "UTorrentWrapper Debug: Add new torrent from url"
+		self.getTorrents()
 		old = self.torrents.copy()
 		self.client.webui_add_url(torrentURL)
 		self.getTorrents()
@@ -90,6 +92,7 @@ class UTorrentRPC(TorrentManager):
 		:return: the added torrent
 		:rtype: TorrentRPC.TorrentObject
 		"""
+		self.getTorrents()
 		old = self.torrents.copy()
 		self.client.webui_add_file(torrentFilePath)
 		self.getTorrents()
@@ -110,9 +113,11 @@ class UTorrentRPC(TorrentManager):
 		added = []
 		for h, n in new.iteritems():
 			if h not in old:
+				print "UTorrentWrapper Debug: new torrent", n.name
 				added.append(n)
 		for h, o in old.iteritems():
 			if h not in new:
+				print "UTorrentWrapper Debug: old torrent", n.name
 				removed.append(o)
 		return {"added": added, "removed": removed}
 
@@ -124,10 +129,11 @@ class UTorrentRPC(TorrentManager):
 		:param deleteData: if True remove also the data
 		:return: True
 		"""
+		deleteData = False
 		if deleteData:
-			self.client.webui_remove(hash)
-		else:
 			self.client.webui_remove_data(hash)
+		else:
+			self.client.webui_remove(hash)
 		return True
 
 	def buildTorrentObject(self, uTorrentTorrent):
