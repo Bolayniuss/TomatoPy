@@ -3,6 +3,7 @@ __author__ = 'bolay'
 import re
 import os
 
+
 class SourceMapperItem:
 	def __init__(self):
 		self.name = ""

@@ -1,12 +1,10 @@
 __author__ = 'bolay'
 
 import os
-import hashlib
 import re
 from DatabaseManager import DatabaseManager
 from TomatoPy.TransmissionWrapper import *
-import sys
-import unicodedata
+
 import base64
 import Tools
 from Singleton import Singleton

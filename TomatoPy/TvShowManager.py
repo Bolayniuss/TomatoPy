@@ -11,7 +11,7 @@ from AutomatedActionExecutor import *
 import time
 import Tools
 import rarfile
-from TorrentRPC import TorrentFile
+from TomatoPy.TorrentRPC import TorrentFile
 
 
 class TvShowManager(AutomatedActionsExecutor):

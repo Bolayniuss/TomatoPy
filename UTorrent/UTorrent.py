@@ -1,10 +1,9 @@
 __author__ = 'bolay'
 import sys
-import socket
 import logging
 from base64 import b64encode
 from httplib import *
-from urllib import quote, quote_plus, urlencode
+from urllib import quote
 from constants import *
 import json
 import re

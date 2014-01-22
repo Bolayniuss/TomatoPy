@@ -1,5 +1,5 @@
 __author__ = 'bolay'
-from TorrentRPC import *
+from TomatoPy.TorrentRPC import *
 from UTorrent.UTorrent import UTorrent
 
 
@@ -14,11 +14,24 @@ class UTorrentRPC(TorrentManager):
 		self.torrents = dict()
 
 	def getTorrent(self, hash):
+		"""
+		Retrieve the torrent with hash
+
+		:param hash: the UID of the desired torrent
+		:return: torrent
+		:type hash: str
+		:rtype: TorrentRPC.TorrentObject
+		"""
 		if hash not in self.torrents:
 			self.getTorrents()
 		return self.torrents[hash]
 
 	def getTorrents(self):
+		"""
+		Retrieve a list of all torrents
+
+		:rtype: list[TorrentRPC.TorrentObject]
+		"""
 		rawTorrents = self.client.webui_ls()
 		torrents = []
 		self.torrents.clear()
@@ -29,6 +42,14 @@ class UTorrentRPC(TorrentManager):
 		return torrents
 
 	def getTorrentFiles(self, hash=None):
+		"""
+		Get a list of file for the torrent specified by hash. If hash is None, return a list of files for every torrents
+
+		:param hash: the torrent UID
+		:return: a list of files
+		:type hash: str
+		:rtype: list
+		"""
 		if hash is None:
 			if len(self.torrents) == 0:
 				self.getTorrents()
@@ -44,17 +65,31 @@ class UTorrentRPC(TorrentManager):
 		return files
 
 	def addTorrentURL(self, torrentURL):
+		"""
+		Add a torrent with url torrentURL
+
+		:param torrentURL: the url of the torrent
+		:return: the added torrent
+		:type torrentURL: str
+		:rtype: TorrentRPC.TorrentObject
+		"""
 		old = self.torrents.copy()
 		self.client.webui_add_url(torrentURL)
 		self.getTorrents()
 		added = self.getTorrentListModifications(self.torrents, old)["added"]
-		#print old
-		#print self.torrents
+
 		if len(added) > 0:
 			return added[0]
 		return None
 
 	def addTorrent(self, torrentFilePath):
+		"""
+		Add a torrent using a .torrent file
+
+		:param torrentFilePath: The path of the .torrent file
+		:return: the added torrent
+		:rtype: TorrentRPC.TorrentObject
+		"""
 		old = self.torrents.copy()
 		self.client.webui_add_file(torrentFilePath)
 		self.getTorrents()
@@ -64,19 +99,31 @@ class UTorrentRPC(TorrentManager):
 		return None
 
 	def getTorrentListModifications(self, new, old):
+		"""
+		Tool method used to retrieve added and removed torrents using two lists
+		:param new: dict
+		:param old: dict
+		:return: a new dictionary with a field "added" and "removed" composed of two list of TorrentRPC.TorrentObject
+		:rtype: dict
+		"""
 		removed = []
 		added = []
 		for h, n in new.iteritems():
 			if h not in old:
-				#print n.name, "is new"
 				added.append(n)
 		for h, o in old.iteritems():
 			if h not in new:
-				#print o.name, "is old"
 				removed.append(o)
 		return {"added": added, "removed": removed}
 
-	def removeTorrent(self, hash, deleteData = False):
+	def removeTorrent(self, hash, deleteData=False):
+		"""
+		Remove the torrent with the hash hash
+
+		:param hash: the hash of the torrent to remove
+		:param deleteData: if True remove also the data
+		:return: True
+		"""
 		if deleteData:
 			self.client.webui_remove(hash)
 		else:
@@ -85,9 +132,19 @@ class UTorrentRPC(TorrentManager):
 
 	def buildTorrentObject(self, uTorrentTorrent):
 		"""
-		:type uTorrentTorrent Torrent
-		:param uTorrentTorrent:
-		:return:
+		Build a TorrentObject using the data provided by uTorrentTorrent
+
+		TODO:
+
+		- Get the torrent file path
+
+		- Generate the magnet link using the library bencode
+		http://stackoverflow.com/questions/12479570/given-a-torrent-file-how-do-i-generate-a-magnet-link-in-python
+
+		:type uTorrentTorrent: dict
+		:param uTorrentTorrent: the data used to build the TorrentObject object
+		:return: a TorrentObject object
+		:rtype: TorrentRPC.TorrentObject
 		"""
 		torrent = TorrentObject(uTorrentTorrent[0], uTorrentTorrent[2])
 		torrent.eta = uTorrentTorrent[10]               # eta	TORRENT_ETA: 10
@@ -103,10 +160,17 @@ class UTorrentRPC(TorrentManager):
 		torrent.ratio = uTorrentTorrent[7]	            # uploadRatio	TORRENT_RATIO: 7
 		torrent.dlRate = uTorrentTorrent[9]	            # rateDownload (bps)	TORRENT_DOWNSPEED: 9
 		torrent.ulRate = uTorrentTorrent[8]     	    # rateUpload (bps)	TORRENT_UPSPEED: 8
-		torrent.isFinished = uTorrentTorrent[4] >= 1000000     # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000'000
+		torrent.isFinished = uTorrentTorrent[4] >= 1000     # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000
 		return torrent
 
 	def buildTorrentFileObject(self, uTorrentTorrentFile):
+		"""
+		Build a TorrentFile using the data provided by uTorrentTorrentFile
+
+		:param uTorrentTorrentFile: list
+		:return: a TorrentFile object
+		:rtype: TorrentRPC.TorrentFile
+		"""
 		# 'noDl'|'high'|'normal'|'low'
 		name = uTorrentTorrentFile[0]
 		size = uTorrentTorrentFile[1]

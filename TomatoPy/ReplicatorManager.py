@@ -4,10 +4,10 @@ from DatabaseManager import DatabaseManager
 import urllib2
 import json
 import os
-from AutomatedActionExecutor import *
+from TomatoPy.AutomatedActionExecutor import *
 import Tools
 from XbmcLibraryManager import XbmcLibraryManager
-from TorrentRPC import *
+from TomatoPy.TorrentRPC import *
 
 
 class ReplicatorManager(AutomatedActionsExecutor):

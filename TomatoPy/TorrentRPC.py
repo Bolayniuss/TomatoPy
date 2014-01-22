@@ -3,11 +3,14 @@ __author__ = 'bolay'
 import os
 
 from DatabaseManager import DatabaseManager
-from SourceMapperItem import *
-from Filters import FileFilter
+from TomatoPy.SourceMapperItem import *
+from TomatoPy.Filters import FileFilter
 
 
 class TorrentObject:
+	"""
+	Object that represents a torrent (task)
+	"""
 	def __init__(self, hash, name):
 		self.name = ""
 		self.hash = ""

@@ -1,8 +1,8 @@
 __author__ = 'bolay'
-from TorrentRPC import *
+from TomatoPy.TorrentRPC import *
 import transmissionrpc
 
-transmissionrpc.Torrent
+
 class TransmissionTorrentRPC(TorrentManager):
 
 	def __init__(self):
