@@ -71,7 +71,7 @@ class TransmissionTorrentRPC(TorrentManager):
 		except KeyError as e:
 			raise e
 
-	def buildTorrentObject(self, transmissionTorrent):
+	def buildTorrentObject(self, transmissionTorrent, mini=False):
 		"""
 		:type transmissionTorrent Torrent
 		:param transmissionTorrent:
@@ -80,19 +80,34 @@ class TransmissionTorrentRPC(TorrentManager):
 		#print transmissionTorrent._fields
 		torrent = TorrentObject(transmissionTorrent.hashString, transmissionTorrent.name)
 		#torrent.eta = transmissionTorrent.eta
-		torrent.size = transmissionTorrent.totalSize
-		torrent.downloaded = transmissionTorrent.downloadedEver
-		torrent.uploaded = transmissionTorrent.uploadedEver
-		torrent.seeders = transmissionTorrent.peersSendingToUs
+		#torrent.size = transmissionTorrent.totalSize
+		#torrent.downloaded = transmissionTorrent.downloadedEver
+		#torrent.uploaded = transmissionTorrent.uploadedEver
+		#torrent.seeders = transmissionTorrent.peersSendingToUs
 		#torrent.totalSeeders = transmissionTorrent.seeders
-		torrent.peers = transmissionTorrent.peersGettingFromUs
+		#torrent.peers = transmissionTorrent.peersGettingFromUs
 		#torrent.totalPeers = transmissionTorrent.peersKnown
-		torrent.magnetLink = transmissionTorrent.magnetLink
-		torrent.torrentFilePath = transmissionTorrent.torrentFile
-		torrent.ratio = transmissionTorrent.uploadRatio
-		torrent.dlRate = transmissionTorrent.rateDownload
-		torrent.ulRate = transmissionTorrent.rateUpload
-		torrent.isFinished = transmissionTorrent.percentDone == 1
+		#torrent.magnetLink = transmissionTorrent.magnetLink
+		#torrent.torrentFilePath = transmissionTorrent.torrentFile
+		#torrent.ratio = transmissionTorrent.uploadRatio
+		#torrent.dlRate = transmissionTorrent.rateDownload
+		#torrent.ulRate = transmissionTorrent.rateUpload
+		#torrent.isFinished = transmissionTorrent.percentDone == 1
+		if not mini:
+			#torrent.eta = transmissionTorrent.eta
+			torrent.size = transmissionTorrent.totalSize
+			torrent.downloaded = transmissionTorrent.downloadedEver
+			torrent.uploaded = transmissionTorrent.uploadedEver
+			torrent.seeders = transmissionTorrent.peersSendingToUs
+			#torrent.totalSeeders = transmissionTorrent.seeders
+			torrent.peers = transmissionTorrent.peersGettingFromUs
+			#torrent.totalPeers = transmissionTorrent.peersKnown
+			torrent.magnetLink = transmissionTorrent.magnetLink
+			torrent.torrentFilePath = transmissionTorrent.torrentFile
+			torrent.ratio = transmissionTorrent.uploadRatio
+			torrent.dlRate = transmissionTorrent.rateDownload
+			torrent.ulRate = transmissionTorrent.rateUpload
+			torrent.isFinished = transmissionTorrent.percentDone == 1
 		return torrent
 
 	def buildTorrentFileObject(self, transmissionTorrentFile):
