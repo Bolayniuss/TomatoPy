@@ -80,7 +80,7 @@ class TransmissionTorrentRPC(TorrentManager):
 		#print transmissionTorrent._fields
 		torrent = TorrentObject(transmissionTorrent.hashString, transmissionTorrent.name)
 		#torrent.eta = transmissionTorrent.eta
-		torrent.size = transmissionTorrent.sizeWhenDone
+		torrent.size = transmissionTorrent.totalSize
 		torrent.downloaded = transmissionTorrent.downloadedEver
 		torrent.uploaded = transmissionTorrent.uploadedEver
 		torrent.seeders = transmissionTorrent.peersSendingToUs

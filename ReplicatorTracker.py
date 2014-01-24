@@ -257,8 +257,8 @@ class File:
 
 class FileWithHash(File):
 	"""
-
 	FileWithHash represent files present in destination directories
+
 	"""
 
 	def __init__(self, path, destinationName, hash=None, relativePath=None):
