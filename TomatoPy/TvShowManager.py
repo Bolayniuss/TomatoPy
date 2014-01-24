@@ -132,7 +132,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		return False
 
 	def getTvShowFileFromTorrent(self, torrent, filter):
-		files = self.torrentManager.getTorrentFiles(torrent.hashString)
+		files = self.torrentManager.getTorrentFiles(torrent.hash)
 		rarFilter = FileFilter(".*", ["rar"])
 		validFiles = []
 		for file in files:
