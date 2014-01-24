@@ -10,6 +10,7 @@ import sys
 class DirectoryMapper:
 
 	def __init__(self, path, filter=FileFilter(), encoding=None):
+		self.path = path
 		if encoding is not None:
 			self.path = path.encode(encoding)
 		self.filter = filter
