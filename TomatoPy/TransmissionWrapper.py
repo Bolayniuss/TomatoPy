@@ -62,7 +62,7 @@ class TransmissionTorrentRPC(TorrentManager):
 		return
 
 	def addTorrentURL(self, torrentUrl):
-		return self.buildTorrentObject(self.torrentClient.add_torrent(torrentUrl))
+		return self.buildTorrentObject(self.torrentClient.add_torrent(torrentUrl), True)
 
 	def removeTorrent(self, hash, deleteData):
 		try:
