@@ -91,6 +91,9 @@ class TorrentManager(object):
 		pass
 
 	def getTorrentFilePath(self, torrentName, filename):
+		print "Debug: downloadDirectory=", self.downloadDirectory
+		print "path1=", os.path.join(self.downloadDirectory, filename)
+		print "path2=", os.path.join(self.downloadDirectory, torrentName, filename)
 		if os.path.isfile(os.path.join(self.downloadDirectory, filename)):
 			return os.path.join(self.downloadDirectory, filename)
 		elif os.path.isfile(os.path.join(self.downloadDirectory, torrentName, filename)):
