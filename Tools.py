@@ -39,7 +39,8 @@ class FileSystemHelper:
 	def move(self, source, destination):
 		print "move: ", source, " to ", destination
 		try:
-			os.makedirs(os.path.dirname(destination), 0777)
+			directory = os.path.dirname(destination)
+			os.makedirs(directory, 0777)
 		except OSError:
 			pass
 		finally:
