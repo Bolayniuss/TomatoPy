@@ -94,10 +94,10 @@ class ReplicatorManager(AutomatedActionsExecutor):
 			torrent = self.torrentManager.getTorrent(hashString)
 			if torrent.isFinished:
 				if data[0] == "move":
-					print "ReplicatorManager: move action"
-					print "Debug filename=", filename, " torrent.name=", torrent.name
+					#print "ReplicatorManager: move action"
+					#print "Debug filename=", filename, " torrent.name=", torrent.name
 					fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
-					print "Debug fileToMove=", fileToMove
+					#print "Debug fileToMove=", fileToMove
 
 					if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
 						print "ReplicatorManager: move succeed"

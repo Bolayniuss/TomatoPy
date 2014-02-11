@@ -1,6 +1,7 @@
 __author__ = 'bolay'
 from TomatoPy.TorrentRPC import *
 from UTorrent.UTorrent import UTorrent
+from os import times
 
 
 class UTorrentRPC(TorrentManager):
@@ -112,12 +113,14 @@ class UTorrentRPC(TorrentManager):
 		removed = []
 		added = []
 		for h, n in new.iteritems():
+			print "UTorrentWrapper Debug: new list, [", h, "] ", n.name
 			if h not in old:
 				print "UTorrentWrapper Debug: new torrent", n.name
 				added.append(n)
 		for h, o in old.iteritems():
+			print "UTorrentWrapper Debug: old list, [", h, "] ", o.name
 			if h not in new:
-				print "UTorrentWrapper Debug: old torrent", n.name
+				print "UTorrentWrapper Debug: old torrent", o.name
 				removed.append(o)
 		return {"added": added, "removed": removed}
 
