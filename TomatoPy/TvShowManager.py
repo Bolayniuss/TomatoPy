@@ -74,9 +74,10 @@ class TvShowManager(AutomatedActionsExecutor):
 				if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
 					#print "TvShowManager: Episode ", item.title, " removed because it already exist in source directory ", fileItem.name
 					add = False
+					print item.title, re.escape(item.title), " is in ", fileItem.name
 					break
 				else:
-					print item.title, re.escape(item.title), " is not in ", fileItem.name
+					pass
 			if add:
 				_tmp.append(item)
 
