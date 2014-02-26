@@ -57,7 +57,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		_tmp = []
 		for item in betaserieEpisodes:
 			for (tvShowTitle, filter) in self.trackedTvShows:
-				if re.search(tvShowTitle, item.title, re.IGNORECASE) is not None:
+				if re.search(re.escape(tvShowTitle), item.title, re.IGNORECASE) is not None:
 					#print "TvShowManager: Possible new episode found: ", item.title
 					item.filter = filter
 					item.tvShow = tvShowTitle
