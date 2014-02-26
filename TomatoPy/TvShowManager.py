@@ -67,10 +67,10 @@ class TvShowManager(AutomatedActionsExecutor):
 		betaserieEpisodes = _tmp
 		_tmp = []
 
-		tvShowInDir = DirectoryMapper(re.escape(self.tvShowDirectory), FileFilter(".*", ["mkv", "avi", "mp4"]), self.fileSystemEncoding).files
+		tvShowInDir = DirectoryMapper(self.tvShowDirectory, FileFilter(".*", ["mkv", "avi", "mp4"]), self.fileSystemEncoding).files
 		for item in betaserieEpisodes:
+			add = True
 			for fileItem in tvShowInDir:
-				add = True
 				if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
 					#print "TvShowManager: Episode ", item.title, " removed because it already exist in source directory ", fileItem.name
 					add = False
