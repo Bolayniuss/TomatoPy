@@ -59,60 +59,58 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		for serverName, serverActionsList in self.replicatorActions.iteritems():
 			for actionsDict in serverActionsList:
 				for torrentName, actions in actionsDict.iteritems():
+					actionParams = []
 					for action in actions:
 
 						# Test if source exist
 						if action["destinationName"] in self.destinations:
 							destinationPath = os.path.join(self.destinations[action["destinationName"]], action["destinationRelativePath"])
-							# if path does not exist create directories (not here)
-							#try:
-							#	os.makedirs(os.path.dirname(destinationPath))
-							#except OSError:
-							#	pass
-							#finally:
-							#	pass
-
-							# Test if destination file does not already exist
 							if not os.path.exists(destinationPath):
+								actionParams.append(action["torrentFileName"])
+								actionParams.append(destinationPath)
 
-								# Add Torrent
-								t = self.torrentManager.addTorrentURL(action["torrentData"])
+					if actionParams:
+						# Add Torrent
+						t = self.torrentManager.addTorrentURL(action["torrentData"])
 
-								# Add move action with torrentHash, fileName, destinationPath
-								aa = "move&&"+t.hash+"&&"+action["torrentFileName"]+"&&"+destinationPath
-								sql = "INSERT INTO AutomatedActions (notifier, `trigger`, `data`) VALUES(%s, %s, %s);"
-								self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
-								self.dbm.connector.commit()
+						# Add move action with torrentHash, fileName, destinationPath
+						aa = "move&&"+t.hash+"&&"+"&&".join(actionParams)
+						sql = "INSERT INTO AutomatedActions (notifier, `trigger`, `data`) VALUES(%s, %s, %s);"
+						self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
+						self.dbm.connector.commit()
 
-								print "ReplicatorManager: Add new automated action from server=", serverName, ", ", aa
+						print "ReplicatorManager: Add new automated action from server=", serverName, ", ", aa
 
 	def executeAction(self, data):
-		hashString = data[1]
-		filename = data[2]
-		destinationPath = data[3]
-		try:
-			torrent = self.torrentManager.getTorrent(hashString)
-			if torrent.isFinished:
-				if data[0] == "move":
-					#print "ReplicatorManager: move action"
-					#print "Debug filename=", filename, " torrent.name=", torrent.name
-					fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
-					#print "Debug fileToMove=", fileToMove
+		if data[0] == "move":
+			hashString = data[1]
+			try:
+				torrent = self.torrentManager.getTorrent(hashString)
+				if torrent.isFinished:
+					nFiles = (len(data)-2)/2
+					success = True
+					for i in xrange(nFiles):
+						filename = data[2+i*2]
+						destinationPath = data[3+i*2]
+						fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
 
-					if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
-						print "ReplicatorManager: move succeed"
-						#time.sleep(0.5)
+						if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
+							print "ReplicatorManager: file (", (i+1), "/", nFiles, ") move succeeded."
+							#time.sleep(0.5)
+						else:
+							success = False
+					if success:
 						XbmcLibraryManager.Instance().scanVideoLibrary()
 						print "ReplicatorManager: delete associated torrent"
 						self.torrentManager.removeTorrent(hashString, True)
-						return True
-					print "TvShowManager: failed to move", torrent.name
+					else:
+						print "TvShowManager: failed to move", torrent.name
+					return success
+				else:
+					print torrent.name, " isn't yet finished"
 					return False
-			else:
-				print torrent.name, " isn't yet finished"
-				return False
-		finally:
-			pass
+			finally:
+				pass
 		return False
 
 	def executeOnTorrentDownloadedActions(self):
