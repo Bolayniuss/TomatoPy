@@ -67,11 +67,11 @@ class TvShowManager(AutomatedActionsExecutor):
 		betaserieEpisodes = _tmp
 		_tmp = []
 
-		tvShowInDir = DirectoryMapper(self.tvShowDirectory, FileFilter(".*", ["mkv", "avi", "mp4"]), self.fileSystemEncoding).files
+		tvShowInDir = DirectoryMapper(re.escape(self.tvShowDirectory), FileFilter(".*", ["mkv", "avi", "mp4"]), self.fileSystemEncoding).files
 		for item in betaserieEpisodes:
 			for fileItem in tvShowInDir:
 				add = True
-				if re.search(item.title, fileItem.name, re.IGNORECASE) is not None:
+				if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
 					#print "TvShowManager: Episode ", item.title, " removed because it already exist in source directory ", fileItem.name
 					add = False
 					break
@@ -87,10 +87,13 @@ class TvShowManager(AutomatedActionsExecutor):
 		torrents = torrentManager.getTorrents()
 		for episode in episodes:
 
-			pattern = episode.title.replace(" ", ".")
+			patternArray = episode.title.split(" ")
+			for i in xrange(len(patternArray)):
+				patternArray[i] = re.escape(patternArray[i])
+			pattern = ".".join(patternArray)
 			new = True
 			for torrent in torrents:
-				if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
+				if re.search(re.escape(pattern), torrent.name, re.IGNORECASE) is not None:
 					#print "TvShowManager: episode ", pattern, " found in torrent list ", torrent.name
 					#self.addAutomatedActions(torrent.hashString, episode.tvShow, episode.title)
 					new = False
