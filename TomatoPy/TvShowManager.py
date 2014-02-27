@@ -98,7 +98,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		torrents = torrentManager.getTorrents()
 
 		for episode in episodes:
-			pattern = c(episode.title)
+			pattern = self.deleteBadChars(episode.title)
 			new = True
 			for torrent in torrents:
 				print "pattern:", pattern, "torrent.name:", torrent.name
