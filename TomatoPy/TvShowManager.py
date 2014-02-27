@@ -87,11 +87,12 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		torrents = torrentManager.getTorrents()
 		bad_chars = '(){}<>'
+		badCharsDict = dict((ord(char), None) for char in bad_chars)
 		for episode in episodes:
 
 			patternArray = episode.title.split(" ")
 			for i in xrange(len(patternArray)):
-				patternArray[i] = patternArray[i].translate(string.maketrans("", ""), bad_chars)
+				patternArray[i] = patternArray[i].translate(badCharsDict)
 				patternArray[i] = re.escape(patternArray[i])
 			pattern = ".".join(patternArray)
 			new = True
