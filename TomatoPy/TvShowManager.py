@@ -82,19 +82,23 @@ class TvShowManager(AutomatedActionsExecutor):
 		betaserieEpisodes = _tmp
 		return betaserieEpisodes
 
+	def deleteBadChars(self, inp):
+		bad_chars = '(){}<>'
+		badCharsDict = dict((ord(char), None) for char in bad_chars)
+		patternArray = inp.split(" ")
+		for i in xrange(len(patternArray)):
+			patternArray[i] = patternArray[i].translate(badCharsDict)
+			patternArray[i] = re.escape(patternArray[i])
+		pattern = ".".join(patternArray)
+		return pattern
+
 	def addNewToTorrentManager(self, torrentManager):
 		episodes = self.getNewTvShow()
 
 		torrents = torrentManager.getTorrents()
-		bad_chars = '(){}<>'
-		badCharsDict = dict((ord(char), None) for char in bad_chars)
-		for episode in episodes:
 
-			patternArray = episode.title.split(" ")
-			for i in xrange(len(patternArray)):
-				patternArray[i] = patternArray[i].translate(badCharsDict)
-				patternArray[i] = re.escape(patternArray[i])
-			pattern = ".".join(patternArray)
+		for episode in episodes:
+			pattern = c(episode.title)
 			new = True
 			for torrent in torrents:
 				print "pattern:", pattern, "torrent.name:", torrent.name
@@ -177,7 +181,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		try:
 			torrent = self.torrentManager.getTorrent(hashString)
 			if torrent.isFinished:
-				pattern = episodeName.replace(" ", ".")
+				pattern = self.deleteBadChars(episodeName)
 				filter = FileFilter(pattern, ["mkv", "avi", "mp4"])
 				if data[0] == "move":
 					print "TvShowManager: move action"
