@@ -12,6 +12,7 @@ import time
 import Tools
 import rarfile
 from TomatoPy.TorrentRPC import TorrentFile
+import string
 
 
 class TvShowManager(AutomatedActionsExecutor):
@@ -85,10 +86,12 @@ class TvShowManager(AutomatedActionsExecutor):
 		episodes = self.getNewTvShow()
 
 		torrents = torrentManager.getTorrents()
+		bad_chars = '(){}<>'
 		for episode in episodes:
 
 			patternArray = episode.title.split(" ")
 			for i in xrange(len(patternArray)):
+				patternArray[i] = patternArray[i].translate(string.maketrans("", "", ), bad_chars)
 				patternArray[i] = re.escape(patternArray[i])
 			pattern = ".".join(patternArray)
 			new = True
@@ -103,7 +106,10 @@ class TvShowManager(AutomatedActionsExecutor):
 				rpbItems = TPBScrapper(episode.title, episode.filter).torrents
 				if len(rpbItems) > 0:
 					newTorrent = torrentManager.addTorrentURL(rpbItems[0].link)
-					self.addAutomatedActions(newTorrent.hash, episode.tvShow, episode.title)
+					if newTorrent:
+						self.addAutomatedActions(newTorrent.hash, episode.tvShow, episode.title)
+					else:
+						print "No torrent added for ", episode.title
 				else:
 					print "No torrent found for ", episode.title
 
