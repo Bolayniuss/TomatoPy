@@ -91,7 +91,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
 			patternArray = episode.title.split(" ")
 			for i in xrange(len(patternArray)):
-				patternArray[i] = patternArray[i].translate(string.maketrans("", "", ), bad_chars)
+				patternArray[i] = patternArray[i].translate(string.maketrans(bad_chars, ""))
 				patternArray[i] = re.escape(patternArray[i])
 			pattern = ".".join(patternArray)
 			new = True
