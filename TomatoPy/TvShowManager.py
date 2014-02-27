@@ -94,7 +94,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			new = True
 			for torrent in torrents:
 				print "pattern:", pattern, "torrent.name:", torrent.name
-				if re.search(re.escape(pattern), torrent.name, re.IGNORECASE) is not None:
+				if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
 					#print "TvShowManager: episode ", pattern, " found in torrent list ", torrent.name
 					#self.addAutomatedActions(torrent.hashString, episode.tvShow, episode.title)
 					new = False
