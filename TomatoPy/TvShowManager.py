@@ -83,13 +83,15 @@ class TvShowManager(AutomatedActionsExecutor):
 		return betaserieEpisodes
 
 	def deleteBadChars(self, inp):
+		"""
+
+		:param unicode inp:
+		:return:
+		:rtype unicode:
+		"""
 		bad_chars = '(){}<>'
 		badCharsDict = dict((ord(char), None) for char in bad_chars)
-		patternArray = inp.split(" ")
-		for i in xrange(len(patternArray)):
-			patternArray[i] = patternArray[i].translate(badCharsDict)
-			patternArray[i] = re.escape(patternArray[i])
-		pattern = ".".join(patternArray)
+		pattern = inp.translate(badCharsDict)
 		return pattern
 
 	def addNewToTorrentManager(self, torrentManager):
@@ -99,6 +101,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		for episode in episodes:
 			pattern = self.deleteBadChars(episode.title)
+			pattern = pattern.replace(" ", ".")
 			new = True
 			for torrent in torrents:
 				print "pattern:", pattern, "torrent.name:", torrent.name
@@ -161,6 +164,11 @@ class TvShowManager(AutomatedActionsExecutor):
 					validFiles.append(extractedFile)
 
 		if len(validFiles) == 0:
+			mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi", "wmv"])
+			for file in files:
+				if mediaFilter.test(FileItem(file.name, "")):
+					validFiles.append(file)
+		if len(validFiles) == 0:
 			print "No valid files found"
 			return None
 		id = 0
@@ -182,6 +190,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			torrent = self.torrentManager.getTorrent(hashString)
 			if torrent.isFinished:
 				pattern = self.deleteBadChars(episodeName)
+				pattern = pattern.replace(" ", ".")
 				filter = FileFilter(pattern, ["mkv", "avi", "mp4"])
 				if data[0] == "move":
 					print "TvShowManager: move action"

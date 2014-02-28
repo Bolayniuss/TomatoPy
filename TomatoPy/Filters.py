@@ -11,7 +11,7 @@ class FileFilter:
 		self.extensions = extensions
 
 	def test(self, item):
-		if re.search(self.name, item.name, re.IGNORECASE) is None:
+		if re.search(re.escape(self.name), item.name, re.IGNORECASE) is None:
 			return False
 		for ext in self.extensions:
 			if re.search(ext, item.extension, re.IGNORECASE) is not None:
