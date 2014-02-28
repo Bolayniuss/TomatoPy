@@ -72,7 +72,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		for item in betaserieEpisodes:
 			add = True
 			for fileItem in tvShowInDir:
-				if fileItem.name[0] == "H":
+				if True or fileItem.name[0] == "H":
 					print "look for ", re.escape(item.title), " in ", fileItem.name
 				if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
 					#print "TvShowManager: Episode ", item.title, " removed because it already exist in source directory ", fileItem.name
