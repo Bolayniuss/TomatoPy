@@ -4,6 +4,7 @@ import os
 import re
 from DatabaseManager import DatabaseManager
 from TomatoPy.TransmissionWrapper import *
+import logging
 
 import base64
 import Tools
@@ -211,7 +212,7 @@ class Destination:
 					if fwh is None:
 						fwh = FileWithHash(path, self.name, None, relativePath)
 						sql2 = "INSERT INTO DestinationsFilesList (hash, path, destinationName) VALUES(%s, %s, %s);"
-						print self.name, " add: ", relativePath
+						#self.logger.info("%s add: %s", [self.name, relativePath]
 						curs.execute(sql2, (fwh.hash, relativePath, fwh.destinationName))
 						DatabaseManager.Instance().connector.commit()
 					self.files[fwh.hash] = fwh
@@ -225,7 +226,7 @@ class Destination:
 		self.validInterestingFiles = []
 		for i, f in ifList.iteritems():
 			if f.hash in self.files:
-				print "New interesting file : ", f.name
+				self.logger.info("New interesting file : %s", f.name)
 				self.validInterestingFiles.append((f, self.files[f.hash]))
 
 	@staticmethod
@@ -292,6 +293,9 @@ class FileWithHash(File):
 
 class FileTracer:
 	def __init__(self):
+
+		self.logger = logging.getLogger("FileTracer ")
+
 		# create useful objects
 		self.dbm = DatabaseManager.Instance()
 		self.torrentManager = TransmissionTorrentRPC()
@@ -340,7 +344,7 @@ class FileTracer:
 						self.dbm.connector.commit()
 
 						# Remove File from TrackedTorrentFiles DB
-						print "Remove TrackedTorrentFile ", trackedFile.name
+						self.logger.info("Remove TrackedTorrentFile %s", trackedFile.name)
 						sql = "DELETE FROM TrackedTorrentFiles WHERE hash=%s;"
 						self.dbm.cursor.execute(sql, (trackedFile.hash, ))
 						self.dbm.connector.commit()
@@ -351,7 +355,7 @@ class FileTracer:
 
 	def clean(self):
 		#self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE timeout<UNIX_TIMESTAMP()")
-		print "Beginning Clean up."
+		self.logger.info("Beginning Clean up.")
 		torrents = {}
 		for torrent in self.torrentManager.getTorrents():
 			torrents[torrent.hash] = 1
@@ -368,7 +372,7 @@ class FileTracer:
 			if not (iF.torrentHash in torrents):
 				delete = True
 			if delete:
-				print "Remove TrackedTorrentFile ", iF.name
+				self.logger.info("Remove TrackedTorrentFile %s", iF.name)
 				self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE name=%s", (iF.name, ))
 				self.dbm.connector.commit()
 
@@ -384,7 +388,7 @@ class FileTracer:
 				res = self.dbm.cursor.fetchone()
 				# No TrackedTorrentFile associated with this TrackedTorrent => remove
 				if res is None:
-					print "Remove TrackedTorrent with hash=", hashStr
+					self.logger.info("Remove TrackedTorrent with hash=%s", hashStr)
 					self.dbm.cursor.execute(deleteTTSql, (hashStr, ))
 					self.dbm.connector.commit()
 

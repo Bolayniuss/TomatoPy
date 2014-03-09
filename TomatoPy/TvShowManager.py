@@ -12,12 +12,15 @@ import time
 import Tools
 import rarfile
 from TomatoPy.TorrentRPC import TorrentFile
-import string
+import logging
 
 
 class TvShowManager(AutomatedActionsExecutor):
 	def __init__(self, torrentManager):
 		super(TvShowManager, self).__init__("TvShowManager")
+
+		self.logger = logging.getLogger("TvShowManager")
+
 		dbm = DatabaseManager.Instance()
 		self.torrentManager = torrentManager
 
@@ -106,7 +109,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			pattern = pattern.replace(" ", ".")
 			new = True
 			for torrent in torrents:
-				print "pattern:", pattern, "torrent.name:", torrent.name
+				#print "pattern:", pattern, "torrent.name:", torrent.name
 				if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
 					#print "TvShowManager: episode ", pattern, " found in torrent list ", torrent.name
 					#self.addAutomatedActions(torrent.hashString, episode.tvShow, episode.title)
@@ -119,9 +122,9 @@ class TvShowManager(AutomatedActionsExecutor):
 					if newTorrent:
 						self.addAutomatedActions(newTorrent.hash, episode.tvShow, episode.title)
 					else:
-						print "No torrent added for ", episode.title
+						self.logger.info("No torrent added for %s", episode.title)
 				else:
-					print "No torrent found for ", episode.title
+					self.logger.info("No torrent found for %s", episode.title)
 
 	def addAutomatedActions(self, torrentId, tvShow, episodeName):
 		#sql = "INSERT INTO `AutomatedActions` (`id`, `notifier`, `trigger`, `data`) VALUES (NULL, 'asd', 'onTorrentDownloaded', 'asdasd');"
@@ -146,7 +149,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		season = self.getSeasonFromTitle(episodeName)
 		dst = os.path.join(self.tvShowDirectory, tvShow, "Saison " + season, episodeName + "." + file.extension)
 		sourceFilePath = file.getFullPath()
-		print "TvShowManager: try to move ", sourceFilePath, " to ", dst
+		self.logger.info("try to move %s* to %s", [sourceFilePath, dst])
 		if len(sourceFilePath) > 0:
 			return Tools.FileSystemHelper.Instance().move(sourceFilePath, dst)
 		return False
@@ -171,7 +174,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				if mediaFilter.test(FileItem(file.name, "")):
 					validFiles.append(file)
 		if len(validFiles) == 0:
-			print "No valid files found"
+			self.logger.info("No valid files found")
 			return None
 		id = 0
 		i = 1
@@ -195,20 +198,20 @@ class TvShowManager(AutomatedActionsExecutor):
 				pattern = pattern.replace(" ", ".")
 				filter = FileFilter(pattern, ["mkv", "avi", "mp4"])
 				if data[0] == "move":
-					print "TvShowManager: move action"
+					self.logger.info("move action")
 					fileToMove = self.getTvShowFileFromTorrent(torrent, filter)
 
 					if self.moveTvShow(fileToMove, tvShow, episodeName):
-						print "TvShowManager: move succeed"
+						self.logger.info("move succeed")
 						time.sleep(0.5)
 						XbmcLibraryManager.Instance().scanVideoLibrary()
-						print "TvShowManager: delete associated torrent"
+						self.logger.info("delete associated torrent")
 						self.torrentManager.removeTorrent(hashString, True)
 						return True
-					print "TvShowManager: failed to move", torrent.name
+					self.logger.info("TvShowManager: failed to move %s", torrent.name)
 					return False
 			else:
-				print torrent.name, " isn't yet finished"
+				self.logger.info("Torrent %s isn't yet finished", torrent.name)
 				return False
 		finally:
 			pass
@@ -224,18 +227,18 @@ class TvShowManager(AutomatedActionsExecutor):
 		for id, data in actions.iteritems():
 			delete = False
 			try:
-				print "TvShowManager: try to execute action id=", id
+				self.logger.info("try to execute action id=%d", id)
 				success = self.executeAction(data)
-				print "TvShowManager: action (id=", id, ") result=", success
+				self.logger.info("action (id=%d) result=%d", [id, success])
 				delete = success
 			except KeyError as e:
-				print "TvShowManager: error while processing action (id=", id, ") torrent does not exist"
+				self.logger.info("error while processing action (id=%d) torrent does not exist", id)
 				delete = True
 			finally:
 				pass
 
 			if delete:
-				print "TvShowManager: remove action with id=", id
+				self.logger.info("remove action with id=%d", id)
 				delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
 				curs.execute(delQuery, (id, ))
 				DatabaseManager.Instance().connector.commit()
@@ -258,7 +261,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				if f.file_size > theFile.file_size:
 					theFile = f
 			rar.extract(theFile, os.path.split(file)[0])
-			print "TorrentRPC: extract file, ", os.path.split(file)[0], " --- ", theFile.filename, " from rar, ", file
+			self.logger.info("extract file, %s --- %s from rar, %s", [os.path.split(file)[0], theFile.filename, file])
 			fakeTorrentFile = TorrentFile()
 			fakeTorrentFile.name = theFile.filename
 			fakeTorrentFile.size = theFile.file_size

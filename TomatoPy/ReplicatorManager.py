@@ -8,6 +8,7 @@ from TomatoPy.AutomatedActionExecutor import *
 import Tools
 from XbmcLibraryManager import XbmcLibraryManager
 from TomatoPy.TorrentRPC import *
+import logging
 
 
 class ReplicatorManager(AutomatedActionsExecutor):
@@ -20,6 +21,9 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		:return:
 		"""
 		super(ReplicatorManager, self).__init__("ReplicatorManager")
+
+		self.logger = logging.getLogger("ReplicatorManager")
+
 		self.user = user
 		self.serviceName = "Replicator"
 		self.dbm = DatabaseManager.Instance()
@@ -45,7 +49,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
 	def loadRemoteActions(self):
 		for server in self.replicatorServers:
-			print "ReplicatorManager: Loading actions from remote server, ", server["name"]
+			self.logger.info("Loading actions from remote server, %s", server["name"])
 			url = server["url"]+"?q=getReplicatorActions&user="+self.user
 
 			jsonData = urllib2.urlopen(url).read()
@@ -79,7 +83,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
 						self.dbm.connector.commit()
 
-						print "ReplicatorManager: Add new automated action from server=", serverName, ", ", aa
+						self.logger.info("Add new automated action from server=%s, %s", [serverName, aa])
 
 	def executeAction(self, data):
 		if data[0] == "move":
@@ -95,19 +99,19 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
 
 						if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
-							print "ReplicatorManager: file (", (i+1), "/", nFiles, ") move succeeded."
+							self.logger.info("file (%d/ %s) move succeeded.", [(i+1), nFiles])
 							#time.sleep(0.5)
 						else:
 							success = False
 					if success:
 						XbmcLibraryManager.Instance().scanVideoLibrary()
-						print "ReplicatorManager: delete associated torrent"
+						self.logger.info("delete associated torrent")
 						self.torrentManager.removeTorrent(hashString, True)
 					else:
-						print "TvShowManager: failed to move", torrent.name
+						self.logger.info("failed to move %s", torrent.name)
 					return success
 				else:
-					print torrent.name, " isn't yet finished"
+					print self.logger.info("%s isn't yet finished", torrent.name)
 					return False
 			finally:
 				pass
@@ -122,18 +126,18 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		for id, data in actions.iteritems():
 			delete = False
 			try:
-				print "ReplicatorManager: try to execute action id=", id
+				self.logger.info("try to execute action id=%d", id)
 				success = self.executeAction(data)
-				print "ReplicatorManager: action (id=", id, ") result=", success
+				self.logger.info("action (id=%d) result=%d", [id, success])
 				delete = success
 			except KeyError as e:
-				print "ReplicatorManager: error while processing action (id=", id, ") torrent does not exist"
+				self.logger.error("error while processing action (id=%d) torrent does not exist", id)
 				delete = True
 			finally:
 				pass
 
 			if delete:
-				print "ReplicatorManager: remove action with id=", id
+				print self.logger.info("remove action with id=%d", id)
 				delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
 				curs.execute(delQuery, (id, ))
 				DatabaseManager.Instance().connector.commit()
