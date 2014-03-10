@@ -99,7 +99,7 @@ class TorrentManager(object):
 			return os.path.join(self.downloadDirectory, filename)
 		elif os.path.isfile(os.path.join(self.downloadDirectory, torrentName, filename)):
 			return os.path.join(self.downloadDirectory, torrentName, filename)
-		logging.warn("no file found in %s with filename %s", torrentName, filename)
+		self.logger.warn("no file found in %s with filename %s", torrentName, filename)
 		raise IOError("file not found")
 		return None
 

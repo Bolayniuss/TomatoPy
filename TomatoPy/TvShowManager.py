@@ -108,7 +108,6 @@ class TvShowManager(AutomatedActionsExecutor):
 		torrents = torrentManager.getTorrents()
 
 		for episode in episodes:
-			self.logger.debug("test validity of show=%s", episode)
 			pattern = self.deleteBadChars(episode.title)
 			pattern = pattern.replace(" ", ".")
 			new = True
@@ -155,7 +154,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		season = self.getSeasonFromTitle(episodeName)
 		dst = os.path.join(self.tvShowDirectory, tvShow, "Saison " + season, episodeName + "." + file.extension)
 		sourceFilePath = file.getFullPath()
-		self.logger.info("try to move %s* to %s", [sourceFilePath, dst])
+		self.logger.info("try to move %s* to %s", sourceFilePath, dst)
 		if len(sourceFilePath) > 0:
 			return Tools.FileSystemHelper.Instance().move(sourceFilePath, dst)
 		return False
