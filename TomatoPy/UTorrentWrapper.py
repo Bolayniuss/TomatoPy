@@ -113,14 +113,14 @@ class UTorrentRPC(TorrentManager):
 		removed = []
 		added = []
 		for h, n in new.iteritems():
-			print "UTorrentWrapper Debug: new list, [", h, "] ", n.name
+			#print "UTorrentWrapper Debug: new list, [", h, "] ", n.name
 			if h not in old:
-				print "UTorrentWrapper Debug: new torrent", n.name
+				#print "UTorrentWrapper Debug: new torrent", n.name
 				added.append(n)
 		for h, o in old.iteritems():
-			print "UTorrentWrapper Debug: old list, [", h, "] ", o.name
+			#print "UTorrentWrapper Debug: old list, [", h, "] ", o.name
 			if h not in new:
-				print "UTorrentWrapper Debug: old torrent", o.name
+				#print "UTorrentWrapper Debug: old torrent", o.name
 				removed.append(o)
 		return {"added": added, "removed": removed}
 
@@ -155,7 +155,7 @@ class UTorrentRPC(TorrentManager):
 		:return: a TorrentObject object
 		:rtype: TorrentRPC.TorrentObject
 		"""
-		print uTorrentTorrent
+
 		torrent = TorrentObject(uTorrentTorrent[0], uTorrentTorrent[2])
 		torrent.eta = uTorrentTorrent[10]               # eta	TORRENT_ETA: 10
 		torrent.size = uTorrentTorrent[3]               # sizeWhenDone	TORRENT_SIZE: 3
@@ -171,7 +171,7 @@ class UTorrentRPC(TorrentManager):
 		torrent.dlRate = uTorrentTorrent[9]	            # rateDownload (bps)	TORRENT_DOWNSPEED: 9
 		torrent.ulRate = uTorrentTorrent[8]     	    # rateUpload (bps)	TORRENT_UPSPEED: 8
 		torrent.isFinished = uTorrentTorrent[4] >= 1000     # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000
-		self.logger.debug("%s size=%d", torrent.name, torrent.size)
+
 		return torrent
 
 	def buildTorrentFileObject(self, uTorrentTorrentFile):
