@@ -130,7 +130,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		#sql = "INSERT INTO `AutomatedActions` (`id`, `notifier`, `trigger`, `data`) VALUES (NULL, 'asd', 'onTorrentDownloaded', 'asdasd');"
 		query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', %s);"
 		data = "&&".join(["move", torrentId, tvShow, episodeName])
-		print query, data
+		self.logger.info("add automated action, quest=%s, data=%s", query, data)
 		DatabaseManager.Instance().cursor.execute(query, (data, ))
 		DatabaseManager.Instance().connector.commit()
 
@@ -200,15 +200,17 @@ class TvShowManager(AutomatedActionsExecutor):
 				if data[0] == "move":
 					self.logger.info("move action")
 					fileToMove = self.getTvShowFileFromTorrent(torrent, filter)
-
-					if self.moveTvShow(fileToMove, tvShow, episodeName):
-						self.logger.info("move succeed")
-						time.sleep(0.5)
-						XbmcLibraryManager.Instance().scanVideoLibrary()
-						self.logger.info("delete associated torrent")
-						self.torrentManager.removeTorrent(hashString, True)
-						return True
-					self.logger.info("TvShowManager: failed to move %s", torrent.name)
+					if fileToMove:
+						if self.moveTvShow(fileToMove, tvShow, episodeName):
+							self.logger.info("move succeed")
+							time.sleep(0.5)
+							XbmcLibraryManager.Instance().scanVideoLibrary()
+							self.logger.info("delete associated torrent")
+							self.torrentManager.removeTorrent(hashString, True)
+							return True
+						self.logger.info("failed to move %s", torrent.name)
+					else:
+						self.logger.info("No valid file found in %s", torrent.name)
 					return False
 			else:
 				self.logger.info("Torrent %s isn't yet finished", torrent.name)
