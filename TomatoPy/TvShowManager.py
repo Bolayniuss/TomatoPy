@@ -83,6 +83,7 @@ class TvShowManager(AutomatedActionsExecutor):
 					break
 			if add:
 				_tmp.append(item)
+				self.logger.debug("new item %s ready to download", item.title)
 
 		betaserieEpisodes = _tmp
 		return betaserieEpisodes
@@ -121,6 +122,7 @@ class TvShowManager(AutomatedActionsExecutor):
 					newTorrent = torrentManager.addTorrentURL(rpbItems[0].link)
 					if newTorrent:
 						self.addAutomatedActions(newTorrent.hash, episode.tvShow, episode.title)
+						self.logger.debug("New torrent added for episode %s", episode.title)
 					else:
 						self.logger.info("No torrent added for %s", episode.title)
 				else:
