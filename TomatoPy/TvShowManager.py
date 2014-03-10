@@ -20,6 +20,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		super(TvShowManager, self).__init__("TvShowManager")
 
 		self.logger = logging.getLogger("TvShowManager")
+		self.logger.debug("init")
 
 		dbm = DatabaseManager.Instance()
 		self.torrentManager = torrentManager
