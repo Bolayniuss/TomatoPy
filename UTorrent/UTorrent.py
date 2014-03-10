@@ -126,8 +126,9 @@ class UTorrent:
 
 			return None
 		#print webui_response
-		data = webui_response.read()
 
+		data = webui_response.read()
+		logging.debug(data)
 		#print data
 		#print selector
 		return json.loads(data)

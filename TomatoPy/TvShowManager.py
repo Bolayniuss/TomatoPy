@@ -21,7 +21,6 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		self.logger = logging.getLogger("TvShowManager")
 		self.logger.debug("init")
-		print "Logger name = ", self.logger.name
 
 		dbm = DatabaseManager.Instance()
 		self.torrentManager = torrentManager
