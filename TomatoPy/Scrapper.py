@@ -7,11 +7,13 @@ import re
 import bs4
 
 from TomatoPy.ScrapperItem import *
+import logging
 
 
 class TPBScrapper:
 
 	def __init__(self, searchString, filter=None):
+		self.logger = logging.getLogger(__name__)
 		self.torrents = []
 		self.searchString = searchString
 		self.filter = filter
@@ -33,9 +35,10 @@ class TPBScrapper:
 			item.leeches = tds[3].text
 			reg = re.compile(".* ([\d.]+).*?([kKmMgG])iB.*")
 			m = reg.match(textTag.text)
-			item.size = m.group(1)
+			item.size = float(m.group(1))
 			item.author = unicode(textTag.find(["a", "i"]).string)
-			prescaler = m.group(2)
+			prescaler = m.group(2).upper()
+			self.logger.debuf("size value=%d, prescaler=%s, final=%d", item.size, prescaler, item.size * self.prescalerConverter(prescaler))
 			item.size *= self.prescalerConverter(prescaler)
 			if self.filter is not None:
 				if self.filter.test(item):
