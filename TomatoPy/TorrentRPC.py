@@ -5,7 +5,7 @@ import os
 from DatabaseManager import DatabaseManager
 from TomatoPy.SourceMapperItem import *
 from TomatoPy.Filters import FileFilter
-
+import logging
 
 class TorrentObject:
 	"""
@@ -68,6 +68,7 @@ class TorrentManager(object):
 	# removeTorrent(hash, deleteData)
 
 	def __init__(self, parameters=None):
+		self.logger = logging.getLogger(__name__)
 		if parameters is None:
 			query = "SELECT parameters FROM Parameters WHERE name='TorrentManager' LIMIT 1"
 			DatabaseManager.Instance().cursor.execute(query)
@@ -98,6 +99,7 @@ class TorrentManager(object):
 			return os.path.join(self.downloadDirectory, filename)
 		elif os.path.isfile(os.path.join(self.downloadDirectory, torrentName, filename)):
 			return os.path.join(self.downloadDirectory, torrentName, filename)
+		logging.warn("no file found in %s with filename %s", torrentName, filename)
 		return None
 
 	def getTorrents(self):

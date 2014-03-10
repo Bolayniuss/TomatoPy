@@ -188,6 +188,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			if validFiles[i].size > validFiles[id].size:
 				id = i
 			i += 1
+		self.logger.debug("validFile id=%d, name=%s", id, validFiles[id].name)
 		file = FileItem.fromCompletePath(self.torrentManager.getTorrentFilePath(torrent.name, validFiles[id].name))
 		return file
 
