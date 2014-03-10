@@ -47,13 +47,13 @@ class TPBScrapper:
 				self.torrents.append(item)
 
 	def prescalerConverter(self, prescaler):
-		if prescaler is "T":
+		if prescaler == "T":
 			return 1000000000000
-		elif prescaler is "G":
+		elif prescaler == "G":
 			return 1000000000
-		elif prescaler is "M":
+		elif prescaler == "M":
 			return 1000000
-		elif prescaler is "K":
+		elif prescaler == "K":
 			return 1000
 		return 1
 
