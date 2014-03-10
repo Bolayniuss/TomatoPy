@@ -132,7 +132,6 @@ class UTorrentRPC(TorrentManager):
 		:param deleteData: if True remove also the data
 		:return: True
 		"""
-		deleteData = False
 		if deleteData:
 			self.client.webui_remove_data(hash)
 		else:
