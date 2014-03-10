@@ -38,7 +38,7 @@ class TPBScrapper:
 			item.size = float(m.group(1))
 			item.author = unicode(textTag.find(["a", "i"]).string)
 			prescaler = m.group(2).upper()
-			self.logger.debug("size value=%d, prescaler=%s, final=%d", item.size, prescaler, item.size * self.prescalerConverter(prescaler))
+
 			item.size *= self.prescalerConverter(prescaler)
 			if self.filter is not None:
 				if self.filter.test(item):

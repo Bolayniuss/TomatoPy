@@ -131,7 +131,12 @@ class UTorrent:
 		logging.debug("request=%s, response=%s", selector, data)
 		#print data
 		#print selector
-		return json.loads(data)
+		jData = None
+		try:
+			jData = json.loads(data)
+		except ValueError:
+			logging.error("JSON error while parsing: ", data)
+		return jData
 
 	#        gets torrent properties
 	def webui_get_props(self, torrent_hash):
