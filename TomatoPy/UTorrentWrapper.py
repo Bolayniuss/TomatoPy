@@ -170,6 +170,7 @@ class UTorrentRPC(TorrentManager):
 		torrent.dlRate = uTorrentTorrent[9]	            # rateDownload (bps)	TORRENT_DOWNSPEED: 9
 		torrent.ulRate = uTorrentTorrent[8]     	    # rateUpload (bps)	TORRENT_UPSPEED: 8
 		torrent.isFinished = uTorrentTorrent[4] >= 1000     # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000
+		self.logger.debug("%s size=%d", torrent.name, torrent.size)
 		return torrent
 
 	def buildTorrentFileObject(self, uTorrentTorrentFile):
