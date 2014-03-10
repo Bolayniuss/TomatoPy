@@ -101,11 +101,13 @@ class TvShowManager(AutomatedActionsExecutor):
 		return pattern
 
 	def addNewToTorrentManager(self, torrentManager):
+		self.logger.debug("begin: addNewToTorrentManager")
 		episodes = self.getNewTvShow()
 
 		torrents = torrentManager.getTorrents()
 
 		for episode in episodes:
+			self.logger.debug("test validity of show=%s", episode)
 			pattern = self.deleteBadChars(episode.title)
 			pattern = pattern.replace(" ", ".")
 			new = True
@@ -127,6 +129,7 @@ class TvShowManager(AutomatedActionsExecutor):
 						self.logger.info("No torrent added for %s", episode.title)
 				else:
 					self.logger.info("No torrent found for %s", episode.title)
+		self.logger.debug("end: addNewToTorrentManager")
 
 	def addAutomatedActions(self, torrentId, tvShow, episodeName):
 		#sql = "INSERT INTO `AutomatedActions` (`id`, `notifier`, `trigger`, `data`) VALUES (NULL, 'asd', 'onTorrentDownloaded', 'asdasd');"
