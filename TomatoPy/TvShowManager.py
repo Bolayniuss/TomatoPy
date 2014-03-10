@@ -165,7 +165,6 @@ class TvShowManager(AutomatedActionsExecutor):
 		rarFilter = FileFilter(".*", ["rar"])
 		validFiles = []
 		for file in files:
-			#print file.name
 			fileItem = FileItem(file.name, "")
 			if filter.test(fileItem):
 				validFiles.append(file)
@@ -189,7 +188,11 @@ class TvShowManager(AutomatedActionsExecutor):
 				id = i
 			i += 1
 		self.logger.debug("validFile id=%d, name=%s", id, validFiles[id].name)
-		file = FileItem.fromCompletePath(self.torrentManager.getTorrentFilePath(torrent.name, validFiles[id].name))
+		try:
+			completePath = self.torrentManager.getTorrentFilePath(torrent.name, validFiles[id].name)
+		except IOError, e:
+			raise e
+		file = FileItem.fromCompletePath(completePath)
 		return file
 
 	def executeAction(self, actionData):
@@ -206,19 +209,22 @@ class TvShowManager(AutomatedActionsExecutor):
 				filter = FileFilter(pattern, ["mkv", "avi", "mp4"])
 				if data[0] == "move":
 					self.logger.info("move action")
-					fileToMove = self.getTvShowFileFromTorrent(torrent, filter)
-					if fileToMove:
-						if self.moveTvShow(fileToMove, tvShow, episodeName):
-							self.logger.info("move succeed")
-							time.sleep(0.5)
-							XbmcLibraryManager.Instance().scanVideoLibrary()
-							self.logger.info("delete associated torrent")
-							self.torrentManager.removeTorrent(hashString, True)
-							return True
-						self.logger.info("failed to move %s", torrent.name)
-					else:
-						self.logger.info("No valid file found in %s", torrent.name)
-					return False
+					try:
+						fileToMove = self.getTvShowFileFromTorrent(torrent, filter)
+						if fileToMove:
+							if self.moveTvShow(fileToMove, tvShow, episodeName):
+								self.logger.info("move succeed")
+								time.sleep(0.5)
+								XbmcLibraryManager.Instance().scanVideoLibrary()
+								self.logger.info("delete associated torrent")
+								self.torrentManager.removeTorrent(hashString, True)
+								return True
+							self.logger.info("failed to move %s", torrent.name)
+						else:
+							self.logger.info("No valid file found in %s", torrent.name)
+						return False
+					except IOError, e:
+						self.logger.error("error while moving file, file does not exists.")
 			else:
 				self.logger.info("Torrent %s isn't yet finished", torrent.name)
 				return False
