@@ -219,9 +219,9 @@ class TvShowManager(AutomatedActionsExecutor):
 								self.logger.info("delete associated torrent")
 								self.torrentManager.removeTorrent(hashString, True)
 								return True
-							self.logger.info("failed to move %s", torrent.name)
+							self.logger.warn("Failed to move %s", torrent.name)
 						else:
-							self.logger.info("No valid file found in %s", torrent.name)
+							self.logger.warn("No valid file found in %s", torrent.name)
 						return False
 					except IOError, e:
 						self.logger.error("error while moving file, file does not exists.")
