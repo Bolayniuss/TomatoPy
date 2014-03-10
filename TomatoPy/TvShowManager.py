@@ -238,7 +238,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			try:
 				self.logger.info("try to execute action id=%d", id)
 				success = self.executeAction(data)
-				self.logger.info("action (id=%d) result=%d", [id, success])
+				self.logger.info("action (id=%d) result=%d", id, success)
 				delete = success
 			except KeyError as e:
 				self.logger.info("error while processing action (id=%d) torrent does not exist", id)
@@ -270,7 +270,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				if f.file_size > theFile.file_size:
 					theFile = f
 			rar.extract(theFile, os.path.split(file)[0])
-			self.logger.info("extract file, %s --- %s from rar, %s", [os.path.split(file)[0], theFile.filename, file])
+			self.logger.info("extract file, %s --- %s from rar, %s", os.path.split(file)[0], theFile.filename, file)
 			fakeTorrentFile = TorrentFile()
 			fakeTorrentFile.name = theFile.filename
 			fakeTorrentFile.size = theFile.file_size

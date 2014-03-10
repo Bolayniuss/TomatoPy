@@ -128,7 +128,6 @@ class UTorrent:
 		#print webui_response
 
 		data = webui_response.read()
-		logging.debug("request=%s, response=%s", selector, data)
 		#print data
 		#print selector
 		jData = None
