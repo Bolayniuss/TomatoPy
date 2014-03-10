@@ -155,6 +155,7 @@ class UTorrentRPC(TorrentManager):
 		:return: a TorrentObject object
 		:rtype: TorrentRPC.TorrentObject
 		"""
+		print uTorrentTorrent
 		torrent = TorrentObject(uTorrentTorrent[0], uTorrentTorrent[2])
 		torrent.eta = uTorrentTorrent[10]               # eta	TORRENT_ETA: 10
 		torrent.size = uTorrentTorrent[3]               # sizeWhenDone	TORRENT_SIZE: 3
