@@ -2,6 +2,7 @@ __author__ = 'bolay'
 
 import re
 import os
+import logging
 
 
 class SourceMapperItem:
@@ -28,6 +29,7 @@ class FileItem(SourceMapperItem):
 
 	@staticmethod
 	def fromCompletePath(path):
+		logging.debug("fromCompletePath, path=%s", path)
 		filename = os.path.basename(path)
 		directory = os.path.dirname(path)
 		return FileItem(filename, directory)
