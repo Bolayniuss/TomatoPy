@@ -40,7 +40,7 @@ class FileSystemHelper:
 		print "move: ", source, " to ", destination
 		try:
 			directory = os.path.dirname(destination)
-			os.makedirs(directory, 0777)
+			self.superMakedirs(directory, 0777)
 		except OSError:
 			pass
 		finally:
@@ -55,3 +55,15 @@ class FileSystemHelper:
 		finally:
 			pass
 		return True
+
+	def superMakedirs(self, path, mode):
+		if not path or os.path.exists(path):
+			return []
+		(head, tail) = os.path.split(path)
+		res = self.superMakedirs(head, mode)
+		os.mkdir(path)
+		os.chmod(path, mode)
+		if self.fsUser is not None and self.fsGroup is not None:
+				os.chown(path, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
+		res += [path]
+		return res
