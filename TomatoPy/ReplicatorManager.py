@@ -99,7 +99,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
 
 						if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
-							self.logger.info("file (%d/ %s) move succeeded.", [(i+1), nFiles])
+							self.logger.info("file (%d/%d) move succeeded.", (i+1), nFiles)
 							#time.sleep(0.5)
 						else:
 							success = False
@@ -108,7 +108,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						self.logger.info("delete associated torrent")
 						self.torrentManager.removeTorrent(hashString, True)
 					else:
-						self.logger.info("failed to move %s", torrent.name)
+						self.logger.error("failed to move %s", torrent.name)
 					return success
 				else:
 					print self.logger.info("%s isn't yet finished", torrent.name)
@@ -128,7 +128,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 			try:
 				self.logger.info("try to execute action id=%d", id)
 				success = self.executeAction(data)
-				self.logger.info("action (id=%d) result=%d", [id, success])
+				self.logger.info("action (id=%d) result=%s", id, success)
 				delete = success
 			except KeyError as e:
 				self.logger.error("error while processing action (id=%d) torrent does not exist", id)

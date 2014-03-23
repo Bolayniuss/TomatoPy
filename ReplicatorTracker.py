@@ -333,7 +333,7 @@ class FileTracer:
 				if res is not None:
 					tt = TrackedTorrent.fromSqlQuery(res)
 					if tt is not None:
-						print "New replicator action with file: ", trackedFile.torrentFileName
+						self.logger.info("New replicator action with file: %s", trackedFile.torrentFileName)
 						sql = "INSERT INTO ReplicatorActions " \
 						      "(torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) " \
 						      "VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
@@ -349,9 +349,9 @@ class FileTracer:
 						self.dbm.cursor.execute(sql, (trackedFile.hash, ))
 						self.dbm.connector.commit()
 					else:
-						print "Unable to create TrackedTorrent with query", res
+						self.logger.error("Unable to create TrackedTorrent with query %s", res)
 				else:
-					print "res is None for hash=", trackedFile.torrentHash
+					self.logger.error("res is None for hash=%s", trackedFile.torrentHash)
 
 	def clean(self):
 		#self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE timeout<UNIX_TIMESTAMP()")

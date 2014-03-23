@@ -96,7 +96,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		:return:
 		:rtype unicode:
 		"""
-		bad_chars = '(){}<>'
+		bad_chars = '(){}<>[]*'
 		badCharsDict = dict((ord(char), None) for char in bad_chars)
 		pattern = inp.translate(badCharsDict)
 		return pattern
@@ -109,13 +109,11 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		for episode in episodes:
 			pattern = self.deleteBadChars(episode.title)
-			pattern = pattern.replace(" ", ".")
+			pattern = pattern.replace(" ", ".?*")
 			new = True
 			for torrent in torrents:
-				#print "pattern:", pattern, "torrent.name:", torrent.name
+				print "pattern:", pattern, "torrent.name:", torrent.name
 				if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
-					#print "TvShowManager: episode ", pattern, " found in torrent list ", torrent.name
-					#self.addAutomatedActions(torrent.hashString, episode.tvShow, episode.title)
 					new = False
 					break
 			if new:
@@ -163,36 +161,36 @@ class TvShowManager(AutomatedActionsExecutor):
 		files = self.torrentManager.getTorrentFiles(torrent.hash)
 		rarFilter = FileFilter(".*", ["rar"])
 		validFiles = []
-		for file in files:
-			fileItem = FileItem(file.name, "")
+		for file_ in files:
+			fileItem = FileItem(file_.name, "")
 			if filter.test(fileItem):
-				validFiles.append(file)
+				validFiles.append(file_)
 			elif rarFilter.test(fileItem):
-				extractedFile = self.extractFromRar(filter, self.torrentManager.getTorrentFilePath(torrent.name, file.name))
+				extractedFile = self.extractFromRar(filter, self.torrentManager.getTorrentFilePath(torrent.name, file_.name))
 				if extractedFile is not None:
 					validFiles.append(extractedFile)
 
 		if len(validFiles) == 0:
 			mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi", "wmv"])
-			for file in files:
-				if mediaFilter.test(FileItem(file.name, "")):
-					validFiles.append(file)
+			for file_ in files:
+				if mediaFilter.test(FileItem(file_.name, "")):
+					validFiles.append(file_)
 		if len(validFiles) == 0:
 			self.logger.info("No valid files found")
 			return None
-		id = 0
+		id_ = 0
 		i = 1
 		while i < len(validFiles):
-			if validFiles[i].size > validFiles[id].size:
-				id = i
+			if validFiles[i].size > validFiles[id_].size:
+				id_ = i
 			i += 1
-		self.logger.debug("validFile id=%d, name=%s", id, validFiles[id].name)
+		self.logger.debug("validFile id_=%d, name=%s", id_, validFiles[id_].name)
 		try:
-			completePath = self.torrentManager.getTorrentFilePath(torrent.name, validFiles[id].name)
+			completePath = self.torrentManager.getTorrentFilePath(torrent.name, validFiles[id_].name)
 		except IOError, e:
 			raise e
-		file = FileItem.fromCompletePath(completePath)
-		return file
+		file_ = FileItem.fromCompletePath(completePath)
+		return file_
 
 	def executeAction(self, actionData):
 		data = actionData
