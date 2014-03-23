@@ -109,7 +109,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		for episode in episodes:
 			pattern = self.deleteBadChars(episode.title)
-			pattern = pattern.replace(" ", ".?*")
+			pattern = pattern.replace(" ", ".*?")
 			new = True
 			for torrent in torrents:
 				print "pattern:", pattern, "torrent.name:", torrent.name
