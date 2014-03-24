@@ -2,7 +2,7 @@ __author__ = 'bolay'
 import sys
 import logging
 from base64 import b64encode
-from httplib import *
+from httplib import HTTPConnection
 from urllib import quote
 from constants import *
 import json

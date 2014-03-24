@@ -1,7 +1,6 @@
 __author__ = 'bolay'
-from TomatoPy.TorrentRPC import *
+from TomatoPy.TorrentRPC import TorrentManager, TorrentObject, TorrentFile
 from UTorrent.UTorrent import UTorrent
-from os import times
 
 
 class UTorrentRPC(TorrentManager):

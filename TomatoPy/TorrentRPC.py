@@ -3,9 +3,10 @@ __author__ = 'bolay'
 import os
 
 from DatabaseManager import DatabaseManager
-from TomatoPy.SourceMapperItem import *
+from TomatoPy.SourceMapperItem import FileItem
 from TomatoPy.Filters import FileFilter
 import logging
+
 
 class TorrentObject:
 	"""

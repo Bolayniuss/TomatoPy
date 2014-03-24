@@ -48,16 +48,15 @@ class InterestingFile:
 		if (self.hash is None) or (len(self.hash)) == 0:
 			self.hash = Tools.getHash(self.name)
 
-	def setTimeout(self, timeout=2538000): # default timeout set to 30 days
-		sql = "UPDATE TrackedTorrentFiles SET timeout=UNIX_TIMESTAMP()+" + timeout + " WHERE name=%s;"
-		DatabaseManager.Instance().cursor.execute(sql, (self.name, ))
+	def setTimeout(self, timeout=2538000):
+		# default timeout set to 30 days
+		sql = "UPDATE `TrackedTorrentFiles` SET `timeout`=UNIX_TIMESTAMP()+ %d WHERE `name`='%s';"
+		DatabaseManager.Instance().cursor.execute(sql, (self.name, timeout, ))
 		DatabaseManager.Instance().connector.commit()
 
 	def insertOrUpdateInDB(self):
 		#if not self.isInDB:
-		sql = "INSERT INTO TrackedTorrentFiles (hash, name, timeout, torrentHash, torrentFileName) " \
-		      "VALUES (%s, %s, UNIX_TIMESTAMP()+%s, %s, %s) " \
-		      "ON DUPLICATE KEY UPDATE timeout=VALUES(timeout);"
+		sql = "INSERT INTO `TrackedTorrentFiles` (`hash`, `name`, `timeout`, `torrentHash`, `torrentFileName`) VALUES ('%s', '%s', UNIX_TIMESTAMP()+%s, '%s', '%s') ON DUPLICATE KEY UPDATE timeout=VALUES(timeout);"
 		DatabaseManager.Instance().cursor.execute(sql, (self.hash,
 		                                                self.name,
 		                                                self.timeout,
@@ -83,7 +82,7 @@ class DoneTorrentFilter:
 
 	def grabInterestingFiles(self):
 		# Load old from DB
-		sql = "SELECT * FROM TrackedTorrentFiles;"
+		sql = "SELECT * FROM `TrackedTorrentFiles`;"
 		DatabaseManager.Instance().cursor.execute(sql)
 		for res in DatabaseManager.Instance().cursor:
 			iF = InterestingFile.fromSqlQuery(res)
@@ -107,8 +106,7 @@ class DoneTorrentFilter:
 							iF.insertOrUpdateInDB()    # update timeout in any case
 							if not self.interestingFiles.has_key(file.fullPath):
 								self.interestingFiles[file.fullPath] = iF
-							sql = "INSERT INTO TrackedTorrents (hash, name, torrentFile, magnet) VALUES (%s, %s, %s, %s)" \
-							      " ON DUPLICATE KEY UPDATE hash=VALUES(hash);"
+							sql = "INSERT INTO `TrackedTorrents` (`hash`, `name`, `torrentFile`, `magnet`) VALUES ('%s', '%s', '%s', '%s') ON DUPLICATE KEY UPDATE `hash`=VALUES(hash);"
 							t = TrackedTorrent.fromTorrent(torrent)
 							DatabaseManager.Instance().cursor.execute(sql, (t.hash,
 							                                                t.name,
@@ -192,7 +190,7 @@ class Destination:
 		self.files = {}
 		curs = DatabaseManager.Instance().cursor
 		if clean:
-			curs.execute("DELETE FROM DestinationsFilesList WHERE destinationName=%s;", (self.name, ))
+			curs.execute("DELETE FROM DestinationsFilesList WHERE `destinationName`='%s';", (self.name, ))
 			DatabaseManager.Instance().connector.commit()
 		for root, dir, files in os.walk(self.path):
 
@@ -202,7 +200,7 @@ class Destination:
 				if self.filter.test(File(path)):
 					fwh = None
 					if not clean:
-						sql = "SELECT * FROM DestinationsFilesList WHERE path=%s AND destinationName=%s;"
+						sql = "SELECT * FROM DestinationsFilesList WHERE `path`='%s' AND `destinationName`='%s';"
 						curs.execute(sql, (relativePath, self.name))
 						res = curs.fetchone()
 						curs.fetchall()
@@ -211,7 +209,7 @@ class Destination:
 							fwh = FileWithHash.fromSqlQuery(res)
 					if fwh is None:
 						fwh = FileWithHash(path, self.name, None, relativePath)
-						sql2 = "INSERT INTO DestinationsFilesList (hash, path, destinationName) VALUES(%s, %s, %s);"
+						sql2 = "INSERT INTO DestinationsFilesList (`hash`, `path`, `destinationName`) VALUES('%s', '%s', '%s');"
 						#self.logger.info("%s add: %s", [self.name, relativePath]
 						curs.execute(sql2, (fwh.hash, relativePath, fwh.destinationName))
 						DatabaseManager.Instance().connector.commit()
@@ -303,7 +301,7 @@ class FileTracer:
 		# Load parameters
 		# Load destinations
 		self.destinations = []
-		self.dbm.cursor.execute("SELECT * FROM TrackedDestinations;")
+		self.dbm.cursor.execute("SELECT * FROM `TrackedDestinations`;")
 		for res in self.dbm.cursor:
 			d = Destination.fromSqlQuery(res)
 			if d is not None:
@@ -326,7 +324,7 @@ class FileTracer:
 		for destination in self.destinations:
 			# For each tuple (trackedFile, destinationFile) in interestingFiles
 			for trackedFile, destinationFile in destination.validInterestingFiles:
-				sql = "SELECT * FROM TrackedTorrents WHERE hash=%s;"
+				sql = "SELECT * FROM `TrackedTorrents` WHERE `hash`='%s';"
 				self.dbm.cursor.execute(sql, (trackedFile.torrentHash, ))
 				res = self.dbm.cursor.fetchone()
 				# If torrent is in TrackedTorrents DB
@@ -334,9 +332,7 @@ class FileTracer:
 					tt = TrackedTorrent.fromSqlQuery(res)
 					if tt is not None:
 						self.logger.info("New replicator action with file: %s", trackedFile.torrentFileName)
-						sql = "INSERT INTO ReplicatorActions " \
-						      "(torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) " \
-						      "VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
+						sql = "INSERT INTO `ReplicatorActions` (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) VALUES ('%s', '%s', '%s', '%s', '%s') ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
 						self.dbm.cursor.execute(sql, (tt.name,
 						                              trackedFile.torrentFileName,
 						                              tt.magnet, destination.name,
@@ -345,7 +341,7 @@ class FileTracer:
 
 						# Remove File from TrackedTorrentFiles DB
 						self.logger.info("Remove TrackedTorrentFile %s", trackedFile.name)
-						sql = "DELETE FROM TrackedTorrentFiles WHERE hash=%s;"
+						sql = "DELETE FROM `TrackedTorrentFiles` WHERE `hash`='%s';"
 						self.dbm.cursor.execute(sql, (trackedFile.hash, ))
 						self.dbm.connector.commit()
 					else:
@@ -360,8 +356,8 @@ class FileTracer:
 		for torrent in self.torrentManager.getTorrents():
 			torrents[torrent.hash] = 1
 
-		deleteTTSql = "DELETE FROM TrackedTorrents WHERE hash=%s;"
-		getTTFWithTorrentHashSql = "SELECT 1 FROM TrackedTorrentFiles WHERE torrentHash=%s LIMIT 1;"
+		deleteTTSql = "DELETE FROM `TrackedTorrents` WHERE `hash`='%s';"
+		getTTFWithTorrentHashSql = "SELECT 1 FROM `TrackedTorrentFiles` WHERE `torrentHash`='%s' LIMIT 1;"
 		for iF in self.dtf.interestingFiles.itervalues():
 			# Clean up TrackedTorrentFiles DB
 			delete = False
@@ -373,11 +369,11 @@ class FileTracer:
 				delete = True
 			if delete:
 				self.logger.info("Remove TrackedTorrentFile %s", iF.name)
-				self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE name=%s", (iF.name, ))
+				self.dbm.cursor.execute("DELETE FROM `TrackedTorrentFiles` WHERE `name`='%s'", (iF.name, ))
 				self.dbm.connector.commit()
 
 			# Clean up TrackedTorrents DB
-			sql = "SELECT hash FROM TrackedTorrents;"
+			sql = "SELECT `hash` FROM `TrackedTorrents`;"
 			self.dbm.cursor.execute(sql)
 			trackedTorrents = []
 			for res in self.dbm.cursor:

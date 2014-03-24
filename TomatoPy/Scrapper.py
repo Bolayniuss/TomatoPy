@@ -6,7 +6,7 @@ import re
 
 import bs4
 
-from TomatoPy.ScrapperItem import *
+from TomatoPy.ScrapperItem import TorrentItem, BetaserieRSSFeedItem
 import logging
 
 

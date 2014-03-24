@@ -1,7 +1,6 @@
 __author__ = 'bolay'
 
 import re
-from SourceMapperItem import *
 from ScrapperItem import *
 
 
