@@ -31,7 +31,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		self.replicatorActions = {}
 		self.replicatorServers = []
 
-		sql = "SELECT * FROM RemoteServices WHERE `ServiceName`='%s';"
+		sql = "SELECT * FROM RemoteServices WHERE `ServiceName`=%s;"
 		self.dbm.cursor.execute(sql, (self.serviceName, ))
 		for res in self.dbm.cursor:
 			self.replicatorServers.append({"name": res[1], "url": res[2]})
@@ -79,7 +79,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
 						# Add move action with torrentHash, fileName, destinationPath
 						aa = "move&&"+t.hash+"&&"+"&&".join(actionParams)
-						sql = "INSERT INTO AutomatedActions (notifier, `trigger`, `data`) VALUES('%s', '%s', '%s');"
+						sql = "INSERT INTO AutomatedActions (notifier, `trigger`, `data`) VALUES(%s, %s, %s);"
 						self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
 						self.dbm.connector.commit()
 
@@ -138,6 +138,6 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
 			if delete:
 				print self.logger.info("remove action with id=%d", id)
-				delQuery = "DELETE FROM AutomatedActions WHERE id='%s';"
+				delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
 				curs.execute(delQuery, (id, ))
 				DatabaseManager.Instance().connector.commit()

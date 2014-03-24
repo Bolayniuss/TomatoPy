@@ -135,7 +135,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
 	def addAutomatedActions(self, torrentId, tvShow, episodeName):
 		#sql = "INSERT INTO `AutomatedActions` (`id`, `notifier`, `trigger`, `data`) VALUES (NULL, 'asd', 'onTorrentDownloaded', 'asdasd');"
-		query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', '%s');"
+		query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', %s);"
 		data = "&&".join(["move", torrentId, tvShow, episodeName])
 		self.logger.info("add automated action, quest=%s, data=%s", query, data)
 		DatabaseManager.Instance().cursor.execute(query, (data, ))
@@ -270,7 +270,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
 			if delete:
 				self.logger.info("remove action with id=%d", id_)
-				delQuery = "DELETE FROM AutomatedActions WHERE id='%s';"
+				delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
 				curs.execute(delQuery, (id_, ))
 				DatabaseManager.Instance().connector.commit()
 
