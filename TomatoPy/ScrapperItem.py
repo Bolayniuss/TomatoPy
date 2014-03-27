@@ -11,11 +11,11 @@ class EpisodeItem(object):
 		self.season = season
 		self.episodeNumber = episodeNumber
 
-	@classmethod
-	def buildFromFullName(cls, fullName):
+	@staticmethod
+	def buildFromFullName(fullName):
 		m = re.match(r"^(.*?) *S0?(\d+)E0?(\d+)", fullName)
 		if m:
-			return cls.__class__(fullName, m.group(1), m.group(2), m.group(3))
+			return EpisodeItem(fullName, m.group(1), m.group(2), m.group(3))
 
 
 class TorrentItem(object):
