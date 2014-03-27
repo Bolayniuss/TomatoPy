@@ -118,7 +118,7 @@ class TvShowManager(AutomatedActionsExecutor):
 						pattern = self.deleteBadChars(episode.title)
 						pattern = pattern.replace(" ", ".*?")
 						if not self.torrentManager.searchInTorrents(pattern):
-							self.logger.debug("\tdoesn't exists in torrentManager.torrents"
+							#self.logger.debug("doesn't exists in torrentManager.torrents")
 
 							episodes.append(TrackedEpisode(episode, trackedTvShow))
 		return episodes
