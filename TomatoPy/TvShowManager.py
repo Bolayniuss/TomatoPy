@@ -20,6 +20,30 @@ from .AutomatedActionExecutor import AutomatedActionsExecutor
 from .TorrentRPC import TorrentFile
 
 
+class TrackedTvShow:
+	def __init__(self, title, torrentFilter):
+		self.title = title
+		self.torrentFilter = torrentFilter
+
+
+class TrackedEpisode(EpisodeItem):
+	def __init__(self, episodeItem, trackedTvShow):
+		"""
+
+		:param episodeItem:
+		:param trackedTvShow:
+		:type episodeItem: EpisodeItem
+		:type trackedTvShow: TrackedTvShow
+		:return:
+		"""
+		self.tvShow = episodeItem.tvShow
+		self.title = episodeItem.title
+		self.episodeNumber = episodeItem.episodeNumber
+		self.season = episodeItem.season
+
+		self.trackedTvShow = trackedTvShow
+
+
 class TvShowManager(AutomatedActionsExecutor):
 	def __init__(self, torrentManager):
 		super(TvShowManager, self).__init__("TvShowManager")
@@ -53,23 +77,45 @@ class TvShowManager(AutomatedActionsExecutor):
 				if len(sizeLimits[1]) > 0:
 					sizes["lt"] = int(sizeLimits[1])
 			filter_ = TorrentFilter(nameFilter.split(":"), authorFilter, sizes)
-			self.trackedTvShows.append((title, filter_))
+			self.trackedTvShows.append(TrackedTvShow(title, filter_))
 		dbm.connector.commit()
+
+		#TODO: replace this line
+		self.registeredEpisodeProviders = [BetaserieRSSScrapper(self.bUser)]
+
+		self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r".*(mkv|avi|mp4|wmv)$", self.fileSystemEncoding)
+
 		self.loadActions()
 
-	def isATrackedTvShow(self, episode):
+	def getTrackedTvShow(self, episode):
 		"""
-		Returns true if episode is in tracked tv shows
+		Returns the associate tracked tv show if it exists, otherwise return None
 		:param episode: the episode to test
 		:type episode: EpisodeItem
-		:return: True if episode is in tracked tv shows
-		:rtype: bool
+		:return: The associate tracked tv show if exists, otherwise return None
+		:rtype: TrackedTvShow
 		"""
 		if episode.tvShow:
 			for trackedTvShow in self.trackedTvShows:
-				if episode.tvShow == trackedTvShow[0]:
-					return True
-		return False
+				if episode.tvShow.lower() == trackedTvShow.title.lower():
+					return trackedTvShow
+		return None
+
+	def refreshEpisodes(self):
+		episodes = []
+		for episodeProvider in self.registeredEpisodeProviders:
+			for episode in episodeProvider.getEpisodes():
+				print "Episode : ", episode.title, " (", episode.tvShow, ")"
+				trackedTvShow = self.getTrackedTvShow(episode)
+				if trackedTvShow:
+					print "\tis in tracked tv shows"
+					pattern = self.deleteBadChars(episode.title)
+					pattern = pattern.replace(" ", ".*?")
+					if not self.torrentManager.searchInTorrents(pattern):
+						print "\tdoesn't exists in torrentManager.torrents"
+						if not self.directoryMapper.fileExists(episode.title):
+							print "\tis not in source directory"
+							episodes.append(TrackedEpisode(episode, trackedTvShow))
 
 	def getNewTvShow(self):
 		"""
@@ -91,7 +137,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		betaserieEpisodes = _tmp
 		_tmp = []
 
-		tvShowInDir = DirectoryMapper(self.tvShowDirectory, FileFilter(".*", ["mkv", "avi", "mp4"]), self.fileSystemEncoding).files
+		tvShowInDir = DirectoryMapper(self.tvShowDirectory, r".*(mkv|avi|mp4|wmv)$", self.fileSystemEncoding).files
 		for item in betaserieEpisodes:
 			add = True
 			for fileItem in tvShowInDir:
@@ -115,21 +161,20 @@ class TvShowManager(AutomatedActionsExecutor):
 		self.logger.debug("begin: addNewToTorrentManager")
 		episodes = self.getNewTvShow()
 
-		torrents = self.torrentManager.getTorrents()
-
 		for episode in episodes:
 			pattern = self.deleteBadChars(episode.title)
 			pattern = pattern.replace(" ", ".*?")
-			new = True
-			for torrent in torrents:
-				self.logger.debug("pattern: %s, torrent.name: %s", pattern, torrent.name)
-				if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
-					new = False
-					break
-			if new:
-				rpbItems = TPBScrapper(episode.title, episode.filter).torrents
-				if len(rpbItems) > 0:
-					newTorrent = self.torrentManager.addTorrentURL(rpbItems[0].link)
+			#new = True
+			#for torrent in torrents:
+			#	self.logger.debug("pattern: %s, torrent.name: %s", pattern, torrent.name)
+			#	if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
+			#		new = False
+			#		break
+			#if new:
+			if not self.torrentManager.searchInTorrents(pattern):
+				tpbItems = TPBScrapper(episode.title).getTorrents(episode.filter)
+				if len(tpbItems) > 0:
+					newTorrent = self.torrentManager.addTorrentURL(tpbItems[0].link)
 					if newTorrent:
 						self.addAutomatedActions(newTorrent.hash, episode.tvShow, episode.title)
 						self.logger.debug("New torrent added for episode %s", episode.title)

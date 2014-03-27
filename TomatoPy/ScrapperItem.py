@@ -1,7 +1,9 @@
 __author__ = 'bolay'
 
+import re
 
-class EpisodeItem:
+
+class EpisodeItem(object):
 
 	def __init__(self, title, tvShow=None, season=None, episodeNumber=None):
 		self.title = title
@@ -9,13 +11,14 @@ class EpisodeItem:
 		self.season = season
 		self.episodeNumber = episodeNumber
 
-	#TODO: fill method
-	@staticmethod
-	def buildFromFullName(fullName):
-		pass
+	@classmethod
+	def buildFromFullName(cls, fullName):
+		m = re.match(r"^(.*?) *S0?(\d+)E0?(\d+)", fullName)
+		if m:
+			return cls.__class__(fullName, m.group(1), m.group(2), m.group(3))
 
 
-class TorrentItem:
+class TorrentItem(object):
 
 	def __init__(self):
 		self.url = ""
@@ -28,13 +31,3 @@ class TorrentItem:
 		self.isMagnetLink = False
 		self.author = ""
 		self.title = ""
-
-
-class BetaserieRSSFeedItem:
-
-	def __init__(self):
-		self.title = ""
-		self.content = ""
-		self.published = ""
-		self.filter = None
-		self.tvShow = ""

@@ -9,7 +9,7 @@ from operator import attrgetter
 
 import bs4
 
-from .ScrapperItem import TorrentItem, BetaserieRSSFeedItem
+from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
 
 
@@ -34,7 +34,7 @@ class TorrentProvider:
 	Abstract class providing structure for object that provide torrent file/item
 	"""
 	def __init__(self):
-		self.torrentItems = []
+		self._torrentItems = []
 		pass
 
 	def grabTorrents(self):
@@ -55,7 +55,7 @@ class TorrentProvider:
 		:rtype: list
 		"""
 		self.grabTorrents()
-		tList = self.torrentItems
+		tList = self._torrentItems
 		if filter_:
 			tList = self.filter(filter_)
 		if orderingKeys:
@@ -70,22 +70,29 @@ class TorrentProvider:
 		:type filter_: TorrentFilter
 		"""
 		validTorrentItems = []
-		for torrentItem in self.torrentItems:
+		for torrentItem in self._torrentItems:
 			if filter_.test(torrentItem):
 				validTorrentItems.append(torrentItem)
 		return validTorrentItems
 
 
-class TPBScrapper:
+class TPBScrapper(TorrentProvider):
 
-	def __init__(self, searchString, filter=None):
+	def __init__(self, searchString, filter_=None):
+		super(TPBScrapper, self).__init__()
 		self.logger = logging.getLogger(__name__)
-		self.torrents = []
+		self._torrentItems = []
 		self.searchString = searchString
-		self.filter = filter
+		self.grabTorrents()
+
+	def grabTorrents(self):
 		self.parse()
 
 	def parse(self):
+		"""
+
+
+		"""
 		url = "http://thepiratebay.se/search/" + urllib.quote(self.searchString) + "/0/7/0"
 		page = urllib2.urlopen(url)
 		soup = bs4.BeautifulSoup(page.read())
@@ -106,13 +113,16 @@ class TPBScrapper:
 			prescaler = m.group(2).upper()
 
 			item.size *= self.prescalerConverter(prescaler)
-			if self.filter is not None:
-				if self.filter.test(item):
-					self.torrents.append(item)
-			else:
-				self.torrents.append(item)
 
-	def prescalerConverter(self, prescaler):
+			self._torrentItems.append(item)
+
+	@staticmethod
+	def prescalerConverter(prescaler):
+		"""
+
+		:param prescaler:
+		:return:
+		"""
 		if prescaler == "T":
 			return 1000000000000
 		elif prescaler == "G":
@@ -124,26 +134,29 @@ class TPBScrapper:
 		return 1
 
 
-class BetaserieRSSScrapper:
+class BetaserieRSSScrapper(EpisodesProvider):
 
-	baseurl = "http://www.betaseries.com/rss/episodes/all/"
+	baseUrl = "http://www.betaseries.com/rss/episodes/all/"
 
 	def __init__(self, user):
+		super(BetaserieRSSScrapper, self).__init__()
 		self.items = []
 		self.rssFeedUser = user
-		self.parse()
 
 	def parse(self):
-		url = self.baseurl+self.rssFeedUser
+		url = self.baseUrl+self.rssFeedUser
 		page = urllib2.urlopen(url)
 		soup = bs4.BeautifulSoup(page.read(), "xml")
 
 		_items = soup.find_all("entry")
 		for eachItem in _items:
-			item = BetaserieRSSFeedItem()
-			item.title = unicode(eachItem.find("title").string)
-			item.content = unicode(eachItem.content.string)
-			item.published = unicode(eachItem.published.string)
-			item.filter = None
-			self.items.append(item)
+			title = unicode(eachItem.find("title").string)
+			#item.content = unicode(eachItem.content.string)
+			#item.published = unicode(eachItem.published.string)
+			#item.filter = None
+			self.items.append(EpisodeItem.buildFromFullName(title))
+
+	def getEpisodes(self):
+		self.parse()
+		return self.items
 

@@ -1,6 +1,5 @@
 __author__ = 'bolay'
 
-import re
 import os
 
 

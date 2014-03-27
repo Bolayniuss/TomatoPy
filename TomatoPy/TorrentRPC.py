@@ -1,6 +1,7 @@
 __author__ = 'bolay'
 
 import os
+import re
 import logging
 
 from DatabaseManager import DatabaseManager
@@ -91,15 +92,27 @@ class TorrentManager(object):
 		pass
 
 	def getTorrentFilePath(self, torrentName, filename):
-		#print "Debug: downloadDirectory=", self.downloadDirectory
-		#print "path1=", os.path.join(self.downloadDirectory, filename)
-		#print "path2=", os.path.join(self.downloadDirectory, torrentName, filename)
 		if os.path.isfile(os.path.join(self.downloadDirectory, filename)):
 			return os.path.join(self.downloadDirectory, filename)
 		elif os.path.isfile(os.path.join(self.downloadDirectory, torrentName, filename)):
 			return os.path.join(self.downloadDirectory, torrentName, filename)
 		self.logger.warn("no file found in %s with filename %s", torrentName, filename)
 		raise IOError("file not found")
+
+	def searchInTorrents(self, pattern):
+		"""
+		Test if the regular expression pattern match a torrent's name. If so return True, False otherwise.
+		:param pattern: The regular expression to test
+		:type pattern: str
+		:return: True if pattern found in a torrent's name
+		:rtype: bool
+		"""
+		pattern = re.compile(pattern)
+		torrents = self.getTorrents()
+		for torrent in torrents:
+			if pattern.search(torrent.name, re.IGNORECASE) is not None:
+				return True
+		return False
 
 	def getTorrents(self):
 		return list()
