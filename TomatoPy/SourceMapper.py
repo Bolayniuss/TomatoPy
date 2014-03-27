@@ -23,8 +23,12 @@ class DirectoryMapper:
 		sys.setdefaultencoding('UTF8')
 		fsEncoding = "UTF8" #sys.getfilesystemencoding()
 		#path = self.path.encode(fsEncoding)
+		i = 0
 		for root, dirs, files in os.walk(self.path):
 			for file in files:
+				if i==0:
+					print file
+					i = 1
 				#file = file.decode(fsEncoding)
 				#root = root.decode(fsEncoding)
 				#print file, type(file)
@@ -48,8 +52,12 @@ class DirectoryMapper2:
 		sys.setdefaultencoding('UTF8')
 		fsEncoding = "UTF8" #sys.getfilesystemencoding()
 		#path = self.path.encode(fsEncoding)
+		i=0
 		for root, dirs, files in os.walk(self.path):
 			for file in files:
+				if i==0:
+					print file
+					i = 1
 				m = self.filter.match(file)
 				if m:
 					item = FileItem(m.group(1), m.group(2), root)
