@@ -82,6 +82,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		#TODO: replace this line
 		self.registeredEpisodeProviders = [BetaserieRSSScrapper(self.bUser)]
+		self.registeredTorrentProviders = [TPBScrapper()]
 
 		self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r"(.*)\.(mkv|avi|mp4|wmv)$", self.fileSystemEncoding)
 
@@ -120,6 +121,11 @@ class TvShowManager(AutomatedActionsExecutor):
 		print "Episodes ready for download:"
 		for episode in episodes:
 			print "\t", episode.title, " / ", episode.trackedTvShow.title
+			torrentItems = []
+			for torrentProvider in self.registeredTorrentProviders:
+				for torrentItem in torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter):
+					print "\ttorrent: ", torrentItem.name
+					#torrentItems =
 
 	def getNewTvShow(self):
 		"""
@@ -176,7 +182,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			#		break
 			#if new:
 			if not self.torrentManager.searchInTorrents(pattern):
-				tpbItems = TPBScrapper(episode.title).getTorrents(episode.filter)
+				tpbItems = TPBScrapper().getTorrents(episode.title, episode.filter)
 				if len(tpbItems) > 0:
 					newTorrent = self.torrentManager.addTorrentURL(tpbItems[0].link)
 					if newTorrent:

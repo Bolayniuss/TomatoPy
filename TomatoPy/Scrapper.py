@@ -37,13 +37,13 @@ class TorrentProvider:
 		self._torrentItems = []
 		pass
 
-	def grabTorrents(self):
+	def grabTorrents(self, search):
 		"""
 		Abstract method that must fill torrentItems.
 		"""
 		raise NotImplementedError
 
-	def getTorrents(self, filter_=None, orderingKeys=None):
+	def getTorrents(self, search, filter_=None, orderingKeys=None):
 		"""
 		Returns a list of torrent (TorrentItem). Optional filter and ordering keys can be provided for sorting and
 		filtering the list.
@@ -54,7 +54,7 @@ class TorrentProvider:
 		:return: An ordered and filtered list of torrents
 		:rtype: list
 		"""
-		self.grabTorrents()
+		self.grabTorrents(search)
 		tList = self._torrentItems
 		if filter_:
 			tList = self.filter(filter_)
@@ -78,22 +78,20 @@ class TorrentProvider:
 
 class TPBScrapper(TorrentProvider):
 
-	def __init__(self, searchString, filter_=None):
+	def __init__(self, ):
 		super(TPBScrapper, self).__init__()
 		self.logger = logging.getLogger(__name__)
 		self._torrentItems = []
-		self.searchString = searchString
 		self.grabTorrents()
 
-	def grabTorrents(self):
-		self.parse()
+	def grabTorrents(self, searchString):
+		self.parse("http://thepiratebay.se/search/" + urllib.quote(self.searchString) + "/0/7/0")
 
-	def parse(self):
+	def parse(self, url):
 		"""
 
 
 		"""
-		url = "http://thepiratebay.se/search/" + urllib.quote(self.searchString) + "/0/7/0"
 		page = urllib2.urlopen(url)
 		soup = bs4.BeautifulSoup(page.read())
 		_torrents = soup.select("tr div.detName")
