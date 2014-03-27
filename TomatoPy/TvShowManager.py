@@ -116,7 +116,7 @@ class TvShowManager(AutomatedActionsExecutor):
 						#self.logger.debug("is not in source directory")
 
 						pattern = self.deleteBadChars(episode.title)
-						pattern = pattern.replace(" ", ".*?")
+						pattern = pattern.replace(" ", ".*")
 						if not self.torrentManager.searchInTorrents(pattern):
 							#self.logger.debug("doesn't exists in torrentManager.torrents")
 
