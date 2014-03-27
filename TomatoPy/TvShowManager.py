@@ -179,7 +179,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		rarFilter = FileFilter(".*", ["rar"])
 		validFiles = []
 		for file_ in files:
-			fileItem = FileItem(file_.name, "")
+			fileItem = FileItem.fromFilename(file_.name, "")
 			if filter_.test(fileItem):
 				validFiles.append(file_)
 			elif rarFilter.test(fileItem):
@@ -190,7 +190,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		if len(validFiles) == 0:
 			mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi", "wmv"])
 			for file_ in files:
-				if mediaFilter.test(FileItem(file_.name, "")):
+				if mediaFilter.test(FileItem.fromFilename(file_.name, "")):
 					validFiles.append(file_)
 		if len(validFiles) == 0:
 			self.logger.info("No valid files found")
@@ -291,7 +291,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		possibleFiles = []
 		rar = rarfile.RarFile(file_)
 		for f in rar.infolist():
-			if filter_.test(FileItem(f.filename, "")):
+			if filter_.test(FileItem.fromFilename(f.filename, "")):
 				possibleFiles.append(f)
 		if len(possibleFiles) != 0:
 			theFile = possibleFiles[0]

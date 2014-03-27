@@ -28,14 +28,14 @@ class DirectoryMapper:
 				#file = file.decode(fsEncoding)
 				#root = root.decode(fsEncoding)
 				#print file, type(file)
-				item = FileItem(file, root)
+				item = FileItem.fromFilename(file, root)
 				if self.filter.test(item):
 					self.files.append(item)
 
 
 class DirectoryMapper2:
 
-	def __init__(self, path, filter="", encoding=None):
+	def __init__(self, path, filter=r"", encoding=None):
 		self.path = path
 		if encoding is not None:
 			self.path = path.encode(encoding)
@@ -52,5 +52,5 @@ class DirectoryMapper2:
 			for file in files:
 				m = self.filter.match(file)
 				if m:
-					item = FileItem(file, root)
+					item = FileItem(m.group(1), m.group(2), root)
 					self.files.append(item)
