@@ -75,7 +75,7 @@ class TorrentProvider(object):
 			if filter_.test(torrentItem):
 				print " Ok",
 				validTorrentItems.append(torrentItem)
-				print ""
+				print " "
 		return validTorrentItems
 
 
