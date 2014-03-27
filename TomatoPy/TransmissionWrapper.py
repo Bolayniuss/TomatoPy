@@ -1,5 +1,5 @@
 __author__ = 'bolay'
-from TomatoPy.TorrentRPC import *
+from TomatoPy.TorrentRPC import TorrentManager, TorrentObject, TorrentFile
 import transmissionrpc
 
 

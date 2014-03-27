@@ -139,7 +139,6 @@ class BetaserieRSSScrapper(EpisodesProvider):
 	baseUrl = "http://www.betaseries.com/rss/episodes/all/"
 
 	def __init__(self, user):
-		super(BetaserieRSSScrapper, self).__init__()
 		self.items = []
 		self.rssFeedUser = user
 
