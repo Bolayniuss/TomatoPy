@@ -107,10 +107,13 @@ class TorrentManager(object):
 		:return: True if pattern found in a torrent's name
 		:rtype: bool
 		"""
+		print "SearchInTorrents: pattern = ", pattern
 		pattern = re.compile(pattern)
 		torrents = self.getTorrents()
 		for torrent in torrents:
+			print "\tTest torrent ", torrent.name
 			if pattern.search(torrent.name, re.IGNORECASE) is not None:
+				print "\t\tfound"
 				return True
 		return False
 
