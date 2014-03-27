@@ -1,10 +1,11 @@
 __author__ = 'bolay'
 
-from Singleton import Singleton
-from DatabaseManager import DatabaseManager
 import httplib
 import json
 import random
+
+from Singleton import Singleton
+from DatabaseManager import DatabaseManager
 
 
 @Singleton
@@ -92,5 +93,5 @@ class XbmcLibraryManager:
 		for k, v in self.pendingRequests.iteritems():
 			r = self.sendRequest(v)
 			if r is not None:
-				print "XbmcLibraryManager : Request ", k, " succed"
+				print "XbmcLibraryManager : Request ", k, " succeed"
 			results[k] = r

@@ -3,16 +3,21 @@ __author__ = 'bolay'
 
 import re
 import os
-from TomatoPy.Scrapper import BetaserieRSSScrapper, TPBScrapper
-from TomatoPy.SourceMapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
-from DatabaseManager import DatabaseManager
-from XbmcLibraryManager import XbmcLibraryManager
-from AutomatedActionExecutor import *
 import time
-import Tools
-import rarfile
-from TomatoPy.TorrentRPC import TorrentFile
 import logging
+
+import rarfile
+
+from DatabaseManager import DatabaseManager
+import Tools
+
+from .ScrapperItem import EpisodeItem
+from .Scrapper import BetaserieRSSScrapper, TPBScrapper
+from .SourceMapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
+
+from XbmcLibraryManager import XbmcLibraryManager
+from .AutomatedActionExecutor import AutomatedActionsExecutor
+from .TorrentRPC import TorrentFile
 
 
 class TvShowManager(AutomatedActionsExecutor):
@@ -52,6 +57,20 @@ class TvShowManager(AutomatedActionsExecutor):
 		dbm.connector.commit()
 		self.loadActions()
 
+	def isATrackedTvShow(self, episode):
+		"""
+		Returns true if episode is in tracked tv shows
+		:param episode: the episode to test
+		:type episode: EpisodeItem
+		:return: True if episode is in tracked tv shows
+		:rtype: bool
+		"""
+		if episode.tvShow:
+			for trackedTvShow in self.trackedTvShows:
+				if episode.tvShow == trackedTvShow[0]:
+					return True
+		return False
+
 	def getNewTvShow(self):
 		"""
 		Retrieves new episodes from Betaserie and then retain only those that doesn't exists
@@ -88,19 +107,6 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		betaserieEpisodes = _tmp
 		return betaserieEpisodes
-
-	@staticmethod
-	def deleteBadChars(inp):
-		"""
-		Remove bad characters from inp. Useful when we want to use inp as a regex pattern.
-		:param unicode inp:
-		:return:
-		:rtype unicode:
-		"""
-		bad_chars = '(){}<>[]*'
-		badCharsDict = dict((ord(char), None) for char in bad_chars)
-		pattern = inp.translate(badCharsDict)
-		return pattern
 
 	def addNewToTorrentManager(self):
 		"""
@@ -274,18 +280,6 @@ class TvShowManager(AutomatedActionsExecutor):
 				curs.execute(delQuery, (id_, ))
 				DatabaseManager.Instance().connector.commit()
 
-	@staticmethod
-	def getSeasonFromTitle(title):
-		"""
-		Static method to get tv show season number from file name (title)
-		:param title:
-		:type title: unicode
-		"""
-		res = re.match(r".*S0?(\d+)E.*", title, re.IGNORECASE)
-		if res is not None:
-			return res.group(1)
-		return None
-
 	def extractFromRar(self, filter_, file_):
 		"""
 		Extract valid files from RAR file
@@ -311,3 +305,28 @@ class TvShowManager(AutomatedActionsExecutor):
 			fakeTorrentFile.size = theFile.file_size
 			return fakeTorrentFile
 		return None
+
+	@staticmethod
+	def getSeasonFromTitle(title):
+		"""
+		Static method to get tv show season number from file name (title)
+		:param title:
+		:type title: unicode
+		"""
+		res = re.match(r".*S0?(\d+)E.*", title, re.IGNORECASE)
+		if res is not None:
+			return res.group(1)
+		return None
+
+	@staticmethod
+	def deleteBadChars(inp):
+		"""
+		Remove bad characters from inp. Useful when we want to use inp as a regex pattern.
+		:param unicode inp:
+		:return:
+		:rtype unicode:
+		"""
+		bad_chars = '(){}<>[]*'
+		badCharsDict = dict((ord(char), None) for char in bad_chars)
+		pattern = inp.translate(badCharsDict)
+		return pattern

@@ -2,6 +2,7 @@
 __author__ = 'bolay'
 
 import os
+import re
 from TomatoPy.Filters import *
 from TomatoPy.SourceMapperItem import *
 import sys
@@ -29,4 +30,27 @@ class DirectoryMapper:
 				#print file, type(file)
 				item = FileItem(file, root)
 				if self.filter.test(item):
+					self.files.append(item)
+
+
+class DirectoryMapper2:
+
+	def __init__(self, path, filter="", encoding=None):
+		self.path = path
+		if encoding is not None:
+			self.path = path.encode(encoding)
+		self.filter = re.compile(filter)
+		self.files = []
+		self.map()
+
+	def map(self):
+		reload(sys)
+		sys.setdefaultencoding('UTF8')
+		fsEncoding = "UTF8" #sys.getfilesystemencoding()
+		#path = self.path.encode(fsEncoding)
+		for root, dirs, files in os.walk(self.path):
+			for file in files:
+				m = self.filter.match(file)
+				if m:
+					item = FileItem(file, root)
 					self.files.append(item)

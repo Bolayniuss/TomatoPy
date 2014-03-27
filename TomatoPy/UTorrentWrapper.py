@@ -13,7 +13,7 @@ class UTorrentRPC(TorrentManager):
 		self.client = UTorrent(self.host, self.port, self.user, self.password)
 		self.torrents = dict()
 
-	def getTorrent(self, hash):
+	def getTorrent(self, hash_):
 		"""
 		Retrieve the torrent with hash
 
@@ -22,9 +22,9 @@ class UTorrentRPC(TorrentManager):
 		:type hash: str
 		:rtype: TorrentRPC.TorrentObject
 		"""
-		if hash not in self.torrents:
+		if hash_ not in self.torrents:
 			self.getTorrents()
-		return self.torrents[hash]
+		return self.torrents[hash_]
 
 	def getTorrents(self):
 		"""
@@ -101,7 +101,8 @@ class UTorrentRPC(TorrentManager):
 			return added[0]
 		return None
 
-	def getTorrentListModifications(self, new, old):
+	@staticmethod
+	def getTorrentListModifications(new, old):
 		"""
 		Tool method used to retrieve added and removed torrents using two lists
 		:param new: dict

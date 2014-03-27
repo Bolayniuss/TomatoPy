@@ -1,14 +1,16 @@
 __author__ = 'bolay'
 
-from DatabaseManager import DatabaseManager
+
 import urllib2
 import json
 import os
-from TomatoPy.AutomatedActionExecutor import *
+import logging
+
+from DatabaseManager import DatabaseManager
+
+from TomatoPy.AutomatedActionExecutor import AutomatedActionsExecutor
 import Tools
 from XbmcLibraryManager import XbmcLibraryManager
-from TomatoPy.TorrentRPC import *
-import logging
 
 
 class ReplicatorManager(AutomatedActionsExecutor):
@@ -50,7 +52,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 	def loadRemoteActions(self):
 		for server in self.replicatorServers:
 			self.logger.info("Loading actions from remote server, %s", server["name"])
-			url = server["url"]+"?q=getReplicatorActions&user="+self.user
+			url = server["url"] + "?q=getReplicatorActions&user=" + self.user
 
 			jsonData = urllib2.urlopen(url).read()
 			#print "ReplicatorManager: jsonData=", jsonData
@@ -91,11 +93,11 @@ class ReplicatorManager(AutomatedActionsExecutor):
 			try:
 				torrent = self.torrentManager.getTorrent(hashString)
 				if torrent.isFinished:
-					nFiles = (len(data)-2)/2
+					nFiles = (len(data) - 2) / 2
 					success = True
 					for i in xrange(nFiles):
-						filename = data[2+i*2]
-						destinationPath = data[3+i*2]
+						filename = data[2 + i * 2]
+						destinationPath = data[3 + i * 2]
 						fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
 
 						if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
@@ -123,21 +125,20 @@ class ReplicatorManager(AutomatedActionsExecutor):
 		actions = self.actions["onTorrentDownloaded"]
 		#for a in curs:
 		#	actions.append(a)
-		for id, data in actions.iteritems():
-			delete = False
+		for id_, data in actions.iteritems():
 			try:
-				self.logger.info("try to execute action id=%d", id)
+				self.logger.info("try to execute action id=%d", id_)
 				success = self.executeAction(data)
-				self.logger.info("action (id=%d) result=%s", id, success)
+				self.logger.info("action (id=%d) result=%s", id_, success)
 				delete = success
 			except KeyError as e:
-				self.logger.error("error while processing action (id=%d) torrent does not exist", id)
+				self.logger.error("error while processing action (id=%d) torrent does not exist", id_)
 				delete = True
 			finally:
 				pass
 
 			if delete:
-				print self.logger.info("remove action with id=%d", id)
+				print self.logger.info("remove action with id=%d", id_)
 				delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
-				curs.execute(delQuery, (id, ))
+				curs.execute(delQuery, (id_, ))
 				DatabaseManager.Instance().connector.commit()

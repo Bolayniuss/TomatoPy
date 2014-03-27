@@ -1,11 +1,9 @@
 __author__ = 'bolay'
 
 import os
+import logging
 
 from DatabaseManager import DatabaseManager
-from TomatoPy.SourceMapperItem import FileItem
-from TomatoPy.Filters import FileFilter
-import logging
 
 
 class TorrentObject:
@@ -102,7 +100,6 @@ class TorrentManager(object):
 			return os.path.join(self.downloadDirectory, torrentName, filename)
 		self.logger.warn("no file found in %s with filename %s", torrentName, filename)
 		raise IOError("file not found")
-		return None
 
 	def getTorrents(self):
 		return list()
@@ -127,55 +124,5 @@ class TorrentManager(object):
 	def addTorrentURL(self, torrentUrl):
 		return None
 
-	def removeTorrent(self, hash, deleteData=False):
+	def removeTorrent(self, hash_, deleteData=False):
 		return None
-
-	# def selectAndMoveFile(self, torrent, filter, destinationPath, filename):
-	# 	files = self.getTorrentFiles(torrent.hashString)
-	# 	rarFilter = FileFilter(".*", ["rar"])
-	# 	validFiles = []
-	# 	for file in files:
-	# 		#print file.name
-	# 		fileItem = FileItem(file.name, "")
-	# 		if filter.test(fileItem):
-	# 			validFiles.append(file)
-	# 		elif rarFilter.test(fileItem):
-	# 			extractedFile = self.extractFromRar(filter, self.getTorrentFilePath(torrent.name, file.name))
-	# 			if extractedFile is not None:
-	# 				validFiles.append(extractedFile)
-	#
-	# 	if len(validFiles) == 0:
-	# 		print "No valid files found"
-	# 		return False
-	# 	id = 0
-	# 	i = 1
-	# 	while i < len(validFiles):
-	# 		print validFiles[i].name, " size=", validFiles[i].size
-	# 		if validFiles[i].size > validFiles[id].size:
-	# 			print "    last id=", id, " new id=", i
-	# 			id = i
-	# 		i += 1
-	# 	file = validFiles[id]
-	# 	ext = FileItem(file.name, "").extension
-	# 	src = self.getTorrentFilePath(torrent.name, file.name)
-	# 	if src is None:
-	# 		return False
-	# 	dst = os.path.join(destinationPath, filename + "." + ext)
-	# 	if len(src) > 0:
-	# 		print "move: ", src, " to ", dst
-	# 		try:
-	# 			os.makedirs(destinationPath)
-	# 		except OSError:
-	# 			pass
-	# 		finally:
-	# 			pass
-	# 		shutil.move(src, dst)
-	# 		os.chmod(dst, 0777)
-	# 		try:
-	# 			os.chown(dst, pwd.getpwnam("guest").pw_uid, grp.getgrnam("guest").gr_gid)
-	# 		except KeyError, e:
-	# 			pass
-	# 		finally:
-	# 			pass
-	# 		return True
-	# 	return False

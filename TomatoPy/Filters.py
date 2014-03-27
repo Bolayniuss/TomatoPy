@@ -1,7 +1,6 @@
 __author__ = 'bolay'
 
 import re
-from ScrapperItem import *
 
 
 class FileFilter:

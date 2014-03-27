@@ -3,11 +3,77 @@ __author__ = 'bolay'
 import urllib2
 import urllib
 import re
+import logging
+
+from operator import attrgetter
 
 import bs4
 
-from TomatoPy.ScrapperItem import TorrentItem, BetaserieRSSFeedItem
-import logging
+from .ScrapperItem import TorrentItem, BetaserieRSSFeedItem
+from .Filters import TorrentFilter
+
+
+class EpisodesProvider:
+	"""
+	Abstract class providing structure for object that provide tv show episodes.
+	"""
+	def __init__(self):
+		pass
+
+	def getEpisodes(self):
+		"""
+		Must returns a list of episodes provided by this source
+		:return: a list of episodes
+		:rtype: list
+		"""
+		raise NotImplementedError
+
+
+class TorrentProvider:
+	"""
+	Abstract class providing structure for object that provide torrent file/item
+	"""
+	def __init__(self):
+		self.torrentItems = []
+		pass
+
+	def grabTorrents(self):
+		"""
+		Abstract method that must fill torrentItems.
+		"""
+		raise NotImplementedError
+
+	def getTorrents(self, filter_=None, orderingKeys=None):
+		"""
+		Returns a list of torrent (TorrentItem). Optional filter and ordering keys can be provided for sorting and
+		filtering the list.
+		:param filter_: filter object
+		:type filter_: TorrentFilter
+		:param orderingKeys: tuple of ordering keys
+		:type orderingKeys: tuple
+		:return: An ordered and filtered list of torrents
+		:rtype: list
+		"""
+		self.grabTorrents()
+		tList = self.torrentItems
+		if filter_:
+			tList = self.filter(filter_)
+		if orderingKeys:
+			tList = sorted(tList, key=attrgetter(*orderingKeys))
+		return tList
+
+	def filter(self, filter_):
+		"""
+		Returns filtered version of torrentItems attribute using filter_ as filter. The new list is composed of elements
+		that have passed filter_.test().
+		:param filter_: the filter
+		:type filter_: TorrentFilter
+		"""
+		validTorrentItems = []
+		for torrentItem in self.torrentItems:
+			if filter_.test(torrentItem):
+				validTorrentItems.append(torrentItem)
+		return validTorrentItems
 
 
 class TPBScrapper:

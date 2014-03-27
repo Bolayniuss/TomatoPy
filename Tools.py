@@ -1,5 +1,5 @@
 __author__ = 'bolay'
-import os
+
 import hashlib
 import shutil
 import grp

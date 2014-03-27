@@ -4,15 +4,15 @@ from DatabaseManager import DatabaseManager
 
 
 class AutomatedAction:
-	def __init__(self, type, parameters):
+	def __init__(self, type_, parameters):
 		"""
-		:type type : str
+		:type type_ : str
 		:type parameters : list
-		:param type:
+		:param type_:
 		:param parameters:
 		:return:
 		"""
-		self.type = type
+		self.type = type_
 		self.parameters = parameters
 
 	def join(self, delimiter="&&"):
@@ -22,11 +22,11 @@ class AutomatedAction:
 		return joined
 
 	@staticmethod
-	def fromString(str):
-		data = str.split("&&")
+	def fromString(str_):
+		data = str_.split("&&")
 		if len(data[0]) > 0:
-			type = data.pop(0)
-			return AutomatedAction(type, data)
+			type_ = data.pop(0)
+			return AutomatedAction(type_, data)
 		return None
 
 
@@ -36,8 +36,8 @@ class AutomatedActionsExecutor(object):
 		self.actions = {"onBegin": {}, "onTorrentDownloaded": {}, "onEnd": {}}
 		self.actionsLoaded = False
 
-	def loadActions(self, reload=False):
-		if not self.actionsLoaded or reload:
+	def loadActions(self, reload_=False):
+		if not self.actionsLoaded or reload_:
 			curs = DatabaseManager.Instance().cursor
 			query = "SELECT id, `trigger`, data FROM AutomatedActions WHERE notifier=%s;"
 			curs.execute(query, (self.actionNotifierName, ))

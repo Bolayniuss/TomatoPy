@@ -2,23 +2,23 @@ __author__ = 'bolay'
 
 import os
 import re
-from DatabaseManager import DatabaseManager
-from TomatoPy.TransmissionWrapper import *
 import logging
-
 import base64
+
 import Tools
+from DatabaseManager import DatabaseManager
+from TomatoPy.TransmissionWrapper import TransmissionTorrentRPC
 from Singleton import Singleton
 
 
 class TrackedTorrent:
-	def __init__(self, hash, name, magnet, torrentFile=None):
+	def __init__(self, hash_, name, magnet, torrentFile=None):
 		"""
-		;type torrent : transmissionrpc.Torrent
+		:type torrent : transmissionrpc.Torrent
 		:param torrent:
 		"""
 		self.name = name
-		self.hash = hash
+		self.hash = hash_
 		self.torrentFileData = ''
 		self.magnet = magnet
 		if torrentFile is not None and os.path.exists(torrentFile):

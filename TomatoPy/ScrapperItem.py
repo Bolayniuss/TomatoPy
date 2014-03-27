@@ -1,6 +1,20 @@
 __author__ = 'bolay'
 
 
+class EpisodeItem:
+
+	def __init__(self, title, tvShow=None, season=None, episodeNumber=None):
+		self.title = title
+		self.tvShow = tvShow
+		self.season = season
+		self.episodeNumber = episodeNumber
+
+	#TODO: fill method
+	@staticmethod
+	def buildFromFullName(fullName):
+		pass
+
+
 class TorrentItem:
 
 	def __init__(self):
