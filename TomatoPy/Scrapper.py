@@ -13,7 +13,7 @@ from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
 
 
-class EpisodesProvider:
+class EpisodesProvider(object):
 	"""
 	Abstract class providing structure for object that provide tv show episodes.
 	"""
@@ -29,7 +29,7 @@ class EpisodesProvider:
 		raise NotImplementedError
 
 
-class TorrentProvider:
+class TorrentProvider(object):
 	"""
 	Abstract class providing structure for object that provide torrent file/item
 	"""
