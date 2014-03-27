@@ -109,13 +109,17 @@ class TvShowManager(AutomatedActionsExecutor):
 				trackedTvShow = self.getTrackedTvShow(episode)
 				if trackedTvShow:
 					print "\tis in tracked tv shows"
-					pattern = self.deleteBadChars(episode.title)
-					pattern = pattern.replace(" ", ".*?")
-					if not self.torrentManager.searchInTorrents(pattern):
-						print "\tdoesn't exists in torrentManager.torrents"
-						if not self.directoryMapper.fileExists(episode.title):
-							print "\tis not in source directory"
+					if not self.directoryMapper.fileExists(episode.title):
+						print "\tis not in source directory"
+						pattern = self.deleteBadChars(episode.title)
+						pattern = pattern.replace(" ", ".*?")
+						if not self.torrentManager.searchInTorrents(pattern):
+							print "\tdoesn't exists in torrentManager.torrents"
 							episodes.append(TrackedEpisode(episode, trackedTvShow))
+
+		print "Episodes ready for download:"
+		for episode in episodes:
+			print "\t", episode.title, " / ", episode.trackedTvShow.title
 
 	def getNewTvShow(self):
 		"""
