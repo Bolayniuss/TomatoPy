@@ -123,7 +123,9 @@ class TvShowManager(AutomatedActionsExecutor):
 							episodes.append(TrackedEpisode(episode, trackedTvShow))
 		return episodes
 
-	def addNewToTorrentManager(self, episodes):
+	def addNewToTorrentManager(self, episodes=None):
+		if not episodes:
+			episodes = self.getNewEpisodes()
 		# TODO: fix multi torrent providers function
 		print "Episodes ready for download:"
 		for episode in episodes:
