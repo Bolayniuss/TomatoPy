@@ -124,7 +124,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			torrentItems = []
 			for torrentProvider in self.registeredTorrentProviders:
 				for torrentItem in torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter):
-					print "\ttorrent: ", torrentItem.name
+					print "\ttorrent: ", torrentItem.title
 					#torrentItems =
 
 	def getNewTvShow(self):
