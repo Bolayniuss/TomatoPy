@@ -42,8 +42,8 @@ class DirectoryMapper:
 			self.path = path.encode(encoding)
 		self.filter = re.compile(filter_)
 		self.files = []
-		self.map()
 		self.indexedFiles = {}
+		self.map()
 
 	def map(self):
 		reload(sys)
