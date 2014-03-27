@@ -102,30 +102,47 @@ class TvShowManager(AutomatedActionsExecutor):
 					return trackedTvShow
 		return None
 
-	def refreshEpisodes(self):
+	def getNewEpisodes(self):
 		episodes = []
 		for episodeProvider in self.registeredEpisodeProviders:
 			for episode in episodeProvider.getEpisodes():
-				print "Episode : ", episode.title, " (", episode.tvShow, ")"
+				#self.logger.debug("Episode : %s (%s)", episode.title, episode.tvShow)
+
 				trackedTvShow = self.getTrackedTvShow(episode)
 				if trackedTvShow:
-					print "\tis in tracked tv shows"
+					#self.logger.debug("is in tracked tv shows")
+
 					if not self.directoryMapper.fileExists(episode.title):
-						print "\tis not in source directory"
+						#self.logger.debug("is not in source directory")
+
 						pattern = self.deleteBadChars(episode.title)
 						pattern = pattern.replace(" ", ".*?")
 						if not self.torrentManager.searchInTorrents(pattern):
-							print "\tdoesn't exists in torrentManager.torrents"
-							episodes.append(TrackedEpisode(episode, trackedTvShow))
+							self.logger.debug("\tdoesn't exists in torrentManager.torrents"
 
+							episodes.append(TrackedEpisode(episode, trackedTvShow))
+		return episodes
+
+	def addNewToTorrentManager(self, episodes):
+		# TODO: fix multi torrent providers function
 		print "Episodes ready for download:"
 		for episode in episodes:
 			print "\t", episode.title, " / ", episode.trackedTvShow.title, " / ", episode.trackedTvShow.torrentFilter.nameFilters
 			torrentItems = []
 			for torrentProvider in self.registeredTorrentProviders:
-				for torrentItem in torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter):
-					print "\t\ttorrent: ", torrentItem.title
-					#torrentItems =
+				torrentItems = torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter)
+				if torrentItems:
+					break
+
+			if len(torrentItems) > 0:
+				newTorrent = self.torrentManager.addTorrentURL(torrentItems[0].link)
+				if newTorrent:
+					self.addAutomatedActions(newTorrent.hash, episode.trackedTvShow.title, episode.title)
+					self.logger.debug("New torrent added for episode %s", episode.title)
+				else:
+					self.logger.info("No torrent added for %s", episode.title)
+			else:
+				self.logger.info("No torrent found for %s", episode.title)
 
 	def getNewTvShow(self):
 		"""
@@ -164,7 +181,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		betaserieEpisodes = _tmp
 		return betaserieEpisodes
 
-	def addNewToTorrentManager(self):
+	def addNewToTorrentManager2(self):
 		"""
 		Get new episodes and add them to the torrentManager for download.
 		"""
