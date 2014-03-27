@@ -120,11 +120,11 @@ class TvShowManager(AutomatedActionsExecutor):
 
 		print "Episodes ready for download:"
 		for episode in episodes:
-			print "\t", episode.title, " / ", episode.trackedTvShow.title
+			print "\t", episode.title, " / ", episode.trackedTvShow.title, " / " episode.trackedTvShow.torrentFilter.nameFilters
 			torrentItems = []
 			for torrentProvider in self.registeredTorrentProviders:
 				for torrentItem in torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter):
-					print "\ttorrent: ", torrentItem.title
+					print "\t\ttorrent: ", torrentItem.title
 					#torrentItems =
 
 	def getNewTvShow(self):

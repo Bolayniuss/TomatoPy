@@ -71,8 +71,11 @@ class TorrentProvider(object):
 		"""
 		validTorrentItems = []
 		for torrentItem in self._torrentItems:
+			print "Test: ", torrentItem.title,
 			if filter_.test(torrentItem):
+				print " Ok",
 				validTorrentItems.append(torrentItem)
+				print ""
 		return validTorrentItems
 
 
@@ -84,6 +87,7 @@ class TPBScrapper(TorrentProvider):
 		self._torrentItems = []
 
 	def grabTorrents(self, searchString):
+		self._torrentItems = []
 		self.parse("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0")
 
 	def parse(self, url):
