@@ -83,7 +83,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		#TODO: replace this line
 		self.registeredEpisodeProviders = [BetaserieRSSScrapper(self.bUser)]
 
-		self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r".*(mkv|avi|mp4|wmv)$", self.fileSystemEncoding)
+		self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r"(.*)\.(mkv|avi|mp4|wmv)$", self.fileSystemEncoding)
 
 		self.loadActions()
 
