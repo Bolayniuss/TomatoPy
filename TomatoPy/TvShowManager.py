@@ -129,7 +129,6 @@ class TvShowManager(AutomatedActionsExecutor):
 		# TODO: fix multi torrent providers function
 		print "Episodes ready for download:"
 		for episode in episodes:
-			print "\t", episode.title, " / ", episode.trackedTvShow.title, " / ", episode.trackedTvShow.torrentFilter.nameFilters
 			torrentItems = []
 			for torrentProvider in self.registeredTorrentProviders:
 				torrentItems = torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter)

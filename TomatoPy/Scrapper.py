@@ -71,11 +71,8 @@ class TorrentProvider(object):
 		"""
 		validTorrentItems = []
 		for torrentItem in self._torrentItems:
-			print "Test: ", torrentItem.title,
 			if filter_.test(torrentItem):
-				print " Ok",
 				validTorrentItems.append(torrentItem)
-			print " "
 		return validTorrentItems
 
 
