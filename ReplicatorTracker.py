@@ -170,6 +170,9 @@ class Destination:
 		self.files = {}
 		self.validInterestingFiles = []
 		self.filter = filter
+
+		self.logger = logging.getLogger("Destination")
+
 		DestinationManager.Instance().add(self)
 
 	def getRelativePath(self, path):

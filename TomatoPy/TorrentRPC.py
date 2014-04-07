@@ -116,10 +116,10 @@ class TorrentManager(object):
 	def getTorrents(self):
 		return list()
 
-	def getTorrent(self, hash):
+	def getTorrent(self, hash_):
 		"""
 
-		:type hash: str
+		:type hash_: str
 		"""
 		return None
 
