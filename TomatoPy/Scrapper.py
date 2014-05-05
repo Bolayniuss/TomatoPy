@@ -79,7 +79,6 @@ class TorrentProvider(object):
 			results.append((torrentItem, filterResult))
 		if not validTorrentItems:
 			self.logger.debug("No valid torrents Found, test results:")
-			self.logger.debug("%s: %s")
 			for result in results:
 				torrent = result[0]
 				flag = result[1]
@@ -116,6 +115,7 @@ class TPBScrapper(TorrentProvider):
 		soup = bs4.BeautifulSoup(page.read())
 		_torrents = soup.select("tr div.detName")
 		for eachTorrent in _torrents:
+			print eachTorrent
 			eachTorrent = eachTorrent.parent.parent
 			item = TorrentItem()
 			item.link = eachTorrent.find("a", href=re.compile("^magnet"))["href"]
