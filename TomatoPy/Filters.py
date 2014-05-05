@@ -47,7 +47,7 @@ class TorrentFilter:
 				break
 		if not accepted:
 			status |= self.TEST_FAILED_NAME_NO_MATCH
-		accepted = False
+		accepted = True
 		if len(self.authorFilter) != 0:
 			#print "TorrentFilter: test pattern, ", self.authorFilter, " in ", torrent.author,
 			if re.search(self.authorFilter, torrent.author, re.IGNORECASE) is None:
