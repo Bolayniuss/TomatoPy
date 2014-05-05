@@ -34,6 +34,7 @@ class TorrentProvider(object):
 	Abstract class providing structure for object that provide torrent file/item
 	"""
 	def __init__(self):
+		self.logger = logging.getLogger(__name__)
 		self._torrentItems = []
 		pass
 
@@ -70,9 +71,28 @@ class TorrentProvider(object):
 		:type filter_: TorrentFilter
 		"""
 		validTorrentItems = []
+		results = []
 		for torrentItem in self._torrentItems:
-			if filter_.test(torrentItem):
+			filterResult = filter_.test(torrentItem)
+			if filter_.test(torrentItem) == filter_.TEST_OK:
 				validTorrentItems.append(torrentItem)
+			results.append((torrentItem, filterResult))
+		if not validTorrentItems:
+			self.logger.debug("No valid torrents Found, test results:")
+			self.logger.debug("%s: %s")
+			for result in results:
+				torrent = result[0]
+				flag = result[1]
+				if flag & TorrentFilter.TEST_FAILED_AUTHOR_NO_MATCH:
+					self.logger.debug("%s: no matches in author regex (%s)", torrent.title, torrent.author)
+				elif flag & TorrentFilter.TEST_FAILED_NAME_NO_MATCH:
+					self.logger.debug("%s: no matches in title regexs (%s)", torrent.title, torrent.author)
+				elif flag & TorrentFilter.TEST_FAILED_SIZE_TOO_BIG:
+					self.logger.debug("%s: size too big (%d bytes)", torrent.title, torrent.size)
+				elif flag & TorrentFilter.TEST_FAILED_SIZE_TOO_SMALL:
+					self.logger.debug("%s: size too small (%d bytes)", torrent.title, torrent.size)
+				else:
+					self.logger.debug("%s: OK", torrent.title)
 		return validTorrentItems
 
 

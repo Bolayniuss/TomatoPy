@@ -18,6 +18,12 @@ class FileFilter:
 
 
 class TorrentFilter:
+	TEST_OK = 0
+	TEST_FAILED_SIZE_TOO_BIG = 1
+	TEST_FAILED_SIZE_TOO_SMALL = 2
+	TEST_FAILED_AUTHOR_NO_MATCH = 4
+	TEST_FAILED_NAME_NO_MATCH = 8
+
 	def __init__(self, nameFilters, authorFilter, size=None):
 		"""
 		:type size : dict
@@ -33,25 +39,30 @@ class TorrentFilter:
 
 	def test(self, torrent):
 		accepted = False
+		status = self.TEST_OK
 		for nameFilter in self.nameFilters:
 			#print "TorrentFilter: test pattern, ", nameFilter, " in ", torrent.title,
 			if re.search(nameFilter, torrent.title, re.IGNORECASE) is not None:
 				accepted = True
-				#	print " return True"
 				break
-			#else:
-			#	print " return False"
+		if not accepted:
+			status |= self.TEST_FAILED_NAME_NO_MATCH
+		accepted = False
 		if len(self.authorFilter) != 0:
 			#print "TorrentFilter: test pattern, ", self.authorFilter, " in ", torrent.author,
 			if re.search(self.authorFilter, torrent.author, re.IGNORECASE) is None:
-				accepted &= False
-			#	print " return False"
-			else:
-			#	print " return True"
-				accepted &= True
+				accepted = False
+		if not accepted:
+			status |= self.TEST_FAILED_AUTHOR_NO_MATCH
+		accepted = False
 		if self.sizeFilter is not None:
 			if "gt" in self.sizeFilter:
-				accepted &= torrent.size >= self.sizeFilter["gt"]
+				accepted = torrent.size >= self.sizeFilter["gt"]
+			if not accepted:
+				status |= self.TEST_FAILED_SIZE_TOO_SMALL
+
 			if "lt" in self.sizeFilter:
-				accepted &= torrent <= self.sizeFilter["lt"]
-		return accepted
+				accepted = torrent.size <= self.sizeFilter["lt"]
+				if not accepted:
+					status |= self.TEST_FAILED_SIZE_TOO_BIG
+		return status
