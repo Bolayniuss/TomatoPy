@@ -114,7 +114,7 @@ class TPBScrapper(TorrentProvider):
 		from StringIO import StringIO
 		import gzip
 
-		request = urllib2.Request('http://example.com/')
+		request = urllib2.Request(url)
 		request.add_header('Accept-encoding', 'gzip')
 		response = urllib2.urlopen(request)
 		if response.info().get('Content-Encoding') == 'gzip':
