@@ -83,13 +83,13 @@ class TorrentProvider(object):
 				torrent = result[0]
 				flag = result[1]
 				if flag & TorrentFilter.TEST_FAILED_AUTHOR_NO_MATCH:
-					self.logger.debug("%s: no matches in author regex (%s)", torrent.title, torrent.author)
+					self.logger.debug("%s: no matches in author regex (%s) => (%s)", torrent.title, torrent.author, filter_.authorFilter)
 				elif flag & TorrentFilter.TEST_FAILED_NAME_NO_MATCH:
-					self.logger.debug("%s: no matches in title regexs (%s)", torrent.title, torrent.author)
+					self.logger.debug("%s: no matches in title regexs (%s) => (%s)", torrent.title, torrent.title, ", ".join(filter_.nameFilters))
 				elif flag & TorrentFilter.TEST_FAILED_SIZE_TOO_BIG:
-					self.logger.debug("%s: size too big (%d bytes)", torrent.title, torrent.size)
+					self.logger.debug("%s: size too big (%d bytes) => (%d)", torrent.title, torrent.size, filter_.sizeFilter["lt"])
 				elif flag & TorrentFilter.TEST_FAILED_SIZE_TOO_SMALL:
-					self.logger.debug("%s: size too small (%d bytes)", torrent.title, torrent.size)
+					self.logger.debug("%s: size too small (%d bytes) => (%d)", torrent.title, torrent.size, filter_.sizeFilter["gt"])
 				else:
 					self.logger.debug("%s: OK", torrent.title)
 		return validTorrentItems
