@@ -58,8 +58,8 @@ class TorrentFilter:
 		if self.sizeFilter is not None:
 			if "gt" in self.sizeFilter:
 				accepted = torrent.size >= self.sizeFilter["gt"]
-			if not accepted:
-				status |= self.TEST_FAILED_SIZE_TOO_SMALL
+				if not accepted:
+					status |= self.TEST_FAILED_SIZE_TOO_SMALL
 
 			if "lt" in self.sizeFilter:
 				accepted = torrent.size <= self.sizeFilter["lt"]
