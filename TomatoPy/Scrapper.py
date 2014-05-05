@@ -112,8 +112,9 @@ class TPBScrapper(TorrentProvider):
 
 		"""
 		page = urllib2.urlopen(url)
+		page = page.read()
 		print page
-		soup = bs4.BeautifulSoup(page.read())
+		soup = bs4.BeautifulSoup(page)
 		_torrents = soup.select("tr div.detName")
 		print _torrents
 		for eachTorrent in _torrents:
