@@ -123,7 +123,6 @@ class TPBScrapper(TorrentProvider):
 			data = f.read()
 		else:
 			data = response.read()
-		print data
 		soup = bs4.BeautifulSoup(data)
 		_torrents = soup.select("tr div.detName")
 		print _torrents
