@@ -111,11 +111,19 @@ class TPBScrapper(TorrentProvider):
 
 
 		"""
-		page = urllib2.urlopen(url)
-		print url
-		page = page.read()
-		print page
-		soup = bs4.BeautifulSoup(page)
+		from StringIO import StringIO
+		import gzip
+
+		request = urllib2.Request('http://example.com/')
+		request.add_header('Accept-encoding', 'gzip')
+		response = urllib2.urlopen(request)
+		if response.info().get('Content-Encoding') == 'gzip':
+			buf = StringIO(response.read())
+			f = gzip.GzipFile(fileobj=buf)
+			data = f.read()
+		else:
+			data = response.read()
+		soup = bs4.BeautifulSoup(data)
 		_torrents = soup.select("tr div.detName")
 		print _torrents
 		for eachTorrent in _torrents:
