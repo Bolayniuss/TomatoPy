@@ -113,7 +113,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						self.logger.error("failed to move %s", torrent.name)
 					return success
 				else:
-					print self.logger.info("%s isn't yet finished", torrent.name)
+					self.logger.info("%s isn't yet finished", torrent.name)
 					return False
 			finally:
 				pass
@@ -138,7 +138,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 				pass
 
 			if delete:
-				print self.logger.info("remove action with id=%d", id_)
+				self.logger.info("remove action with id=%d", id_)
 				delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
 				curs.execute(delQuery, (id_, ))
 				DatabaseManager.Instance().connector.commit()

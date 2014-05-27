@@ -3,6 +3,7 @@ __author__ = 'bolay'
 import httplib
 import json
 import random
+import logging
 
 from Singleton import Singleton
 from DatabaseManager import DatabaseManager
@@ -12,6 +13,7 @@ from DatabaseManager import DatabaseManager
 class XbmcLibraryManager:
 
 	def __init__(self):
+		self.logger = logging.getLogger(__name__)
 		dbm = DatabaseManager.Instance()
 		query = "SELECT parameters FROM Parameters WHERE name='XbmcLibraryManager' LIMIT 1"
 		dbm.cursor.execute(query)
@@ -30,26 +32,26 @@ class XbmcLibraryManager:
 
 	def scanAudioLibrary(self):
 		self.pendingRequests['AudioLibrary.Scan'] = self.buildRequest('AudioLibrary.Scan', {}, self.generateID())
-		print "XbmcLibraryManager : add AudioLibrary.Scan action"
+		self.logger.info("add AudioLibrary.Scan action")
 		#return self.sendRequest(request)
 
 	def scanVideoLibrary(self):
 		self.pendingRequests['VideoLibrary.Scan'] = self.buildRequest('VideoLibrary.Scan', {}, self.generateID())
-		print "XbmcLibraryManager : add VideoLibrary.Scan action"
+		self.logger.info("add VideoLibrary.Scan action")
 		#return self.sendRequest(request)
 
 	def cleanAudioLibrary(self):
 		self.pendingRequests['AudioLibrary.Clean'] = self.buildRequest('AudioLibrary.Clean', {}, self.generateID())
-		print "XbmcLibraryManager : add AudioLibrary.Clean action"
+		self.logger.info("add AudioLibrary.Clean action")
 		#return self.sendRequest(request)
 
 	def cleanVideoLibrary(self):
 		self.pendingRequests['VideoLibrary.Clean'] = self.buildRequest('VideoLibrary.Clean', {}, self.generateID())
-		print "XbmcLibraryManager : add VideoLibrary.Clean action"
+		self.logger.info("add VideoLibrary.Clean action")
 		#return self.sendRequest(request)
 
-	def sendNotificationMessage(self, title, message,displayTime=None):#, image=None, displayTime=None):
-		print "XbmcLibraryManager : send notification, title=", title, " message=", message
+	def sendNotificationMessage(self, title, message, displayTime=None):#, image=None, displayTime=None):
+		self.logger.info("send notification, title=%s message=%s", title, message)
 		params = {"title": title, "message": message}
 		if displayTime is not None:
 			params["displaytime"] = displayTime
@@ -93,5 +95,5 @@ class XbmcLibraryManager:
 		for k, v in self.pendingRequests.iteritems():
 			r = self.sendRequest(v)
 			if r is not None:
-				print "XbmcLibraryManager : Request ", k, " succeed"
+				self.logger.info("Request %s succeed", k)
 			results[k] = r

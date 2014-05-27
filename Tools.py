@@ -5,6 +5,8 @@ import shutil
 import grp
 import pwd
 import os
+import logging
+
 from Singleton import Singleton
 
 
@@ -29,6 +31,7 @@ def getHash(filePath, blocSizeMax=1000000):
 @Singleton
 class FileSystemHelper:
 	def __init__(self):
+		self.logger = logging.getLogger(__name__)
 		self.fsGroup = None
 		self.fsUser = None
 
@@ -37,7 +40,7 @@ class FileSystemHelper:
 		self.fsGroup = fsGroup
 
 	def move(self, source, destination):
-		print "move: ", source, " to ", destination
+		self.logger.debug("move: %s to %s", source, destination)
 		try:
 			directory = os.path.dirname(destination)
 			self.superMakedirs(directory, 0777)

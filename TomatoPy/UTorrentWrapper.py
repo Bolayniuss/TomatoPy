@@ -1,4 +1,6 @@
 __author__ = 'bolay'
+import logging
+
 from .TorrentRPC import TorrentManager, TorrentObject, TorrentFile
 from UTorrent.UTorrent import UTorrent
 
@@ -6,6 +8,7 @@ from UTorrent.UTorrent import UTorrent
 class UTorrentRPC(TorrentManager):
 
 	def __init__(self, host=None, port=9090, user="admin", password="", dlDirectory=""):
+		self.logger = logging.getLogger(__name__)
 		parameters = None
 		if host is not None:
 			parameters = [dlDirectory, host, port, user, password]
@@ -17,9 +20,9 @@ class UTorrentRPC(TorrentManager):
 		"""
 		Retrieve the torrent with hash
 
-		:param hash: the UID of the desired torrent
+		:param hash_: the UID of the desired torrent
 		:return: torrent
-		:type hash: str
+		:type hash_: str
 		:rtype: TorrentRPC.TorrentObject
 		"""
 		if hash_ not in self.torrents:
@@ -41,16 +44,16 @@ class UTorrentRPC(TorrentManager):
 			torrents.append(t)
 		return torrents
 
-	def getTorrentFiles(self, hash=None):
+	def getTorrentFiles(self, hash_=None):
 		"""
 		Get a list of file for the torrent specified by hash. If hash is None, return a list of files for every torrents
 
-		:param hash: the torrent UID
+		:param hash_: the torrent UID
 		:return: a list of files
-		:type hash: str
+		:type hash_: str
 		:rtype: list
 		"""
-		if hash is None:
+		if hash_ is None:
 			if len(self.torrents) == 0:
 				self.getTorrents()
 			files = []
@@ -58,7 +61,7 @@ class UTorrentRPC(TorrentManager):
 					files.append(self.getTorrentFiles(hash2))
 			return files
 
-		rawFiles = self.client.getTorrentFiles(hash)
+		rawFiles = self.client.getTorrentFiles(hash_)
 		files = []
 		for rawFile in rawFiles:
 			files.append(self.buildTorrentFileObject(rawFile))
@@ -73,7 +76,7 @@ class UTorrentRPC(TorrentManager):
 		:type torrentURL: str
 		:rtype: TorrentRPC.TorrentObject
 		"""
-		print "UTorrentWrapper Debug: Add new torrent from url"
+		self.logger.debug("Add new torrent from url")
 		self.getTorrents()
 		old = self.torrents.copy()
 		self.client.webui_add_url(torrentURL)

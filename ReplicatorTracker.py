@@ -391,7 +391,7 @@ class FileTracer:
 					self.dbm.cursor.execute(deleteTTSql, (hashStr, ))
 					self.dbm.connector.commit()
 
-		print "End Clean up."
+		self.logger.info("End Clean up.")
 
 
 

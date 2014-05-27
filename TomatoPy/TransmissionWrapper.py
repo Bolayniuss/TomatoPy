@@ -20,14 +20,14 @@ class TransmissionTorrentRPC(TorrentManager):
 			torrents.append(self.buildTorrentObject(rawTorrent))
 		return torrents
 
-	def getTorrentFiles(self, hash=None):
+	def getTorrentFiles(self, hash_=None):
 		"""
 
 		:rtype : list
 		"""
 		files = {}
 		try:
-			for j, _files in self.torrentClient.get_files(hash).iteritems():
+			for j, _files in self.torrentClient.get_files(hash_).iteritems():
 				torrentFiles = []
 				for i, file in _files.iteritems():
 					tFile = self.buildTorrentFileObject(file)

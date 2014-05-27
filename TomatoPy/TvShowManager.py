@@ -127,7 +127,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		if not episodes:
 			episodes = self.getNewEpisodes()
 		# TODO: fix multi torrent providers function
-		print "Episodes ready for download:"
+		self.logger.info("Episodes ready for download:")
 		for episode in episodes:
 			torrentItems = []
 			for torrentProvider in self.registeredTorrentProviders:
