@@ -138,8 +138,11 @@ class NotificationManager(object):
 		url = self.url + "?q=getNotifications&user=" + self.user
 
 		jsonData = urllib2.urlopen(url).read()
-		data = json.loads(jsonData)
-		self.unSerialize(data)
+		try:
+			data = json.loads(jsonData)
+			self.unSerialize(data)
+		except ValueError:
+			pass
 
 	def saveToRemoteServer(self):
 		url = self.url + "?" + urllib.urlencode((("q", "setNotifications"), ("user", self.user), ("data", json.dumps(self.serialize()))))
