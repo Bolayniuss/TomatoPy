@@ -88,7 +88,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
 						self.dbm.connector.commit()
 
-						self.logger.info("Add new automated action from server=%s, %s", [serverName, aa])
+						self.logger.info("Add new automated action from server=%s, %s", serverName, aa)
 
 	def executeAction(self, data):
 		if data[0] == "move":
