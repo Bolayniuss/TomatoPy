@@ -28,7 +28,7 @@ class Expiration(Serializable, UnSerializable, object):
 		self.expiration = 0
 		if add_now_ts:
 			self.expiration += time.time()
-		self.increment(seconds, minutes, hours, days, weeks)
+			self.increment(seconds, minutes, hours, days, weeks)
 
 	def increment(self, seconds=0, minutes=0, hours=0, days=0, weeks=0):
 		self.expiration += (seconds + (60 * (minutes + 60 * (hours + 24 * (days + 7 * weeks)))))
@@ -91,7 +91,7 @@ class NotificationManager(object):
 				self.url = data[1]
 				break
 		else:
-			self.user = "dev5"
+			self.user = "chalet-ms"
 			self.url = "http://bandb.dnsd.info/cgi-bin/replicator"
 
 	def addNotification(self, title, category='general', expiration=None):
@@ -123,7 +123,7 @@ class NotificationManager(object):
 			for n in v:
 				try:
 					notification = Notification.fromDict(n)
-					if not notification.expiration.isExpired():
+					if notification.expiration and not notification.expiration.isExpired():
 						if k not in self.notifications:
 							self.notifications[k] = []
 						self.notifications[k].append(notification)
