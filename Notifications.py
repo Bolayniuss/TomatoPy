@@ -82,7 +82,7 @@ class NotificationManager(object):
 		self.serviceName = "NotificationServer"
 		self.notifications = {}
 		if DatabaseManager.Instance().cursor:
-			sql = "SELECT * FROM NotificationServer WHERE `ServiceName`=%s LIMIT 1;"
+			sql = "SELECT * FROM RemoteServices WHERE `ServiceName`=%s LIMIT 1;"
 			DatabaseManager.Instance().cursor.execute(sql, (self.serviceName, ))
 			for res in self.dbm.cursor:
 				data = res[2].split("&&")
