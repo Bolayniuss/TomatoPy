@@ -26,9 +26,9 @@ class UnSerializable(object):
 class Expiration(Serializable, UnSerializable, object):
 	def __init__(self, seconds=0, minutes=0, hours=0, days=0, weeks=0, add_now_ts=True):
 		self.expiration = 0
+		self.increment(seconds, minutes, hours, days, weeks)
 		if add_now_ts:
 			self.expiration += time.time()
-			self.increment(seconds, minutes, hours, days, weeks)
 
 	def increment(self, seconds=0, minutes=0, hours=0, days=0, weeks=0):
 		self.expiration += (seconds + (60 * (minutes + 60 * (hours + 24 * (days + 7 * weeks)))))
@@ -42,7 +42,7 @@ class Expiration(Serializable, UnSerializable, object):
 	@staticmethod
 	def fromDict(data):
 		try:
-			return Expiration(data["expiration"], False)
+			return Expiration(seconds=data["expiration"], add_now_ts=False)
 		except TypeError:
 			return None
 		except KeyError:
