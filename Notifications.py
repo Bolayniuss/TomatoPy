@@ -79,6 +79,7 @@ class NotificationManager(object):
 	def __init__(self):
 		self.url = ""
 		self.user = ""
+		self.serviceName = "NotificationServer"
 		self.notifications = {}
 		if DatabaseManager.Instance().cursor:
 			sql = "SELECT * FROM NotificationServer WHERE `ServiceName`=%s LIMIT 1;"
