@@ -119,6 +119,10 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						)
 					else:
 						self.logger.error("failed to move %s", torrent.name)
+						NotificationManager.Instance().addNotification(
+							"Move error on %s" % torrent.name
+							, "Replicator: Errors", Expiration(weeks=4)
+						)
 					return success
 				else:
 					self.logger.info("%s isn't yet finished", torrent.name)
