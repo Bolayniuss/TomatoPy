@@ -114,7 +114,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						self.torrentManager.removeTorrent(hashString, True)
 						NotificationManager.Instance().addNotification(
 							"%s" % torrent.name,
-							"Replicator: Downloading",
+							"Replicator: Done",
 							Expiration(weeks=4)
 						)
 					else:
@@ -124,7 +124,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 					self.logger.info("%s isn't yet finished", torrent.name)
 					NotificationManager.Instance().addNotification(
 						"%s %s" % ('{0:.0%}'.format(float(torrent.downloaded) / torrent.size), torrent.name)
-						, "Replicator: Done", Expiration()
+						, "Replicator: Downloading", Expiration()
 					)
 					return False
 			finally:
