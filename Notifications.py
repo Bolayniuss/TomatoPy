@@ -88,6 +88,9 @@ class NotificationManager(object):
 				data = res[2].split("&&")
 				self.user = data[0]
 				self.url = data[1]
+				print data
+				print self.user
+				print self.url
 				break
 		else:
 			self.user = "dev5"
