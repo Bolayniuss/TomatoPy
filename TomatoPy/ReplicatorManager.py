@@ -126,8 +126,13 @@ class ReplicatorManager(AutomatedActionsExecutor):
 					return success
 				else:
 					self.logger.info("%s isn't yet finished", torrent.name)
+					prc = 0
+					try:
+						prc = float(torrent.downloaded) / torrent.size
+					except Exception:
+						pass
 					NotificationManager.Instance().addNotification(
-						"%s %s" % ('{0:.0%}'.format(float(torrent.downloaded) / torrent.size), torrent.name)
+						"%s %s" % ('{0:.0%}'.format(prc), torrent.name)
 						, "Replicator: Downloading", Expiration()
 					)
 					return False

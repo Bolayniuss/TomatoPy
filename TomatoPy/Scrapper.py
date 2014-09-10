@@ -116,37 +116,45 @@ class TPBScrapper(TorrentProvider):
 		from StringIO import StringIO
 		import gzip
 
-		request = urllib2.Request(url)
-		request.add_header('Accept-encoding', 'gzip')
-		response = urllib2.urlopen(request)
-		if response.info().get('Content-Encoding') == 'gzip':
-			buf = StringIO(response.read())
-			f = gzip.GzipFile(fileobj=buf)
-			data = f.read()
-		else:
-			data = response.read()
-		soup = bs4.BeautifulSoup(data)
-		_torrents = soup.select("tr div.detName")
+		try:
 
-		for eachTorrent in _torrents:
+			request = urllib2.Request(url)
+			request.add_header('Accept-encoding', 'gzip')
+			response = urllib2.urlopen(request)
+			if response.info().get('Content-Encoding') == 'gzip':
+				buf = StringIO(response.read())
+				f = gzip.GzipFile(fileobj=buf)
+				data = f.read()
+			else:
+				data = response.read()
+			soup = bs4.BeautifulSoup(data)
+			_torrents = soup.select("tr div.detName")
 
-			eachTorrent = eachTorrent.parent.parent
-			item = TorrentItem()
-			item.link = eachTorrent.find("a", href=re.compile("^magnet"))["href"]
-			item.title = unicode(eachTorrent.find("a", class_="detLink").string)
-			textTag = eachTorrent.find("font")
-			tds = eachTorrent.find_all("td")
-			item.seeds = tds[2].text
-			item.leeches = tds[3].text
-			reg = re.compile(".* ([\d.]+).*?([kKmMgG])iB.*")
-			m = reg.match(textTag.text)
-			item.size = float(m.group(1))
-			item.author = unicode(textTag.find(["a", "i"]).string)
-			prescaler = m.group(2).upper()
+			for eachTorrent in _torrents:
 
-			item.size *= self.prescalerConverter(prescaler)
+				eachTorrent = eachTorrent.parent.parent
+				item = TorrentItem()
+				item.link = eachTorrent.find("a", href=re.compile("^magnet"))["href"]
+				item.title = unicode(eachTorrent.find("a", class_="detLink").string)
+				textTag = eachTorrent.find("font")
+				tds = eachTorrent.find_all("td")
+				item.seeds = tds[2].text
+				item.leeches = tds[3].text
+				reg = re.compile(".* ([\d.]+).*?([kKmMgG])iB.*")
+				m = reg.match(textTag.text)
+				item.size = float(m.group(1))
+				item.author = unicode(textTag.find(["a", "i"]).string)
+				prescaler = m.group(2).upper()
 
-			self._torrentItems.append(item)
+				item.size *= self.prescalerConverter(prescaler)
+
+				self._torrentItems.append(item)
+		except Exception as e:
+			print "Exception catched"
+			print e
+			print url
+			print _torrents
+
 
 	@staticmethod
 	def prescalerConverter(prescaler):
