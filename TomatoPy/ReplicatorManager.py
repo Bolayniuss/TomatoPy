@@ -113,15 +113,15 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						self.logger.info("delete associated torrent")
 						self.torrentManager.removeTorrent(hashString, True)
 						NotificationManager.Instance().addNotification(
-							"%s" % torrent.name,
+							torrent.name,
 							"Replicator: Done",
 							Expiration(weeks=4)
 						)
 					else:
 						self.logger.error("failed to move %s", torrent.name)
 						NotificationManager.Instance().addNotification(
-							"Move error on %s" % torrent.name
-							, "Replicator: Errors", Expiration(weeks=4)
+							"Move error on %s" % torrent.name,
+							"Replicator: Errors", Expiration(weeks=4)
 						)
 					return success
 				else:
@@ -132,8 +132,8 @@ class ReplicatorManager(AutomatedActionsExecutor):
 					except Exception:
 						pass
 					NotificationManager.Instance().addNotification(
-						"%s %s" % ('{0:.0%}'.format(prc), torrent.name)
-						, "Replicator: Downloading", Expiration()
+						"%s %s" % ('{0:.0%}'.format(prc), torrent.name),
+						"Replicator: Downloading", Expiration()
 					)
 					return False
 			finally:

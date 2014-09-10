@@ -12,6 +12,8 @@ import rarfile
 from DatabaseManager import DatabaseManager
 import Tools
 
+
+from Notifications import NotificationManager, Expiration
 from .ScrapperItem import EpisodeItem
 from .Scrapper import BetaserieRSSScrapper, TPBScrapper
 from .SourceMapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
@@ -141,9 +143,12 @@ class TvShowManager(AutomatedActionsExecutor):
 				if newTorrent:
 					self.addAutomatedActions(newTorrent.hash, episode.trackedTvShow.title, episode.title)
 					self.logger.debug("New torrent added for episode %s", episode.title)
+					NotificationManager.Instance().addNotification(episode.title, "TvShowManager: New", Expiration(weeks=4))
 				else:
 					self.logger.info("No torrent added for %s", episode.title)
+					NotificationManager.Instance().addNotification("Unable to add %s to TM" % episode.title, "TvShowManager: Error", Expiration())
 			else:
+				NotificationManager.Instance().addNotification("No torrent found for %s" % episode.title, "TvShowManager: Error", Expiration())
 				self.logger.info("No torrent found for %s", episode.title)
 
 	def getNewTvShow(self):
@@ -312,15 +317,40 @@ class TvShowManager(AutomatedActionsExecutor):
 								XbmcLibraryManager.Instance().scanVideoLibrary()
 								self.logger.info("delete associated torrent")
 								self.torrentManager.removeTorrent(hashString, True)
+								NotificationManager.Instance().addNotification(
+									torrent.name,
+									"TvShowManager: Done", Expiration(weeks=4)
+								)
 								return True
 							self.logger.warn("Failed to move %s", torrent.name)
+							NotificationManager.Instance().addNotification(
+								"Move failure in %s" % torrent.name,
+								"TvShowManager: Errors", Expiration()
+							)
 						else:
 							self.logger.warn("No valid file found in %s", torrent.name)
+							NotificationManager.Instance().addNotification(
+								"No valid file found in %s" % torrent.name,
+								"TvShowManager: Errors", Expiration()
+							)
 						return False
 					except IOError:
 						self.logger.error("error while moving file, file does not exists.")
+						NotificationManager.Instance().addNotification(
+							"File doesn't exists %s" % torrent.name,
+							"TvShowManager: Errors", Expiration()
+						)
 			else:
 				self.logger.info("Torrent %s isn't yet finished", torrent.name)
+				prc = 0
+				try:
+					prc = float(torrent.downloaded) / torrent.size
+				except Exception:
+					pass
+				NotificationManager.Instance().addNotification(
+					"%s %s" % ('{0:.0%}'.format(prc), torrent.name),
+					"TvShowManager: Downloading", Expiration()
+				)
 				return False
 		finally:
 			pass
