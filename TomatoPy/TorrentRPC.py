@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+#
 __author__ = 'bolay'
 
 import os
@@ -12,6 +14,12 @@ class TorrentObject:
 	Object that represents a torrent (task)
 	"""
 	def __init__(self, hash, name):
+		"""
+
+		:param unicode hash:
+		:param unicode name:
+		:return:
+		"""
 		self.name = ""
 		self.hash = ""
 		self.size = ""
@@ -41,6 +49,14 @@ class TorrentObject:
 
 class TorrentFile:
 	def __init__(self, name=None, size=None, completed=None, priority=None):
+		"""
+
+		:param unicode name:
+		:param int size:
+		:param bool completed:
+		:param int priority:
+		:return:
+		"""
 		# FILE NAME (string),
 		# FILE SIZE (integer, in bytes),
 		# DOWNLOADED (integer, in bytes),
@@ -102,8 +118,7 @@ class TorrentManager(object):
 	def searchInTorrents(self, pattern):
 		"""
 		Test if the regular expression pattern match a torrent's name. If so return True, False otherwise.
-		:param pattern: The regular expression to test
-		:type pattern: str
+		:param str pattern: The regular expression to test
 		:return: True if pattern found in a torrent's name
 		:rtype: bool
 		"""
@@ -114,12 +129,18 @@ class TorrentManager(object):
 		return False
 
 	def getTorrents(self):
+		"""
+
+		:return:
+		:rtype: list of TorrentObject
+		"""
 		return list()
 
 	def getTorrent(self, hash_):
 		"""
 
 		:type hash_: str
+		:rtype: TorrentObject
 		"""
 		return None
 
@@ -127,6 +148,7 @@ class TorrentManager(object):
 		"""
 
 		:type torrentHash: str
+		:rtype: list of TorrentFile
 		"""
 		return list()
 

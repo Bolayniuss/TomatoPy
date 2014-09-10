@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+#
 __author__ = 'bolay'
 from TomatoPy.TorrentRPC import TorrentManager, TorrentObject, TorrentFile
 import transmissionrpc
@@ -12,7 +14,7 @@ class TransmissionTorrentRPC(TorrentManager):
 	def getTorrents(self):
 		"""
 
-		:rtype : list
+		:rtype : list of TorrentObject
 		"""
 		torrents = []
 		rawTorrents = self.torrentClient.get_torrents(None, None)
@@ -23,7 +25,7 @@ class TransmissionTorrentRPC(TorrentManager):
 	def getTorrentFiles(self, hash_=None):
 		"""
 
-		:rtype : list
+		:rtype : list of TorrentFile
 		"""
 		files = {}
 		try:
@@ -42,16 +44,16 @@ class TransmissionTorrentRPC(TorrentManager):
 		except KeyError as e:
 			raise e
 
-	def getTorrent(self, hash):
+	def getTorrent(self, _hash):
 		try:
-			t = self.torrentClient.get_torrent(hash)
+			t = self.torrentClient.get_torrent(_hash)
 			return self.buildTorrentObject(t)
 		except KeyError as e:
 			raise e
 
-	def torrentExist(self, hash):
+	def torrentExist(self, _hash):
 		try:
-			self.torrentClient.get_torrent(hash, ["id"])
+			self.torrentClient.get_torrent(_hash, ["id"])
 			return True
 		except KeyError:
 			pass

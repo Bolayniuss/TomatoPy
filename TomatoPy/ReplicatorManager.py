@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+#
 __author__ = 'bolay'
 
 
@@ -11,6 +13,7 @@ from DatabaseManager import DatabaseManager
 from TomatoPy.AutomatedActionExecutor import AutomatedActionsExecutor
 import Tools
 from XbmcLibraryManager import XbmcLibraryManager
+from Notifications import Notification, Expiration, NotificationManager
 
 
 class ReplicatorManager(AutomatedActionsExecutor):
@@ -101,7 +104,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
 
 						if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
-							self.logger.info("file (%d/%d) move succeeded.", (i+1), nFiles)
+							self.logger.info("file (%d/%d) move succeeded.", (i + 1), nFiles)
 							#time.sleep(0.5)
 						else:
 							success = False
@@ -109,11 +112,16 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						XbmcLibraryManager.Instance().scanVideoLibrary()
 						self.logger.info("delete associated torrent")
 						self.torrentManager.removeTorrent(hashString, True)
+						NotificationManager.Instance().addNotification("%s" % torrent.name, "Replicator: Done")
 					else:
 						self.logger.error("failed to move %s", torrent.name)
 					return success
 				else:
 					self.logger.info("%s isn't yet finished", torrent.name)
+					NotificationManager.Instance().addNotification(
+						"%s %s" % ('{0:.0%}'.format(float(torrent.downloaded) / torrent.size), torrent.name)
+						, "Replicator: Done"
+					)
 					return False
 			finally:
 				pass
