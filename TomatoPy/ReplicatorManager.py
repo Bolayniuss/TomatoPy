@@ -112,7 +112,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						XbmcLibraryManager.Instance().scanVideoLibrary()
 						self.logger.info("delete associated torrent")
 						self.torrentManager.removeTorrent(hashString, True)
-						NotificationManager.Instance().addNotification("%s" % torrent.name, "Replicator: Done")
+						NotificationManager.Instance().addNotification("%s" % torrent.name, "Replicator: Downloading")
 					else:
 						self.logger.error("failed to move %s", torrent.name)
 					return success
