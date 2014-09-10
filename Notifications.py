@@ -5,7 +5,7 @@ __author__ = 'Michael Bolay'
 import time
 import json
 import io
-import urllib2
+import urllib2, urllib
 from exceptions import NotImplementedError
 from Singleton import Singleton
 from DatabaseManager import DatabaseManager
@@ -80,13 +80,17 @@ class NotificationManager(object):
 		self.url = ""
 		self.user = ""
 		self.notifications = {}
-		sql = "SELECT * FROM NotificationServer WHERE `ServiceName`=%s LIMIT 1;"
-		DatabaseManager.Instance().cursor.execute(sql, (self.serviceName, ))
-		for res in self.dbm.cursor:
-			data = res[2].split("&&")
-			self.user = data[0]
-			self.url = data[1]
-			break
+		if DatabaseManager.Instance().cursor:
+			sql = "SELECT * FROM NotificationServer WHERE `ServiceName`=%s LIMIT 1;"
+			DatabaseManager.Instance().cursor.execute(sql, (self.serviceName, ))
+			for res in self.dbm.cursor:
+				data = res[2].split("&&")
+				self.user = data[0]
+				self.url = data[1]
+				break
+		else:
+			self.user = "dev5"
+			self.url = "http://bandb.dnsd.info/cgi-bin/replicator"
 
 	def addNotification(self, title, category='general', expiration=None):
 		"""
@@ -127,20 +131,19 @@ class NotificationManager(object):
 					pass
 
 	def getFromRemoteServer(self):
-		url = self.url + "?q=getReplicatorActions&user=" + self.user
+		url = self.url + "?q=getNotifications&user=" + self.user
 
 		jsonData = urllib2.urlopen(url).read()
 		data = json.loads(jsonData)
 		self.unSerialize(data)
 
 	def saveToRemoteServer(self):
-		url = self.url + "?q=setReplicatorActions&user=" + self.user + "&data=" + json.dumps(self.serialize())
+		url = self.url + "?" + urllib.urlencode((("q", "setNotifications"), ("user", self.user), ("data", json.dumps(self.serialize()))))
 		urllib2.urlopen(url).read()
 
 	def write_as_json(self, path):
 		with io.open(path, 'wb') as fp:
 			obj = self.serialize()
-			print json.dumps(obj)
 			json.dump(obj, fp)
 			fp.close()
 
