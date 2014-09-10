@@ -140,7 +140,7 @@ class TPBScrapper(TorrentProvider):
 				tds = eachTorrent.find_all("td")
 				item.seeds = tds[2].text
 				item.leeches = tds[3].text
-				reg = re.compile(".* ([\d.]+).*?([kKmMgG])iB.*")
+				reg = re.compile(".* ([\d.]+).*?([BkKmMgG])(iB|.?).*")
 				m = reg.match(textTag.text)
 				item.size = float(m.group(1))
 				item.author = unicode(textTag.find(["a", "i"]).string)
@@ -153,7 +153,7 @@ class TPBScrapper(TorrentProvider):
 			print "Exception catched"
 			print e
 			print url
-			print _torrents
+			print eachTorrent.parent.parent
 
 
 	@staticmethod
