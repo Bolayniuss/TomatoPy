@@ -91,7 +91,8 @@ class NotificationManager(object):
 				self.url = data[1]
 				break
 		else:
-			self.user = "chalet-ms"
+
+			self.user = "dev-default"
 			self.url = "http://bandb.dnsd.info/cgi-bin/replicator"
 
 	def addNotification(self, title, category='general', expiration=None):
