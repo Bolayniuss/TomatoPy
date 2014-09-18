@@ -13,6 +13,7 @@ import bs4
 
 from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
+from MultiHostHandler import MultiHostHandler, MultiHostHandlerException
 
 
 class EpisodesProvider(object):
@@ -99,18 +100,6 @@ class TorrentProvider(object):
 
 class TPBScrapper(TorrentProvider):
 
-	baseURLs = [
-		"thepiratebay.se",
-	    "thepiratebay.org",
-		"pirateproxy.bz",
-		"labaia.in",
-		"bay.dragonflame.org",
-		"thepiratebay.mine.nu",
-		"rghmodding.com",
-		"torrentula.se",
-		"baytorrent.eu"
-	]
-
 	timeout = 10
 
 	def __init__(self, ):
@@ -125,28 +114,10 @@ class TPBScrapper(TorrentProvider):
 			self.parse(data)
 
 	def getTPBHTML(self, searchString):
-		for base_url in self.baseURLs:
-			try:
-				url = "http://" + base_url + "/search/" + urllib.quote(searchString) + "/0/7/0"
-				from StringIO import StringIO
-				import gzip
-
-				request = urllib2.Request(url)
-				request.add_header('Accept-encoding', 'gzip')
-				response = urllib2.urlopen(url=request, timeout=self.timeout)
-				if response.info().get('Content-Encoding') == 'gzip':
-					buf = StringIO(response.read())
-					f = gzip.GzipFile(fileobj=buf)
-					data = f.read()
-				else:
-					data = response.read()
-				return data
-			except urllib2.HTTPError:
-				pass
-			except urllib2.URLError:
-				pass
-			self.logger.warning("Unable to open %s", base_url)
-		return None
+		try:
+			return MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0", self.timeout)
+		except MultiHostHandlerException as e:
+			self.logger.warning(e)
 
 	def parse(self, data):
 		"""
