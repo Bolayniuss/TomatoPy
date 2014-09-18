@@ -143,8 +143,8 @@ class NotificationManager(object):
 			pass
 
 	def saveToRemoteServer(self):
-		url = self.url + "?" + urllib.urlencode((("q", "setNotifications"), ("user", self.user), ("data", json.dumps(self.serialize()))))
-		urllib2.urlopen(url).read()
+		url = self.url
+		urllib2.urlopen(url, urllib.urlencode((("q", "setNotifications"), ("user", self.user), ("data", json.dumps(self.serialize()))))).read()
 
 	def write_as_json(self, path):
 		with io.open(path, 'wb') as fp:
