@@ -118,7 +118,7 @@ class TPBScrapper(TorrentProvider):
 	def getTPBHTML(self, searchString):
 		try:
 			return MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0", self.timeout)
-		except MultiHostHandlerException as e
+		except MultiHostHandlerException as e:
 			self.logger.warning(e)
 
 	def parse(self, data):
