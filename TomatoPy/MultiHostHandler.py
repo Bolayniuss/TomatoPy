@@ -5,7 +5,7 @@ __author__ = 'Michael Bolay'
 from urlparse import urlparse
 import time
 import urllib2
-import Singleton
+from Singleton import Singleton
 
 
 class MultiHostError(Exception):
@@ -33,7 +33,7 @@ class MultiHostHandlerException(Exception):
 
 
 @Singleton
-class MultiHostHandler():
+class MultiHostHandler(object):
 
 	def __init__(self):
 		self.hosts = {}
