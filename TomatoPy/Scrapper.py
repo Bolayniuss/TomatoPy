@@ -143,6 +143,7 @@ class TPBScrapper(TorrentProvider):
 				self.logger.warning("Unable to open %s", base_url)
 			except urllib2.URLError:
 				pass
+			print "Unable to open %s" % base_url
 		return None
 
 	def parse(self, data):
