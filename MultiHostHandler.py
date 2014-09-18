@@ -22,7 +22,7 @@ class MultiHostError(Exception):
 
 class MultiHostHandlerException(Exception):
 	def __init__(self, hostname):
-		super(MultiHostError, self).__init__()
+		super(MultiHostHandlerException, self).__init__()
 		self.host = hostname
 
 	def __str__(self):
