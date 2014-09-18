@@ -15,7 +15,7 @@ import bs4
 
 from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
-from MultiHostHandler import MultiHostHandlerException
+from MultiHostHandler import MultiHostHandlerException, MultiHostHandler
 
 
 class EpisodesProvider(object):
