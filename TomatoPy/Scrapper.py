@@ -140,7 +140,7 @@ class TPBScrapper(TorrentProvider):
 					data = response.read()
 				return data
 			except urllib2.HTTPError:
-				pass
+				self.logger.warning("Unable to open %s", base_url)
 			except urllib2.URLError:
 				pass
 		return None
