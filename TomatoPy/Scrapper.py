@@ -1,5 +1,7 @@
 # -*- coding: utf8 -*-
 #
+import MultiHostHandler
+
 __author__ = 'bolay'
 
 import urllib2
@@ -13,7 +15,7 @@ import bs4
 
 from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
-from MultiHostHandler import MultiHostHandler, MultiHostHandlerException
+from MultiHostHandler import MultiHostHandlerException
 
 
 class EpisodesProvider(object):
