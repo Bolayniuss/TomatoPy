@@ -33,7 +33,7 @@ class MultiHostHandlerException(Exception):
 
 
 @Singleton
-class MultiHostHandler(object):
+class MultiHostHandler():
 
 	def __init__(self):
 		self.hosts = {}
