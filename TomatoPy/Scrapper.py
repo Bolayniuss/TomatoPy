@@ -111,6 +111,8 @@ class TPBScrapper(TorrentProvider):
 		"baytorrent.eu"
 	]
 
+	timeout = 10
+
 	def __init__(self, ):
 		super(TPBScrapper, self).__init__()
 		self.logger = logging.getLogger(__name__)
@@ -131,7 +133,7 @@ class TPBScrapper(TorrentProvider):
 
 				request = urllib2.Request(url)
 				request.add_header('Accept-encoding', 'gzip')
-				response = urllib2.urlopen(request)
+				response = urllib2.urlopen(request, self.timeout)
 				if response.info().get('Content-Encoding') == 'gzip':
 					buf = StringIO(response.read())
 					f = gzip.GzipFile(fileobj=buf)
@@ -140,10 +142,10 @@ class TPBScrapper(TorrentProvider):
 					data = response.read()
 				return data
 			except urllib2.HTTPError:
-				self.logger.warning("Unable to open %s", base_url)
+				pass
 			except urllib2.URLError:
 				pass
-			print "Unable to open %s" % base_url
+			self.logger.warning("Unable to open %s", base_url)
 		return None
 
 	def parse(self, data):
