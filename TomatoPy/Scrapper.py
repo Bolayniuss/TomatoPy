@@ -99,6 +99,18 @@ class TorrentProvider(object):
 
 class TPBScrapper(TorrentProvider):
 
+	baseURLs = [
+		"thepiratebay.se",
+	    "thepiratebay.org",
+		"pirateproxy.bz",
+		"labaia.in",
+		"bay.dragonflame.org",
+		"thepiratebay.mine.nu",
+		"rghmodding.com",
+		"torrentula.se",
+		"baytorrent.eu"
+	]
+
 	def __init__(self, ):
 		super(TPBScrapper, self).__init__()
 		self.logger = logging.getLogger(__name__)
@@ -106,25 +118,39 @@ class TPBScrapper(TorrentProvider):
 
 	def grabTorrents(self, searchString):
 		self._torrentItems = []
-		self.parse("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0")
+		data = self.getTPBHTML(searchString)
+		if data:
+			self.parse(data)
 
-	def parse(self, url):
+	def getTPBHTML(self, searchString):
+		for base_url in self.baseURLs:
+			try:
+				url = "http://" + base_url + "/search/" + urllib.quote(searchString) + "/0/7/0"
+				from StringIO import StringIO
+				import gzip
+
+				request = urllib2.Request(url)
+				request.add_header('Accept-encoding', 'gzip')
+				response = urllib2.urlopen(request)
+				if response.info().get('Content-Encoding') == 'gzip':
+					buf = StringIO(response.read())
+					f = gzip.GzipFile(fileobj=buf)
+					data = f.read()
+				else:
+					data = response.read()
+				return data
+			except urllib2.HTTPError:
+				pass
+			except urllib2.URLError:
+				pass
+		return None
+
+	def parse(self, data):
 		"""
 
 
 		"""
-		from StringIO import StringIO
-		import gzip
 
-		request = urllib2.Request(url)
-		request.add_header('Accept-encoding', 'gzip')
-		response = urllib2.urlopen(request)
-		if response.info().get('Content-Encoding') == 'gzip':
-			buf = StringIO(response.read())
-			f = gzip.GzipFile(fileobj=buf)
-			data = f.read()
-		else:
-			data = response.read()
 		soup = bs4.BeautifulSoup(data)
 		_torrents = soup.select("tr div.detName")
 
