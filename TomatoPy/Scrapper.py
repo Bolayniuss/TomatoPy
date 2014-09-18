@@ -15,7 +15,7 @@ import bs4
 
 from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
-from MultiHostHandler import MultiHostHandlerException, MultiHostHandler
+import MultiHostHandler
 
 
 class EpisodesProvider(object):
@@ -117,8 +117,8 @@ class TPBScrapper(TorrentProvider):
 
 	def getTPBHTML(self, searchString):
 		try:
-			return MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0", self.timeout)
-		except MultiHostHandlerException as e:
+			return MultiHostHandler.MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0", self.timeout)
+		except MultiHostHandler.MultiHostHandlerException as e:
 			self.logger.warning(e)
 
 	def parse(self, data):

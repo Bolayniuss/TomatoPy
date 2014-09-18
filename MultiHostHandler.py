@@ -43,7 +43,8 @@ class MultiHostHandler(object):
 		hosts = self.hosts.get(parsedUrl.hostname)
 		if hosts:
 			return hosts.openPath(parsedUrl.path, parsedUrl.scheme, timeout)
-		raise MultiHostHandlerException(parsedUrl.hostname)
+		else:
+			raise MultiHostHandlerException(parsedUrl.hostname)
 
 	def registerMultiHost(self, hostname, extraHosts):
 		if not self.hosts.get(hostname):
