@@ -133,7 +133,7 @@ class TPBScrapper(TorrentProvider):
 
 				request = urllib2.Request(url)
 				request.add_header('Accept-encoding', 'gzip')
-				response = urllib2.urlopen(request, self.timeout)
+				response = urllib2.urlopen(url=request, timeout=self.timeout)
 				if response.info().get('Content-Encoding') == 'gzip':
 					buf = StringIO(response.read())
 					f = gzip.GzipFile(fileobj=buf)
