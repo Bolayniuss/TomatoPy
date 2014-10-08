@@ -5,7 +5,8 @@ __author__ = 'Michael Bolay'
 import time
 import json
 import io
-import urllib2, urllib
+import urllib2
+import  urllib
 from exceptions import NotImplementedError
 from Singleton import Singleton
 from DatabaseManager import DatabaseManager
@@ -89,8 +90,6 @@ class NotificationManager(object):
 				data = res[2].split("&&")
 				self.user = data[0]
 				self.url = data[1]
-				print res
-				print data
 				break
 		else:
 

@@ -188,36 +188,6 @@ class TvShowManager(AutomatedActionsExecutor):
 		betaserieEpisodes = _tmp
 		return betaserieEpisodes
 
-	def addNewToTorrentManager2(self):
-		"""
-		Get new episodes and add them to the torrentManager for download.
-		"""
-		self.logger.debug("begin: addNewToTorrentManager")
-		episodes = self.getNewTvShow()
-
-		for episode in episodes:
-			pattern = self.deleteBadChars(episode.title)
-			pattern = pattern.replace(" ", ".*?")
-			#new = True
-			#for torrent in torrents:
-			#	self.logger.debug("pattern: %s, torrent.name: %s", pattern, torrent.name)
-			#	if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
-			#		new = False
-			#		break
-			#if new:
-			if not self.torrentManager.searchInTorrents(pattern):
-				tpbItems = TPBScrapper().getTorrents(episode.title, episode.filter)
-				if len(tpbItems) > 0:
-					newTorrent = self.torrentManager.addTorrentURL(tpbItems[0].link)
-					if newTorrent:
-						self.addAutomatedActions(newTorrent.hash, episode.tvShow, episode.title)
-						self.logger.debug("New torrent added for episode %s", episode.title)
-					else:
-						self.logger.info("No torrent added for %s", episode.title)
-				else:
-					self.logger.info("No torrent found for %s", episode.title)
-		self.logger.debug("end: addNewToTorrentManager")
-
 	def addAutomatedActions(self, torrentId, tvShow, episodeName):
 		#sql = "INSERT INTO `AutomatedActions` (`id`, `notifier`, `trigger`, `data`) VALUES (NULL, 'asd', 'onTorrentDownloaded', 'asdasd');"
 		query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', %s);"

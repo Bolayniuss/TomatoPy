@@ -13,7 +13,7 @@ class TorrentObject:
 	"""
 	Object that represents a torrent (task)
 	"""
-	def __init__(self, hash, name):
+	def __init__(self, _hash, name):
 		"""
 
 		:param unicode hash:
@@ -29,7 +29,7 @@ class TorrentObject:
 
 		self.files = list()
 
-		self.hash = hash            # hashString	TORRENT_HASH: 0
+		self.hash = _hash           # hashString	TORRENT_HASH: 0
 		self.name = name            # name	TORRENT_NAME: 2
 		self.eta = 0                # eta	TORRENT_ETA: 10
 		self.size = 0               # sizeWhenDone	TORRENT_SIZE: 3
@@ -45,6 +45,11 @@ class TorrentObject:
 		self.dlRate = 0	            # rateDownload (bps)	TORRENT_DOWNSPEED: 9
 		self.ulRate = 0    	        # rateUpload (bps)	TORRENT_UPSPEED: 8
 		self.isFinished = False     # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000'000
+
+	def getProgress(self):
+		if not self.size or self.size == 0:
+			return 0
+		return float(self.downloaded) / self.size
 
 
 class TorrentFile:
