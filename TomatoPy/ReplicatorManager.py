@@ -109,7 +109,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
 						else:
 							success = False
 					if success:
-						XbmcLibraryManager.Instance().scanVideoLibrary()
+						XbmcLibraryManager.Instance().scanVideoLibrary(os.path.dirname(destinationPath))
 						self.logger.info("delete associated torrent")
 						self.torrentManager.removeTorrent(hashString, True)
 						NotificationManager.Instance().addNotification(

@@ -346,10 +346,10 @@ class FileTracer:
 						else:
 							self.logger.warn("This action already exists in the database.")
 						# Remove File from TrackedTorrentFiles DB
-						self.logger.info("Remove TrackedTorrentFile %s", trackedFile.name)
-						sql = "DELETE FROM `TrackedTorrentFiles` WHERE `hash`=%s;"
-						self.dbm.cursor.execute(sql, (trackedFile.hash, ))
-						self.dbm.connector.commit()
+						#self.logger.info("Remove TrackedTorrentFile %s", trackedFile.name)
+						#sql = "DELETE FROM `TrackedTorrentFiles` WHERE `hash`=%s;"
+						#self.dbm.cursor.execute(sql, (trackedFile.hash, ))
+						#self.dbm.connector.commit()
 					else:
 						self.logger.error("Unable to create TrackedTorrent with query %s", res)
 				else:
@@ -357,7 +357,7 @@ class FileTracer:
 
 	def clean(self):
 		#self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE timeout<UNIX_TIMESTAMP()")
-		self.logger.info("Beginning Clean up.")
+		self.logger.debug("Beginning Clean up.")
 		torrents = {}
 		for torrent in self.torrentManager.getTorrents():
 			torrents[torrent.hash] = 1
@@ -393,4 +393,4 @@ class FileTracer:
 					self.dbm.cursor.execute(deleteTTSql, (hashStr, ))
 					self.dbm.connector.commit()
 
-		self.logger.info("End Clean up.")
+		self.logger.debug("End Clean up.")

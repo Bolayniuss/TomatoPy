@@ -32,13 +32,19 @@ class XbmcLibraryManager:
 		self.pendingRequests = {}
 		self.jsonrpcVersion = "2.0"
 
-	def scanAudioLibrary(self):
-		self.pendingRequests['AudioLibrary.Scan'] = self.buildRequest('AudioLibrary.Scan', {}, self.generateID())
+	def scanAudioLibrary(self, directory=None):
+		params = {}
+		if directory:
+			params["directory"] = directory
+		self.pendingRequests['AudioLibrary.Scan'] = self.buildRequest('AudioLibrary.Scan', params, self.generateID())
 		self.logger.info("add AudioLibrary.Scan action")
 		#return self.sendRequest(request)
 
-	def scanVideoLibrary(self):
-		self.pendingRequests['VideoLibrary.Scan'] = self.buildRequest('VideoLibrary.Scan', {}, self.generateID())
+	def scanVideoLibrary(self, directory=None):
+		params = {}
+		if directory:
+			params["directory"] = directory
+		self.pendingRequests['VideoLibrary.Scan'] = self.buildRequest('VideoLibrary.Scan', params, self.generateID())
 		self.logger.info("add VideoLibrary.Scan action")
 		#return self.sendRequest(request)
 

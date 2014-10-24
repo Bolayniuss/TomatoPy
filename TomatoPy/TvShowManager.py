@@ -196,7 +196,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		DatabaseManager.Instance().cursor.execute(query, (data, ))
 		DatabaseManager.Instance().connector.commit()
 
-	def moveTvShow(self, file_, tvShow, episodeName):
+	def getEpisodeFinalPath(self, file_, tvShow, episodeName):
 		"""
 		:param file_: file to move
 		:type file_ : FileItem
@@ -204,18 +204,13 @@ class TvShowManager(AutomatedActionsExecutor):
 		:type tvShow: unicode
 		:param episodeName: episode name (e.g. {tvShow} S01E01)
 		:type episodeName: unicode
-		:return: True on success False otherwise
-		:rtype: bool
+		:return: The final destination path for this episode
+		:rtype: unicode
 		"""
-		if file_ is None:
-			return False
+
 		season = self.getSeasonFromTitle(episodeName)
 		dst = os.path.join(self.tvShowDirectory, tvShow, "Saison " + season, episodeName + "." + file_.extension)
-		sourceFilePath = file_.getFullPath()
-		self.logger.info("try to move %s* to %s", sourceFilePath, dst)
-		if len(sourceFilePath) > 0:
-			return Tools.FileSystemHelper.Instance().move(sourceFilePath, dst)
-		return False
+		return dst
 
 	def getTvShowFileFromTorrent(self, torrent, filter_):
 		"""
@@ -281,10 +276,16 @@ class TvShowManager(AutomatedActionsExecutor):
 					try:
 						fileToMove = self.getTvShowFileFromTorrent(torrent, filter_)
 						if fileToMove:
-							if self.moveTvShow(fileToMove, tvShow, episodeName):
+							success = False
+							destinationPath = self.getEpisodeFinalPath(fileToMove, tvShow, episodeName)
+							sourceFilePath = fileToMove.getFullPath()
+							self.logger.info("try to move %s* to %s", sourceFilePath, destinationPath)
+							if len(sourceFilePath) > 0:
+								success = Tools.FileSystemHelper.Instance().move(sourceFilePath, destinationPath)
+							if success:
 								self.logger.info("move succeed")
 								time.sleep(0.5)
-								XbmcLibraryManager.Instance().scanVideoLibrary()
+								XbmcLibraryManager.Instance().scanVideoLibrary(os.path.dirname(destinationPath))
 								self.logger.info("delete associated torrent")
 								self.torrentManager.removeTorrent(hashString, True)
 								NotificationManager.Instance().addNotification(
@@ -292,6 +293,7 @@ class TvShowManager(AutomatedActionsExecutor):
 									"TvShowManager: Done", Expiration(weeks=4)
 								)
 								return True
+							# else
 							self.logger.warn("Failed to move %s", torrent.name)
 							NotificationManager.Instance().addNotification(
 								"Move failure in %s" % torrent.name,
