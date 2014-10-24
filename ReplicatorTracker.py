@@ -202,10 +202,10 @@ class Destination:
 				if self.filter.test(File(path)):
 					fwh = None
 					if not clean:
-						sql = "SELECT * FROM DestinationsFilesList WHERE `path`=%s AND `destinationName`=%s;"
+						sql = "SELECT * FROM DestinationsFilesList WHERE `path`=%s AND `destinationName`=%s LIMIT 1;"
 						curs.execute(sql, (relativePath, self.name))
 						res = curs.fetchone()
-						curs.fetchall()
+						#curs.fetchall()
 						if res is not None:
 							# file already in DB, so use it
 							fwh = FileWithHash.fromSqlQuery(res)
@@ -334,7 +334,8 @@ class FileTracer:
 					tt = TrackedTorrent.fromSqlQuery(res)
 					if tt is not None:
 						sql = "SELECT count(1) FROM ReplicatorActions WHERE `torrentName`=%s AND `torrentFileName`=%s LIMIT 1;"
-						if not self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName)):
+						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName))
+						if not self.dbm.cursor.fetchone():
 							self.logger.info("New replicator action with file: %s", trackedFile.torrentFileName)
 							sql = "INSERT INTO `ReplicatorActions` (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
 							self.dbm.cursor.execute(sql, (tt.name,
@@ -386,16 +387,10 @@ class FileTracer:
 
 			for hashStr in trackedTorrents:
 				# No TrackedTorrentFile associated with this TrackedTorrent => remove
-				if not self.dbm.cursor.execute(getTTFWithTorrentHashSql, (hashStr, )):
+				self.dbm.cursor.execute(getTTFWithTorrentHashSql, (hashStr, ))
+				if not self.dbm.cursor.fetchone():
 					self.logger.info("Remove TrackedTorrent with hash=%s", hashStr)
 					self.dbm.cursor.execute(deleteTTSql, (hashStr, ))
 					self.dbm.connector.commit()
 
 		self.logger.info("End Clean up.")
-
-
-if __name__ == "__main__":
-	DatabaseManager.Instance().connect('replicator', 'root', None, '127.0.0.1')
-	ft = FileTracer()
-	ft.run()
-	ft.clean()
