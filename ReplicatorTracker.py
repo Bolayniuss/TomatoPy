@@ -335,7 +335,7 @@ class FileTracer:
 					if tt is not None:
 						sql = "SELECT count(1) FROM ReplicatorActions WHERE `torrentName`=%s AND `torrentFileName`=%s LIMIT 1;"
 						self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName))
-						if not self.dbm.cursor.fetchone():
+						if not self.dbm.cursor.fetchone()[0]:
 							self.logger.info("New replicator action with file: %s", trackedFile.torrentFileName)
 							sql = "INSERT INTO `ReplicatorActions` (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
 							self.dbm.cursor.execute(sql, (tt.name,
@@ -388,7 +388,7 @@ class FileTracer:
 			for hashStr in trackedTorrents:
 				# No TrackedTorrentFile associated with this TrackedTorrent => remove
 				self.dbm.cursor.execute(getTTFWithTorrentHashSql, (hashStr, ))
-				if not self.dbm.cursor.fetchone():
+				if not self.dbm.cursor.fetchone()[0]:
 					self.logger.info("Remove TrackedTorrent with hash=%s", hashStr)
 					self.dbm.cursor.execute(deleteTTSql, (hashStr, ))
 					self.dbm.connector.commit()
