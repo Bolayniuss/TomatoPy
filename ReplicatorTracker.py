@@ -368,7 +368,7 @@ class FileTracer:
 			# Clean up TrackedTorrentFiles DB
 			delete = False
 			# Remove if file does not exist (deleted, moved)
-			if not os.path.exists(iF.name):
+			if not os.path.exists(iF.name) and iF.torrentHash not in torrents:
 				delete = True
 			# Remove if associated torrent does not exists
 			#if not (iF.torrentHash in torrents):

@@ -6,6 +6,14 @@ import re
 class EpisodeItem(object):
 
 	def __init__(self, title, tvShow=None, season=None, episodeNumber=None):
+		"""
+
+		:param unicode title:
+		:param unicode tvShow:
+		:param int season:
+		:param int episodeNumber:
+		:return:
+		"""
 		self.title = title
 		self.tvShow = tvShow
 		self.season = season

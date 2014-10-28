@@ -39,10 +39,15 @@ class TrackedEpisode(EpisodeItem):
 		:type trackedTvShow: TrackedTvShow
 		:return:
 		"""
-		self.tvShow = episodeItem.tvShow
-		self.title = episodeItem.title
-		self.episodeNumber = episodeItem.episodeNumber
-		self.season = episodeItem.season
+
+		super(TrackedEpisode, self).__init__(title=episodeItem.title,
+		                                     tvShow=episodeItem.tvShow,
+		                                     season=episodeItem.season,
+		                                     episodeItem=episodeItem.episodeNumber)
+		#self.tvShow = episodeItem.tvShow
+		#self.title = episodeItem.title
+		#self.episodeNumber = episodeItem.episodeNumber
+		#self.season = episodeItem.season
 
 		self.trackedTvShow = trackedTvShow
 

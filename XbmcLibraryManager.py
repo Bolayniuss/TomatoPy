@@ -37,7 +37,10 @@ class XbmcLibraryManager:
 		if directory:
 			params["directory"] = directory
 		self.pendingRequests['AudioLibrary.Scan'] = self.buildRequest('AudioLibrary.Scan', params, self.generateID())
-		self.logger.info("add AudioLibrary.Scan action")
+		if directory:
+			self.logger.info("add AudioLibrary.Scan action, directory %s", directory)
+		else:
+			self.logger.info("add AudioLibrary.Scan action")
 		#return self.sendRequest(request)
 
 	def scanVideoLibrary(self, directory=None):
@@ -45,7 +48,10 @@ class XbmcLibraryManager:
 		if directory:
 			params["directory"] = directory
 		self.pendingRequests['VideoLibrary.Scan'] = self.buildRequest('VideoLibrary.Scan', params, self.generateID())
-		self.logger.info("add VideoLibrary.Scan action")
+		if directory:
+			self.logger.info("add VideoLibrary.Scan action, directory %s", directory)
+		else:
+			self.logger.info("add VideoLibrary.Scan action")
 		#return self.sendRequest(request)
 
 	def cleanAudioLibrary(self):
