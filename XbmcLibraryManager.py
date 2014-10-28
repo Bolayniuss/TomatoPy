@@ -79,6 +79,7 @@ class XbmcLibraryManager:
 		#print "port: ", self.port
 		conn = httplib.HTTPConnection(self.host, self.port)
 		conn.request("POST", "/jsonrpc", request, {"Content-type": "application/json"})
+		self.logger.debug("Send request: %s", request)
 		return self.processResponse(conn.getresponse())
 
 	def buildRequest(self, type, parameters, id=0):
@@ -97,6 +98,7 @@ class XbmcLibraryManager:
 		if response.getheader("content-length") is not None:
 			page = response.read()
 			#print page
+			self.logger.debug("Receive: %s", page)
 			resp = json.JSONDecoder().decode(page)
 			if resp["result"] == "OK":
 				#print "Request Accepted."
