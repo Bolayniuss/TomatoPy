@@ -43,7 +43,7 @@ class TrackedEpisode(EpisodeItem):
 		super(TrackedEpisode, self).__init__(title=episodeItem.title,
 		                                     tvShow=episodeItem.tvShow,
 		                                     season=episodeItem.season,
-		                                     episodeItem=episodeItem.episodeNumber)
+		                                     episodeNumber=episodeItem.episodeNumber)
 		#self.tvShow = episodeItem.tvShow
 		#self.title = episodeItem.title
 		#self.episodeNumber = episodeItem.episodeNumber
