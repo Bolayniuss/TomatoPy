@@ -114,19 +114,19 @@ class TvShowManager(AutomatedActionsExecutor):
 		episodes = []
 		for episodeProvider in self.registeredEpisodeProviders:
 			for episode in episodeProvider.getEpisodes():
-				#self.logger.debug("Episode : %s (%s)", episode.title, episode.tvShow)
+				self.logger.debug("Episode : %s (%s)", episode.title, episode.tvShow)
 
 				trackedTvShow = self.getTrackedTvShow(episode)
 				if trackedTvShow:
 					#self.logger.debug("is in tracked tv shows")
 
 					if not self.directoryMapper.fileExists(episode.title):
-						#self.logger.debug("is not in source directory")
+						self.logger.debug("is not in source directory")
 
 						pattern = self.deleteBadChars(episode.title)
 						pattern = pattern.replace(" ", ".*")
 						if not self.torrentManager.searchInTorrents(pattern):
-							#self.logger.debug("doesn't exists in torrentManager.torrents")
+							self.logger.debug("doesn't exists in torrentManager.torrents")
 
 							episodes.append(TrackedEpisode(episode, trackedTvShow))
 		return episodes
@@ -161,13 +161,14 @@ class TvShowManager(AutomatedActionsExecutor):
 		Retrieves new episodes from Betaserie and then retain only those that doesn't exists
 		in destination directories.
 		"""
+		self.logger.debug("getNetTvShow | Get items from BS")
 		betaserieEpisodes = BetaserieRSSScrapper(self.bUser).items
 
 		_tmp = []
 		for item in betaserieEpisodes:
 			for (tvShowTitle, filter_) in self.trackedTvShows:
 				if re.search(re.escape(tvShowTitle), item.title, re.IGNORECASE) is not None:
-					#print "TvShowManager: Possible new episode found: ", item.title
+					self.logger.debug("getNetTvShow | Likely new episode found: %s", item.title)
 					item.filter = filter_
 					item.tvShow = tvShowTitle
 					_tmp.append(item)
@@ -183,7 +184,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				#if True or fileItem.name[0] == "H":
 				#	print "look for ", re.escape(item.title), " in ", fileItem.name
 				if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
-					#print "TvShowManager: Episode ", item.title, " removed because it already exist in source directory ", fileItem.name
+					self.logger.debug("getNewTvShow | Episode %s removed because it already exist in source directory %s", item.title, fileItem.name)
 					add = False
 					break
 			if add:
@@ -194,7 +195,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		return betaserieEpisodes
 
 	def addAutomatedActions(self, torrentId, tvShow, episodeName):
-		#sql = "INSERT INTO `AutomatedActions` (`id`, `notifier`, `trigger`, `data`) VALUES (NULL, 'asd', 'onTorrentDownloaded', 'asdasd');"
+		self.logger.debug("addAutomatedActions | new (%s, %s, %s)", torrentId, tvShow, episodeName)
 		query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', %s);"
 		data = "&&".join(["move", torrentId, tvShow, episodeName])
 		self.logger.info("add automated action, quest=%s, data=%s", query, data)
