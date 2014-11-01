@@ -114,21 +114,22 @@ class TvShowManager(AutomatedActionsExecutor):
 		episodes = []
 		for episodeProvider in self.registeredEpisodeProviders:
 			for episode in episodeProvider.getEpisodes():
-				self.logger.debug("Episode : %s (%s)", episode.title, episode.tvShow)
+				#self.logger.debug("Episode : %s (%s)", episode.title, episode.tvShow)
 
 				trackedTvShow = self.getTrackedTvShow(episode)
 				if trackedTvShow:
 					#self.logger.debug("is in tracked tv shows")
 
 					if not self.directoryMapper.fileExists(episode.title):
-						self.logger.debug("is not in source directory")
+						#self.logger.debug("%s ,is not in source directory", episode.title)
 
 						pattern = self.deleteBadChars(episode.title)
 						pattern = pattern.replace(" ", ".*")
 						if not self.torrentManager.searchInTorrents(pattern):
-							self.logger.debug("doesn't exists in torrentManager.torrents")
+							#self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
 
 							episodes.append(TrackedEpisode(episode, trackedTvShow))
+							self.logger.debug("%s flagged as new.", episode.title)
 		return episodes
 
 	def addNewToTorrentManager(self, episodes=None):
