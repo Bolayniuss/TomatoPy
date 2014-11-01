@@ -6,6 +6,7 @@ import grp
 import pwd
 import os
 import logging
+import re
 
 from Singleton import Singleton
 
@@ -70,3 +71,26 @@ class FileSystemHelper:
 				os.chown(path, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
 		res += [path]
 		return res
+
+@Singleton
+class PathSubstitution():
+	def __init__(self, substitution_peers_array=None):
+		"""
+
+		:param list of list substitution_peers_array:
+		:return:
+		"""
+		self.substitutions = []
+		if substitution_peers_array:
+			for peer in substitution_peers_array:
+				if len(peer) == 2:
+					self.substitutions.append((peer[0], peer[1],))
+
+	def add_substitution(self, lookup_regexp, substitution):
+		self.substitutions.append((lookup_regexp, substitution, ))
+
+	def substitute(self, source):
+		for peer in self.substitutions:
+			source = re.sub(peer[0], peer[1], source)
+		return source
+
