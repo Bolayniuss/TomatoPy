@@ -239,7 +239,7 @@ class TvShowManager(AutomatedActionsExecutor):
 					validFiles.append(extractedFile)
 
 		if len(validFiles) == 0:
-			mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi", "wmv"])
+			mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi"])
 			for file_ in files:
 				if mediaFilter.test(FileItem.fromFilename(file_.name, "")):
 					validFiles.append(file_)
