@@ -53,6 +53,15 @@ class TrackedEpisode(EpisodeItem):
 
 
 class TvShowManager(AutomatedActionsExecutor):
+	"""
+	Provide functions to:
+		- grab new tv shows episodes from registered episode providers
+		- grab magnet link from registered torrent providers
+		- add new download tasks to torrent manager (utorrent, transmission)
+		- move episode file to the right place when downloaded
+		- notify each event to a notification service
+		- update XBMC library if needed
+	"""
 	def __init__(self, torrentManager):
 		super(TvShowManager, self).__init__("TvShowManager")
 
@@ -88,7 +97,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			self.trackedTvShows.append(TrackedTvShow(title, filter_))
 		dbm.connector.commit()
 
-		#TODO: replace this line
+		#TODO: Change
 		self.registeredEpisodeProviders = [BetaserieRSSScrapper(self.bUser)]
 		self.registeredTorrentProviders = [TPBScrapper()]
 
@@ -111,6 +120,13 @@ class TvShowManager(AutomatedActionsExecutor):
 		return None
 
 	def getNewEpisodes(self):
+		"""
+		Returns a list of episodes ready to download
+		:return: a list of episodes ready to download
+		:rtype: list of Episode
+		"""
+		# TODO: move content of first "for loop" in EpisodeProvider.getNewEpisode(trackedTvShows). Keep verification on torrent manager
+		# TODO: move deleteBadChars to Tools module
 		episodes = []
 		for episodeProvider in self.registeredEpisodeProviders:
 			for episode in episodeProvider.getEpisodes():
@@ -135,7 +151,6 @@ class TvShowManager(AutomatedActionsExecutor):
 	def addNewToTorrentManager(self, episodes=None):
 		if not episodes:
 			episodes = self.getNewEpisodes()
-		# TODO: fix multi torrent providers function
 		self.logger.info("Episodes ready for download:")
 		for episode in episodes:
 			torrentItems = []
@@ -157,43 +172,43 @@ class TvShowManager(AutomatedActionsExecutor):
 				NotificationManager.Instance().addNotification("No torrent found for %s" % episode.title, "TvShowManager: Error", Expiration())
 				self.logger.info("No torrent found for %s", episode.title)
 
-	def getNewTvShow(self):
-		"""
-		Retrieves new episodes from Betaserie and then retain only those that doesn't exists
-		in destination directories.
-		"""
-		self.logger.debug("getNetTvShow | Get items from BS")
-		betaserieEpisodes = BetaserieRSSScrapper(self.bUser).items
-
-		_tmp = []
-		for item in betaserieEpisodes:
-			for (tvShowTitle, filter_) in self.trackedTvShows:
-				if re.search(re.escape(tvShowTitle), item.title, re.IGNORECASE) is not None:
-					self.logger.debug("getNetTvShow | Likely new episode found: %s", item.title)
-					item.filter = filter_
-					item.tvShow = tvShowTitle
-					_tmp.append(item)
-					break
-
-		betaserieEpisodes = _tmp
-		_tmp = []
-
-		tvShowInDir = DirectoryMapper(self.tvShowDirectory, r".*(mkv|avi|mp4|wmv)$", self.fileSystemEncoding).files
-		for item in betaserieEpisodes:
-			add = True
-			for fileItem in tvShowInDir:
-				#if True or fileItem.name[0] == "H":
-				#	print "look for ", re.escape(item.title), " in ", fileItem.name
-				if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
-					self.logger.debug("getNewTvShow | Episode %s removed because it already exist in source directory %s", item.title, fileItem.name)
-					add = False
-					break
-			if add:
-				_tmp.append(item)
-				self.logger.debug("new item %s ready to download", item.title)
-
-		betaserieEpisodes = _tmp
-		return betaserieEpisodes
+	#def getNewTvShow(self):
+	#	"""
+	#	Retrieves new episodes from Betaserie and then retain only those that doesn't exists
+	#	in destination directories.
+	#	"""
+	#	self.logger.debug("getNetTvShow | Get items from BS")
+	#	betaserieEpisodes = BetaserieRSSScrapper(self.bUser).items
+	#
+	#	_tmp = []
+	#	for item in betaserieEpisodes:
+	#		for (tvShowTitle, filter_) in self.trackedTvShows:
+	#			if re.search(re.escape(tvShowTitle), item.title, re.IGNORECASE) is not None:
+	#				self.logger.debug("getNetTvShow | Likely new episode found: %s", item.title)
+	#				item.filter = filter_
+	#				item.tvShow = tvShowTitle
+	#				_tmp.append(item)
+	#				break
+	#
+	#	betaserieEpisodes = _tmp
+	#	_tmp = []
+	#
+	#	tvShowInDir = DirectoryMapper(self.tvShowDirectory, r".*(mkv|avi|mp4|wmv)$", self.fileSystemEncoding).files
+	#	for item in betaserieEpisodes:
+	#		add = True
+	#		for fileItem in tvShowInDir:
+	#			#if True or fileItem.name[0] == "H":
+	#			#	print "look for ", re.escape(item.title), " in ", fileItem.name
+	#			if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
+	#				self.logger.debug("getNewTvShow | Episode %s removed because it already exist in source directory %s", item.title, fileItem.name)
+	#				add = False
+	#				break
+	#		if add:
+	#			_tmp.append(item)
+	#			self.logger.debug("new item %s ready to download", item.title)
+	#
+	#	betaserieEpisodes = _tmp
+	#	return betaserieEpisodes
 
 	def addAutomatedActions(self, torrentId, tvShow, episodeName):
 		self.logger.debug("addAutomatedActions | new (%s, %s, %s)", torrentId, tvShow, episodeName)
@@ -239,6 +254,7 @@ class TvShowManager(AutomatedActionsExecutor):
 					validFiles.append(extractedFile)
 
 		if len(validFiles) == 0:
+			# TODO: Make filter parameter "extensions" not hardcoded
 			mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi"])
 			for file_ in files:
 				if mediaFilter.test(FileItem.fromFilename(file_.name, "")):

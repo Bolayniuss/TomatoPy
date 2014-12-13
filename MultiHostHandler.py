@@ -94,6 +94,10 @@ class Host(object):
 		return None
 
 
+def foo(o):
+	print o
+	return o.lastAccessTime()
+
 class MultiHost(object):
 
 	def __init__(self, originalHost, extraHosts=[]):
@@ -112,7 +116,11 @@ class MultiHost(object):
 			else:
 				doSort = True
 		if doSort:
-			self.hosts.sort(key=lambda h: h.lastAccessTime())
+			try:
+				self.hosts.sort(key=lambda h: foo(h))
+			except TypeError:
+				for _h in self.hosts:
+					print _h.host, _h.lastAccessTime
 		if data:
 			return data
 		raise MultiHostError
