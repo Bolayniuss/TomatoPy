@@ -5,6 +5,8 @@ __author__ = 'Michael Bolay'
 from urlparse import urlparse
 import time
 import urllib2
+import logging
+
 from Singleton import Singleton
 
 
@@ -97,6 +99,8 @@ class Host(object):
 class MultiHost(object):
 
 	def __init__(self, originalHost, extraHosts=[]):
+		self.logger = logging.getLogger(__name__)
+
 		self.original = originalHost
 		self.hosts = [Host(originalHost)]
 		for extraHost in extraHosts:
@@ -108,6 +112,7 @@ class MultiHost(object):
 		for host in self.hosts:
 			data = host.openPath(path, scheme, timeout)
 			if data:
+				self.logger.debug("%s used as host for %s", host, self.original)
 				break
 			else:
 				doSort = True
@@ -115,4 +120,4 @@ class MultiHost(object):
 			self.hosts.sort(key=lambda h: h.lastAccessTime)
 		if data:
 			return data
-		raise MultiHostError()
+		raise MultiHostError(self.original)

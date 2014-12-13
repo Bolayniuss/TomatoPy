@@ -17,6 +17,12 @@ from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
 from MultiHostHandler import MultiHostHandler, MultiHostHandlerException
 
+TAG_RE = re.compile(r'<[^>]+>')
+
+
+def remove_html_tags(text):
+	return TAG_RE.sub('', text)
+
 
 class EpisodesProvider(object):
 	"""
@@ -111,11 +117,11 @@ class TPBScrapper(TorrentProvider):
 
 	def grabTorrents(self, searchString):
 		self._torrentItems = []
-		data = self.getTPBHTML(searchString)
+		data = self.getTPB_HTML(searchString)
 		if data:
 			self.parse(data)
 
-	def getTPBHTML(self, searchString):
+	def getTPB_HTML(self, searchString):
 		try:
 			return MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0", self.timeout)
 		except MultiHostHandlerException as e:
@@ -135,7 +141,7 @@ class TPBScrapper(TorrentProvider):
 			eachTorrent = eachTorrent.parent.parent
 			item = TorrentItem()
 			item.link = eachTorrent.find("a", href=re.compile("^magnet"))["href"]
-			item.title = unicode(eachTorrent.find("a", class_="detLink").string)
+			item.title = remove_html_tags(unicode(eachTorrent.find("a", class_="detLink").string))
 			textTag = eachTorrent.find("font")
 			tds = eachTorrent.find_all("td")
 			item.seeds = tds[2].text
