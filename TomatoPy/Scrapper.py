@@ -137,7 +137,7 @@ class TPBScrapper(TorrentProvider):
 		_torrents = soup.select("tr div.detName")
 
 		for eachTorrent in _torrents:
-
+			print eachTorrent.string
 			eachTorrent = eachTorrent.parent.parent
 			item = TorrentItem()
 			item.link = eachTorrent.find("a", href=re.compile("^magnet"))["href"]
