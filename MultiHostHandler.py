@@ -68,6 +68,7 @@ class Host(object):
 	def openPath(self, path, scheme="http", timeout=10):
 		try:
 			url = scheme + "://" + self.host + path
+			print url
 			from StringIO import StringIO
 			import gzip
 
