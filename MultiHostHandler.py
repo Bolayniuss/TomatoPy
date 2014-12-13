@@ -87,6 +87,7 @@ class Host(object):
 				data = f.read()
 			else:
 				data = response.read()
+			print data
 			return data
 		except urllib2.HTTPError:
 				pass
