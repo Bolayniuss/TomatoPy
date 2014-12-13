@@ -112,7 +112,7 @@ class MultiHost(object):
 		for host in self.hosts:
 			data = host.openPath(path, scheme, timeout)
 			if data:
-				self.logger.debug("%s used as host for %s", host, self.original)
+				self.logger.debug("%s used as host for %s", host.host, self.original)
 				break
 			else:
 				doSort = True
