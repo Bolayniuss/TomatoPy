@@ -109,17 +109,15 @@ class MultiHost(object):
 			self.hosts.append(Host(extraHost))
 
 	def openPath(self, path, scheme="http", timeout=10):
-		data = None
 		doSort = False
 		for host in self.hosts:
 			data = host.openPath(path, scheme, timeout)
 			if data:
 				self.logger.debug("%s used as host for %s", host.host, self.original)
+				if doSort:
+					self.hosts.sort(key=lambda h: h.lastAccessTime)
+				return data
 				break
 			else:
 				doSort = True
-		if doSort:
-			self.hosts.sort(key=lambda h: h.lastAccessTime)
-		if data:
-			return data
 		raise MultiHostError(self.original)
