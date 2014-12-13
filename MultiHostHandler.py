@@ -68,12 +68,12 @@ class Host(object):
 	def openPath(self, path, scheme="http", timeout=10):
 		try:
 			url = scheme + "://" + self.host + path
-			print url
 			from StringIO import StringIO
 			import gzip
 
 			request = urllib2.Request(url)
 			request.add_header('Accept-encoding', 'gzip')
+			request.add_header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:33.0) Gecko/20100101 Firefox/33.0')
 			t0 = time.time()
 			response = urllib2.urlopen(url=request, timeout=timeout)
 			t1 = time.time()
@@ -114,7 +114,6 @@ class MultiHost(object):
 			data = host.openPath(path, scheme, timeout)
 			if data:
 				self.logger.debug("%s used as host for %s", host.host, self.original)
-				print data
 				break
 			else:
 				doSort = True
