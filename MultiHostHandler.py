@@ -96,7 +96,7 @@ class Host(object):
 
 def foo(o):
 	print o
-	return o.lastAccessTime()
+	return o.lastAccessTime
 
 class MultiHost(object):
 
