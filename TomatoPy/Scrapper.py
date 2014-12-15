@@ -216,7 +216,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 			author = torrent.find("a", href=re.compile(r"^/user/"))
 			if author:
-				item.author = unicode(author)
+				item.author = unicode(author.text)
 			prescaler = m.group(2).upper()
 
 			item.size *= self.prescalerConverter(prescaler)
