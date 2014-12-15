@@ -90,7 +90,7 @@ class Host(object):
 			print data
 			return data
 		except urllib2.HTTPError:
-				pass
+			pass
 		except urllib2.URLError:
 			pass
 		self.lastAccessTime = 0

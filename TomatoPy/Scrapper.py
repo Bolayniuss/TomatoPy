@@ -126,6 +126,7 @@ class TPBScrapper(TorrentProvider):
 			return MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0", self.timeout)
 		except MultiHostHandlerException as e:
 			self.logger.warning(e)
+		return None
 
 	def parse(self, data):
 		"""
@@ -156,6 +157,68 @@ class TPBScrapper(TorrentProvider):
 
 			self._torrentItems.append(item)
 
+
+	@staticmethod
+	def prescalerConverter(prescaler):
+		"""
+
+		:param prescaler:
+		:return:
+		"""
+		if prescaler == "T":
+			return 1000000000000
+		elif prescaler == "G":
+			return 1000000000
+		elif prescaler == "M":
+			return 1000000
+		elif prescaler == "K":
+			return 1000
+		return 1
+
+
+class KickAssTorrentScrapper(TorrentProvider):
+	baseUrl = "https://kickass.unblocked.pw/usearch/%s/"
+	timeout = 10
+
+	def __init__(self, ):
+		super(KickAssTorrentScrapper, self).__init__()
+		self.logger = logging.getLogger(__name__)
+		self._torrentItems = []
+
+	def grabTorrents(self, searchString):
+		self._torrentItems = []
+		print self.baseUrl % urllib.quote(searchString)
+		data = urllib2.urlopen(self.baseUrl % urllib.quote(searchString), timeout=self.timeout).read()
+
+		if data:
+			self.parse(data)
+
+	def parse(self, data):
+		"""
+
+		"""
+
+		soup = bs4.BeautifulSoup(data)
+		#print data
+		selectors = soup.select("div.torrentname")
+
+		for selector in selectors:
+			torrent = selector.parent.parent
+			item = TorrentItem()
+			item.link = torrent.find("a", href=re.compile("^magnet"))["href"]
+			item.title = unicode(torrent.find("a", class_="cellMainLink").text)
+			tds = torrent.find_all("td")
+			item.seeds = int(tds[4].text)
+			item.leeches = int(tds[5].text)
+			reg = re.compile("([\d.]+).*?([BkKmMgG])(iB|.?).*")
+			m = reg.match(tds[1].text)
+			item.size = float(m.group(1))
+			item.author = unicode(torrent.find("a", href=re.compile("^/user/")).text)
+			prescaler = m.group(2).upper()
+
+			item.size *= self.prescalerConverter(prescaler)
+
+			self._torrentItems.append(item)
 
 	@staticmethod
 	def prescalerConverter(prescaler):

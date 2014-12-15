@@ -31,11 +31,17 @@ class TorrentItem(object):
 	def __init__(self):
 		self.url = ""
 		self.name = ""
-		self.seeds = ""
-		self.leeches = ""
-		self.size = ""
+		self.seeds = 0
+		self.leeches = 0
+		self.size = 0.
 		self.date = ""
 		self.link = ""
 		self.isMagnetLink = False
 		self.author = ""
 		self.title = ""
+
+	def __unicode__(self):
+		return "%s [%s](%s), s:%d, l:%d" % (self.title, self.author, self.size, self.seeds, self.leeches, )
+
+	def __str__(self):
+		return "%s [%s](%s), s:%d, l:%d" % (self.title, self.author, self.size, self.seeds, self.leeches, )
