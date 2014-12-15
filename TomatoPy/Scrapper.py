@@ -249,7 +249,7 @@ class BetaserieRSSScrapper(EpisodesProvider):
 		self.rssFeedUser = user
 
 	def parse(self):
-		url = self.baseUrl+self.rssFeedUser
+		url = self.baseUrl + self.rssFeedUser
 		page = urllib2.urlopen(url)
 		soup = bs4.BeautifulSoup(page.read(), "xml")
 
@@ -264,4 +264,33 @@ class BetaserieRSSScrapper(EpisodesProvider):
 	def getEpisodes(self):
 		self.parse()
 		return self.items
+
+
+class ShowRSSScrapper(EpisodesProvider):
+
+	baseUrl = "http://showrss.info/rss.php?user_id=%s&hd=1&proper=1&raw=true"
+
+	def __init__(self, user_id):
+		self.items = []
+		self.user_id = user_id
+
+	def getEpisodes(self):
+		self.parse()
+		return self.items
+
+	def parse(self):
+		"""
+		"""
+		url = self.baseUrl % self.user_id
+		page = urllib2.urlopen(url)
+		soup = bs4.BeautifulSoup(page.read(), "xml")
+
+		items = soup.find_all("item")
+
+		for item in items:
+			title = item.find("title").text
+			torrentItem = TorrentItem(link=item.find("link").text, title=title)
+			self.items.append(EpisodeItem.buildFromFullName(title, torrentItem))
+
+
 
