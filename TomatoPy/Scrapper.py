@@ -199,11 +199,13 @@ class KickAssTorrentScrapper(TorrentProvider):
 		soup = bs4.BeautifulSoup(data)
 		#print data
 		selectors = soup.select("div.torrentname")
+		print selectors
 
 		for selector in selectors:
+
 			torrent = selector.parent.parent
 			item = TorrentItem()
-			item.link = torrent.find("a", href=re.compile("^magnet"))["href"]
+			item.link = torrent.find("a", href=re.compile(r"^magnet"))["href"]
 			item.title = unicode(torrent.find("a", class_="cellMainLink").text)
 			tds = torrent.find_all("td")
 			item.seeds = int(tds[4].text)
@@ -211,7 +213,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 			reg = re.compile("([\d.]+).*?([BkKmMgG])(iB|.?).*")
 			m = reg.match(tds[1].text)
 			item.size = float(m.group(1))
-			item.author = unicode(torrent.find("a", href=re.compile("^/user/")).text)
+			item.author = unicode(torrent.find("a", href=re.compile(r"^/user/")).text)
 			prescaler = m.group(2).upper()
 
 			item.size *= self.prescalerConverter(prescaler)
