@@ -199,7 +199,6 @@ class KickAssTorrentScrapper(TorrentProvider):
 		soup = bs4.BeautifulSoup(data)
 		#print data
 		selectors = soup.select("div.torrentname")
-		print selectors
 
 		for selector in selectors:
 
