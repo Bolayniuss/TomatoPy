@@ -213,7 +213,10 @@ class KickAssTorrentScrapper(TorrentProvider):
 			reg = re.compile("([\d.]+).*?([BkKmMgG])(iB|.?).*")
 			m = reg.match(tds[1].text)
 			item.size = float(m.group(1))
-			item.author = unicode(torrent.find("a", href=re.compile(r"^/user/")).text)
+
+			author = torrent.find("a", href=re.compile(r"^/user/"))
+			if author:
+				item.author = unicode(author)
 			prescaler = m.group(2).upper()
 
 			item.size *= self.prescalerConverter(prescaler)
