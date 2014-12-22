@@ -43,7 +43,8 @@ class TrackedEpisode(EpisodeItem):
 		super(TrackedEpisode, self).__init__(title=episodeItem.title,
 		                                     tvShow=episodeItem.tvShow,
 		                                     season=episodeItem.season,
-		                                     episodeNumber=episodeItem.episodeNumber)
+		                                     episodeNumber=episodeItem.episodeNumber,
+		                                     torrentItem=episodeItem.torrentItem)
 		#self.tvShow = episodeItem.tvShow
 		#self.title = episodeItem.title
 		#self.episodeNumber = episodeItem.episodeNumber
@@ -160,10 +161,13 @@ class TvShowManager(AutomatedActionsExecutor):
 		self.logger.info("Episodes ready for download:")
 		for episode in episodes:
 			torrentItems = []
-			for torrentProvider in self.registeredTorrentProviders:
-				torrentItems = torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter)
-				if torrentItems:
-					break
+			if episode.torrentProvided:
+				torrentItems.append(episode.torrentItem)
+			else:
+				for torrentProvider in self.registeredTorrentProviders:
+					torrentItems = torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter)
+					if torrentItems:
+						break
 
 			if len(torrentItems) > 0:
 				newTorrent = self.torrentManager.addTorrentURL(torrentItems[0].link)
