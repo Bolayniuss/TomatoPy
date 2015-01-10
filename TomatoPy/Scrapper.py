@@ -176,7 +176,7 @@ class TPBScrapper(TorrentProvider):
 
 
 class KickAssTorrentScrapper(TorrentProvider):
-	baseUrl = "https://kickass.unblocked.pw/usearch/%s/"
+	baseUrl = "https://kickass.so/usearch/%s/"
 	timeout = 10
 
 	def __init__(self, ):
