@@ -186,7 +186,10 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 	def grabTorrents(self, searchString):
 		self._torrentItems = []
-		data = urllib2.urlopen(self.baseUrl % urllib.quote(searchString), timeout=self.timeout).read()
+		try:
+			data = urllib2.urlopen(self.baseUrl % urllib.quote(searchString), timeout=self.timeout).read()
+		except urllib2.HTTPError as e:
+			self.logger.warning("%s", e)
 
 		if data:
 			self.parse(data)
