@@ -133,7 +133,7 @@ class TvShowManager(AutomatedActionsExecutor):
 			for episode in episodeProvider.getEpisodes():
 				added = False
 				for e in episodes:
-					if e.tvShow == episode.tvShow and e.season == episode.season and e.epsiodeNumber == episode.episodeNumber:
+					if e.tvShow == episode.tvShow and e.season == episode.season and e.episodeNumber == episode.episodeNumber:
 						added = True
 						break
 				if not added:
