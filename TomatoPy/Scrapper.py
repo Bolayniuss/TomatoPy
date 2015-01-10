@@ -18,10 +18,15 @@ from .Filters import TorrentFilter
 from MultiHostHandler import MultiHostHandler, MultiHostHandlerException
 
 TAG_RE = re.compile(r'<[^>]+>')
+SPECIAL_RE = re.compile(r'[()]')
 
 
 def remove_html_tags(text):
 	return TAG_RE.sub('', text)
+
+
+def sub_special_tags(text, sub_text=" "):
+	return SPECIAL_RE.sub(sub_text, text)
 
 
 class EpisodesProvider(object):
@@ -123,7 +128,7 @@ class TPBScrapper(TorrentProvider):
 
 	def getTPB_HTML(self, searchString):
 		try:
-			return MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(searchString) + "/0/7/0", self.timeout)
+			return MultiHostHandler.Instance().openURL("http://thepiratebay.se/search/" + urllib.quote(sub_special_tags(searchString)) + "/0/7/0", self.timeout)
 		except MultiHostHandlerException as e:
 			self.logger.warning(e)
 		return None
@@ -188,9 +193,9 @@ class KickAssTorrentScrapper(TorrentProvider):
 		self._torrentItems = []
 		data = None
 		try:
-			data = urllib2.urlopen(self.baseUrl % urllib.quote(searchString), timeout=self.timeout).read()
+			data = urllib2.urlopen(self.baseUrl % urllib.quote(sub_special_tags(searchString)), timeout=self.timeout).read()
 		except urllib2.HTTPError as e:
-			self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(searchString))
+			self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(searchString)))
 
 		if data:
 			self.parse(data)
