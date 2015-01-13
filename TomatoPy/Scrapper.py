@@ -199,6 +199,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 		if data:
 			self.parse(data)
+			print self._torrentItems
 
 	def parse(self, data):
 		"""
