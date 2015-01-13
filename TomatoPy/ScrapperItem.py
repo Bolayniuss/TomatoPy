@@ -28,7 +28,7 @@ class EpisodeItem(object):
 		if m:
 			if m.group(1) is None:
 				return EpisodeItem(fullName, m.group(4), m.group(5), m.group(6), torrentItem)
-			return EpisodeItem(fullName, m.group(1), m.group(2), m.group(3), torrentItem)
+			return EpisodeItem(fullName, m.group(1), int(m.group(2)), int(m.group(3)), torrentItem)
 
 	def __str__(self):
 		if not self.torrentProvided:
