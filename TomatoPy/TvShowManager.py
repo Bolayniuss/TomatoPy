@@ -168,7 +168,9 @@ class TvShowManager(AutomatedActionsExecutor):
 				torrentItems.append(episode.torrentItem)
 			else:
 				for torrentProvider in self.registeredTorrentProviders:
-					torrentItems = torrentProvider.getTorrents(episode.title, episode.trackedTvShow.torrentFilter)
+
+					torrentSearchString = "%s S%02dE%02d" % (episode.trackedTvShow.searchString, episode.season, episode.episodeNumber)
+					torrentItems = torrentProvider.getTorrents(torrentSearchString, episode.trackedTvShow.torrentFilter)
 					if torrentItems:
 						break
 
@@ -185,43 +187,6 @@ class TvShowManager(AutomatedActionsExecutor):
 				NotificationManager.Instance().addNotification("No torrent found for %s" % episode.title, "TvShowManager: Error", Expiration())
 				self.logger.info("No torrent found for %s", episode.title)
 
-	#def getNewTvShow(self):
-	#	"""
-	#	Retrieves new episodes from Betaserie and then retain only those that doesn't exists
-	#	in destination directories.
-	#	"""
-	#	self.logger.debug("getNetTvShow | Get items from BS")
-	#	betaserieEpisodes = BetaserieRSSScrapper(self.bUser).items
-	#
-	#	_tmp = []
-	#	for item in betaserieEpisodes:
-	#		for (tvShowTitle, filter_) in self.trackedTvShows:
-	#			if re.search(re.escape(tvShowTitle), item.title, re.IGNORECASE) is not None:
-	#				self.logger.debug("getNetTvShow | Likely new episode found: %s", item.title)
-	#				item.filter = filter_
-	#				item.tvShow = tvShowTitle
-	#				_tmp.append(item)
-	#				break
-	#
-	#	betaserieEpisodes = _tmp
-	#	_tmp = []
-	#
-	#	tvShowInDir = DirectoryMapper(self.tvShowDirectory, r".*(mkv|avi|mp4|wmv)$", self.fileSystemEncoding).files
-	#	for item in betaserieEpisodes:
-	#		add = True
-	#		for fileItem in tvShowInDir:
-	#			#if True or fileItem.name[0] == "H":
-	#			#	print "look for ", re.escape(item.title), " in ", fileItem.name
-	#			if re.search(re.escape(item.title), fileItem.name, re.IGNORECASE) is not None:
-	#				self.logger.debug("getNewTvShow | Episode %s removed because it already exist in source directory %s", item.title, fileItem.name)
-	#				add = False
-	#				break
-	#		if add:
-	#			_tmp.append(item)
-	#			self.logger.debug("new item %s ready to download", item.title)
-	#
-	#	betaserieEpisodes = _tmp
-	#	return betaserieEpisodes
 
 	def addAutomatedActions(self, torrentId, tvShow, episodeName):
 		self.logger.debug("addAutomatedActions | new (%s, %s, %s)", torrentId, tvShow, episodeName)
