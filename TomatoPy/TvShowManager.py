@@ -28,10 +28,13 @@ class TrackedTvShow:
 		self.title = title
 		self.torrentFilter = torrentFilter
 		self.searchString = searchString
-		print "title:", self.title
-		print "searchString:", self.searchString
+		print "a) title:", self.title
+		print "a) searchString:", self.searchString
 		if not self.searchString:
 			self.searchString = self.title
+
+		print "b) title:", self.title
+		print "b) searchString:", self.searchString
 
 
 class TrackedEpisode(EpisodeItem):
