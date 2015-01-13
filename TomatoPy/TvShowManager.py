@@ -170,9 +170,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				torrentItems.append(episode.torrentItem)
 			else:
 				for torrentProvider in self.registeredTorrentProviders:
-					print "ep.ttv.searchString:", episode.trackedTvShow.searchString
 					torrentSearchString = "%s S%02dE%02d" % (episode.trackedTvShow.searchString, episode.season, episode.episodeNumber)
-					print "torrentSearchString:", torrentSearchString
 					torrentItems = torrentProvider.getTorrents(torrentSearchString, episode.trackedTvShow.torrentFilter)
 					if torrentItems:
 						break
