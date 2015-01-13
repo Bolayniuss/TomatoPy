@@ -49,7 +49,7 @@ class TorrentObject:
 	def getProgress(self):
 		if not self.size or self.size == 0:
 			return 0
-		return float(self.downloaded) / self.size
+		return float(self.downloaded)    / self.size
 
 
 class TorrentFile:

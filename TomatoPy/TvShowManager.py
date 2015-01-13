@@ -28,13 +28,8 @@ class TrackedTvShow:
 		self.title = title
 		self.torrentFilter = torrentFilter
 		self.searchString = searchString
-		print "a) title:", self.title
-		print "a) searchString:", self.searchString
 		if not self.searchString:
 			self.searchString = self.title
-
-		print "b) title:", self.title
-		print "b) searchString:", self.searchString
 
 
 class TrackedEpisode(EpisodeItem):
@@ -155,7 +150,8 @@ class TvShowManager(AutomatedActionsExecutor):
 						if not self.directoryMapper.fileExists(episode.title):
 							#self.logger.debug("%s ,is not in source directory", episode.title)
 
-							pattern = self.deleteBadChars(episode.title)
+							torrentSearchString = "%s S%02dE%02d" % (trackedTvShow.searchString, episode.season, episode.episodeNumber)
+							pattern = self.deleteBadChars(torrentSearchString)
 							pattern = pattern.replace(" ", ".*")
 							if not self.torrentManager.searchInTorrents(pattern):
 								#self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
@@ -174,7 +170,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				torrentItems.append(episode.torrentItem)
 			else:
 				for torrentProvider in self.registeredTorrentProviders:
-
+					print "ep.ttv.searchString:", episode.trackedTvShow.searchString
 					torrentSearchString = "%s S%02dE%02d" % (episode.trackedTvShow.searchString, episode.season, episode.episodeNumber)
 					torrentItems = torrentProvider.getTorrents(torrentSearchString, episode.trackedTvShow.torrentFilter)
 					if torrentItems:
