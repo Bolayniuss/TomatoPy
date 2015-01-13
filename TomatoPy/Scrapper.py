@@ -15,7 +15,7 @@ import bs4
 
 from .ScrapperItem import TorrentItem, EpisodeItem
 from .Filters import TorrentFilter
-from MultiHostHandler import MultiHostHandler, MultiHostHandlerException
+from MultiHostHandler import MultiHostHandler, MultiHostHandlerException, Host
 
 TAG_RE = re.compile(r'<[^>]+>')
 SPECIAL_RE = re.compile(r'[()]')
@@ -181,7 +181,8 @@ class TPBScrapper(TorrentProvider):
 
 
 class KickAssTorrentScrapper(TorrentProvider):
-	baseUrl = "https://kickass.so/usearch/%s/"
+	baseUrl = "kickass.so"
+	path = "/usearch/%s/"
 	timeout = 10
 
 	def __init__(self, ):
@@ -193,7 +194,9 @@ class KickAssTorrentScrapper(TorrentProvider):
 		self._torrentItems = []
 		data = None
 		try:
-			data = urllib2.urlopen(self.baseUrl % urllib.quote(sub_special_tags(searchString)), timeout=self.timeout).read()
+			kickass = Host(self.baseUrl)
+			data = kickass.openPath(self.path % urllib.quote(sub_special_tags(searchString)), "https", self.timeout)
+			#data = urllib2.urlopen(self.baseUrl % urllib.quote(sub_special_tags(searchString)), timeout=self.timeout).read()
 		except urllib2.HTTPError as e:
 			self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(searchString)))
 
