@@ -24,9 +24,12 @@ from .TorrentRPC import TorrentFile
 
 
 class TrackedTvShow:
-	def __init__(self, title, torrentFilter):
+	def __init__(self, title, torrentFilter, searchString=""):
 		self.title = title
 		self.torrentFilter = torrentFilter
+		self.searchString = searchString
+		if self.searchString == "":
+			self.searchString = self.title
 
 
 class TrackedEpisode(EpisodeItem):
@@ -86,7 +89,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		query = "SELECT title, filter, authorFilter, sizeLimits FROM TrackedTvShows;"
 		dbm.cursor.execute(query)
 
-		for (title, nameFilter, authorFilter, sizeLimits) in dbm.cursor:
+		for (title, nameFilter, authorFilter, sizeLimits, searchString) in dbm.cursor:
 			sizes = {}
 			sizeLimits = sizeLimits.split(":")
 			if len(sizeLimits[0]) > 0:
@@ -95,7 +98,7 @@ class TvShowManager(AutomatedActionsExecutor):
 				if len(sizeLimits[1]) > 0:
 					sizes["lt"] = int(sizeLimits[1])
 			filter_ = TorrentFilter(nameFilter.split(":"), authorFilter, sizes)
-			self.trackedTvShows.append(TrackedTvShow(title, filter_))
+			self.trackedTvShows.append(TrackedTvShow(title, filter_, searchString))
 		dbm.connector.commit()
 
 		#TODO: Change
