@@ -30,7 +30,7 @@ class TrackedTvShow:
 		self.searchString = searchString
 		print "title:", self.title
 		print "searchString:", self.searchString
-		if self.searchString == "":
+		if not self.searchString:
 			self.searchString = self.title
 
 
