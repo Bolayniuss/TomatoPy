@@ -198,8 +198,8 @@ class KickAssTorrentScrapper(TorrentProvider):
 			self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(searchString)))
 
 		if data:
+			print data
 			self.parse(data)
-			print self._torrentItems
 
 	def parse(self, data):
 		"""
