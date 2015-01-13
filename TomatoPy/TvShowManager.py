@@ -86,7 +86,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		if len(parameters) > 2:
 			self.fileSystemEncoding = parameters[2]
 
-		query = "SELECT title, filter, authorFilter, sizeLimits FROM TrackedTvShows;"
+		query = "SELECT title, filter, authorFilter, sizeLimits, episodeProviderSearchString FROM TrackedTvShows;"
 		dbm.cursor.execute(query)
 
 		for (title, nameFilter, authorFilter, sizeLimits, searchString) in dbm.cursor:
