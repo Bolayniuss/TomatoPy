@@ -38,6 +38,8 @@ class MultiHostHandlerException(Exception):
 class MultiHostHandler(object):
 
 	def __init__(self):
+		self.logger = logging.getLogger(__name__)
+
 		self.hosts = {}
 
 	def openURL(self, url, timeout):
@@ -56,6 +58,8 @@ class MultiHostHandler(object):
 class Host(object):
 
 	def __init__(self, host):
+		self.logger = logging.getLogger(__name__)
+
 		self.host = host
 		self.lastAccessTime = 0
 		self.isAccessible = True
@@ -68,8 +72,11 @@ class Host(object):
 	def openPath(self, path, scheme="http", timeout=10):
 		try:
 			url = scheme + "://" + self.host + path
+
 			from StringIO import StringIO
 			import gzip
+
+			self.logger.debug(url)
 
 			request = urllib2.Request(url)
 			request.add_header('Accept-encoding', 'gzip')
