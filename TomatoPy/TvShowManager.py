@@ -151,7 +151,7 @@ class TvShowManager(AutomatedActionsExecutor):
 							#self.logger.debug("%s ,is not in source directory", episode.title)
 
 							torrentSearchString = "%s S%02dE%02d" % (trackedTvShow.searchString, episode.season, episode.episodeNumber)
-							pattern = self.deleteBadChars(torrentSearchString)
+							pattern = Tools.deleteBadChars(torrentSearchString)
 							pattern = pattern.replace(" ", ".*")
 							if not self.torrentManager.searchInTorrents(pattern):
 								#self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
@@ -270,7 +270,7 @@ class TvShowManager(AutomatedActionsExecutor):
 		try:
 			torrent = self.torrentManager.getTorrent(hashString)
 			if torrent.isFinished:
-				pattern = self.deleteBadChars(episodeName)
+				pattern = Tools.deleteBadChars(episodeName)
 				pattern = pattern.replace(" ", ".")
 				filter_ = FileFilter(pattern, ["mkv", "avi", "mp4"])
 				if data[0] == "move":
@@ -397,16 +397,3 @@ class TvShowManager(AutomatedActionsExecutor):
 		if res is not None:
 			return res.group(1)
 		return None
-
-	@staticmethod
-	def deleteBadChars(inp):
-		"""
-		Remove bad characters from inp. Useful when we want to use inp as a regex pattern.
-		:param unicode inp:
-		:return:
-		:rtype unicode:
-		"""
-		bad_chars = '(){}<>[]*'
-		badCharsDict = dict((ord(char), None) for char in bad_chars)
-		pattern = inp.translate(badCharsDict)
-		return pattern

@@ -201,9 +201,9 @@ class KickAssTorrentScrapper(TorrentProvider):
 			self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(searchString)))
 
 		if data:
-			self.parse(data)
+			self.parse(data, searchString)
 
-	def parse(self, data):
+	def parse(self, data, searchSring):
 		"""
 
 		"""
@@ -232,7 +232,8 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 			item.size *= self.prescalerConverter(prescaler)
 
-			self._torrentItems.append(item)
+			if re.search(searchSring, torrent.title, re.IGNORECASE) is not None:
+				self._torrentItems.append(item)
 
 	@staticmethod
 	def prescalerConverter(prescaler):

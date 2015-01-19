@@ -94,3 +94,17 @@ class PathSubstitution():
 			source = re.sub(peer[0], peer[1], source)
 		return source
 
+
+def deleteBadChars(inp):
+		"""
+		Remove bad characters from inp. Useful when we want to use inp as a regex pattern.
+		:param unicode inp:
+		:return:
+		:rtype unicode:
+		"""
+		bad_chars = '(){}<>[]*'
+		badCharsDict = dict((ord(char), None) for char in bad_chars)
+		pattern = inp.translate(badCharsDict)
+		return pattern
+
+

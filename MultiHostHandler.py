@@ -78,7 +78,7 @@ class Host(object):
 
 			self.logger.debug(url)
 
-			request = urllib2.Request(url)
+			request = urllib2.Request("Opening url: %s", url)
 			request.add_header('Accept-encoding', 'gzip')
 			request.add_header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:33.0) Gecko/20100101 Firefox/33.0')
 			t0 = time.time()
