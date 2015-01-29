@@ -233,10 +233,9 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 			item.size *= self.prescalerConverter(prescaler)
 
-			self.logger.debug("looking for \"%s\" in \"%s\". Res=%b",
+			self.logger.debug("looking for \"%s\" in \"%s\".",
 			                  searchString,
-			                  torrent.title,
-			                  True)
+			                  torrent.title)
 			if re.search(searchString, torrent.title, re.IGNORECASE) is not None:
 				self._torrentItems.append(item)
 
