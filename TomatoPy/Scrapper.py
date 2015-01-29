@@ -211,7 +211,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 		#print data
 		selectors = soup.select("div.torrentname")
 
-		self.logger.debug("%s", selectors)
+		#self.logger.debug("%s", selectors)
 
 		for selector in selectors:
 
@@ -233,9 +233,6 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 			item.size *= self.prescalerConverter(prescaler)
 
-			self.logger.debug("looking for \"%s\" in \"%s\".",
-			                  searchString,
-			                  item.title)
 			if re.search(searchString, item.title, re.IGNORECASE) is not None:
 				self._torrentItems.append(item)
 
