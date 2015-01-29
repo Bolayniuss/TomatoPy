@@ -235,8 +235,8 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 			self.logger.debug("looking for \"%s\" in \"%s\".",
 			                  searchString,
-			                  torrent.title)
-			if re.search(searchString, torrent.title, re.IGNORECASE) is not None:
+			                  item.title)
+			if re.search(searchString, item.title, re.IGNORECASE) is not None:
 				self._torrentItems.append(item)
 
 	@staticmethod
