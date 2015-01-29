@@ -207,6 +207,8 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 		"""
 
+		searchString = r"^" + searchString + r"[\s+]"
+
 		soup = bs4.BeautifulSoup(data)
 		#print data
 		selectors = soup.select("div.torrentname")
