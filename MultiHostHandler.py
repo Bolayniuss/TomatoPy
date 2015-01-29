@@ -43,7 +43,9 @@ class MultiHostHandler(object):
 		self.hosts = {}
 
 	def openURL(self, url, timeout):
-		parsedUrl = urlparse(url, "http")
+		parsedUrl = urlparse(url)
+		if not parsedUrl.scheme:
+			parsedUrl.scheme = "http"
 		hosts = self.hosts.get(parsedUrl.hostname)
 		if hosts:
 			return hosts.openPath(parsedUrl.path, parsedUrl.scheme, timeout)
