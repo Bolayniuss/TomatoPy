@@ -96,12 +96,11 @@ class Host(object):
 				data = f.read()
 			else:
 				data = response.read()
-			print data
 			return data
-		except urllib2.HTTPError:
-			pass
-		except urllib2.URLError:
-			pass
+		except urllib2.HTTPError, e:
+			raise e
+		except urllib2.URLError, e:
+			raise e
 		self.lastAccessTime = 0
 		self.isAccessible = False
 		return None
