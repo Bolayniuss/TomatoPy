@@ -78,7 +78,7 @@ class Host(object):
 			from StringIO import StringIO
 			import gzip
 
-			self.logger.debug(url)
+
 
 			request = urllib2.Request("Opening url: %s", url)
 			request.add_header('Accept-encoding', 'gzip')
@@ -96,7 +96,7 @@ class Host(object):
 				data = f.read()
 			else:
 				data = response.read()
-			#print data
+			print data
 			return data
 		except urllib2.HTTPError:
 			pass
