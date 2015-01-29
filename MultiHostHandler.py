@@ -98,9 +98,11 @@ class Host(object):
 				data = response.read()
 			return data
 		except urllib2.HTTPError, e:
-			raise e
+			pass
+			#raise e
 		except urllib2.URLError, e:
-			raise e
+			pass
+			#raise e
 		self.lastAccessTime = 0
 		self.isAccessible = False
 		return None

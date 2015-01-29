@@ -211,7 +211,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 		#print data
 		selectors = soup.select("div.torrentname")
 
-		self.logger.debug("%s", selectors)
+		#self.logger.debug("%s", selectors)
 
 		for selector in selectors:
 
