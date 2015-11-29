@@ -63,5 +63,9 @@ class DirectoryMapper:
         if key in self.indexedFiles:
             for item in self.indexedFiles[key]:
                 if item.name.lower() == lowered_file:
+                    print "debug: files for key=", key, "file=", lowered_file
+                    for e in self.indexedFiles[key]:
+                        print "\t", e.lower()
+                    print ""
                     return True
         return False
