@@ -17,9 +17,9 @@ class BetaSeriesTestCase(unittest.TestCase):
 
     def test_list(self):
         print self.episodes[0].title
-		print self.episodes[0].tvShow
-		print self.episodes[0].season
-		print self.episodes[0].episodeNumber
+        print self.episodes[0].tvShow
+        print self.episodes[0].season
+        print self.episodes[0].episodeNumber
 
 
 if __name__ == '__main__':
