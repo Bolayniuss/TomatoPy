@@ -166,6 +166,8 @@ class TvShowManager(AutomatedActionsExecutor):
                                     self.logger.debug("%s not added, already in downloads", episode.title)
                             else:
                                 self.logger.debug("%s not added, already in downloaded", episode.title)
+                        else:
+                                self.logger.debug("%s not added, already in tracked TvShow", episode.title)
                     else:
                         self.logger.debug("%s not added, already in added", episode.title)
             except Exception as e:
