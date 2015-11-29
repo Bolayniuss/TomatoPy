@@ -150,12 +150,12 @@ class TvShowManager(AutomatedActionsExecutor):
                         if trackedTvShow:
                             # self.logger.debug("is in tracked tv shows")
 
-                            if not self.directoryMapper.fileExists(episode.title):
+                            if not self.directoryMapper.file_exists(episode.title):
                                 #self.logger.debug("%s ,is not in source directory", episode.title)
 
                                 torrentSearchString = "%s S%02dE%02d" % (
                                     trackedTvShow.searchString, episode.season, episode.episodeNumber)
-                                pattern = Tools.deleteBadChars(torrentSearchString)
+                                pattern = Tools.delete_bad_chars(torrentSearchString)
                                 pattern = pattern.replace(" ", ".*")
                                 if not self.torrentManager.searchInTorrents(pattern):
                                     #self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
@@ -289,7 +289,7 @@ class TvShowManager(AutomatedActionsExecutor):
         try:
             torrent = self.torrentManager.getTorrent(hashString)
             if torrent.isFinished:
-                pattern = Tools.deleteBadChars(episodeName)
+                pattern = Tools.delete_bad_chars(episodeName)
                 pattern = pattern.replace(" ", ".")
                 filter_ = FileFilter(pattern, ["mkv", "avi", "mp4"])
                 if data[0] == "move":
@@ -306,7 +306,7 @@ class TvShowManager(AutomatedActionsExecutor):
                             if success:
                                 self.logger.info("move succeed")
                                 time.sleep(0.5)
-                                XbmcLibraryManager.Instance().scanVideoLibrary(
+                                XbmcLibraryManager.Instance().scan_video_library(
                                     Tools.PathSubstitution.Instance().substitute(os.path.dirname(destinationPath))
                                 )
                                 self.logger.info("delete associated torrent")

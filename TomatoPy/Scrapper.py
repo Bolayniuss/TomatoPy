@@ -203,7 +203,7 @@ class KickAssTorrentScrapper(TorrentProvider):
         data = None
         try:
             kickass = Host(self.baseUrl)
-            data = kickass.openPath(self.path % urllib.quote(sub_special_tags(searchString)), "https", self.timeout)
+            data = kickass.open_path(self.path % urllib.quote(sub_special_tags(searchString)), "https", self.timeout)
         except urllib2.HTTPError as e:
             self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(searchString)))
 

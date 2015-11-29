@@ -11,123 +11,118 @@ from Singleton import Singleton
 
 
 class MultiHostError(Exception):
-	def __init__(self, hostname):
-		super(MultiHostError, self).__init__()
-		self.host = hostname
+    def __init__(self, hostname):
+        super(MultiHostError, self).__init__()
+        self.host = hostname
 
-	def __str__(self):
-		return "Unable to open MultiHost %s" % self.host
+    def __str__(self):
+        return "Unable to open MultiHost %s" % self.host
 
-	def __unicode__(self):
-		return "Unable to open MultiHost %s" % self.host
+    def __unicode__(self):
+        return "Unable to open MultiHost %s" % self.host
 
 
 class MultiHostHandlerException(Exception):
-	def __init__(self, hostname):
-		super(MultiHostHandlerException, self).__init__()
-		self.host = hostname
+    def __init__(self, hostname):
+        super(MultiHostHandlerException, self).__init__()
+        self.host = hostname
 
-	def __str__(self):
-		return "Host %s not registered %s" % self.host
+    def __str__(self):
+        return "Host %s not registered %s" % self.host
 
-	def __unicode__(self):
-		return "Host %s not registered %s" % self.host
+    def __unicode__(self):
+        return "Host %s not registered %s" % self.host
 
 
 @Singleton
 class MultiHostHandler(object):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
-	def __init__(self):
-		self.logger = logging.getLogger(__name__)
+        self.hosts = {}
 
-		self.hosts = {}
+    def openURL(self, url, timeout):
+        parsed_url = urlparse(url)
+        if not parsed_url.scheme:
+            parsed_url.scheme = "http"
+        hosts = self.hosts.get(parsed_url.hostname)
+        if hosts:
+            return hosts.open_path(parsed_url.path, parsed_url.scheme, timeout)
+        else:
+            raise MultiHostHandlerException(parsed_url.hostname)
 
-	def openURL(self, url, timeout):
-		parsedUrl = urlparse(url)
-		if not parsedUrl.scheme:
-			parsedUrl.scheme = "http"
-		hosts = self.hosts.get(parsedUrl.hostname)
-		if hosts:
-			return hosts.openPath(parsedUrl.path, parsedUrl.scheme, timeout)
-		else:
-			raise MultiHostHandlerException(parsedUrl.hostname)
-
-	def registerMultiHost(self, hostname, extraHosts):
-		if not self.hosts.get(hostname):
-			self.hosts[hostname] = MultiHost(hostname, extraHosts)
+    def registerMultiHost(self, hostname, extraHosts):
+        if not self.hosts.get(hostname):
+            self.hosts[hostname] = MultiHost(hostname, extraHosts)
 
 
 class Host(object):
+    def __init__(self, host):
+        self.logger = logging.getLogger(__name__)
 
-	def __init__(self, host):
-		self.logger = logging.getLogger(__name__)
+        self.host = host
+        self.last_access_time = 0
+        self.is_accessible = True
 
-		self.host = host
-		self.lastAccessTime = 0
-		self.isAccessible = True
+    def last_access_time(self):
+        if self.is_accessible:
+            return self.last_access_time
+        return 999999
 
-	def lastAccessTime(self):
-		if self.isAccessible:
-			return self.lastAccessTime
-		return 999999
+    def open_path(self, path, scheme="http", timeout=10):
+        try:
+            url = scheme + "://" + self.host + path
 
-	def openPath(self, path, scheme="http", timeout=10):
-		try:
-			url = scheme + "://" + self.host + path
+            from StringIO import StringIO
+            import gzip
 
-			from StringIO import StringIO
-			import gzip
+            request = urllib2.Request(url)
+            request.add_header('Accept-encoding', 'gzip')
+            request.add_header('User-Agent',
+                               'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:33.0) Gecko/20100101 Firefox/33.0')
+            t0 = time.time()
+            response = urllib2.urlopen(url=request, timeout=timeout)
+            t1 = time.time()
 
+            self.last_access_time = t1 - t0
+            self.is_accessible = True
 
-
-			request = urllib2.Request(url)
-			request.add_header('Accept-encoding', 'gzip')
-			request.add_header('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:33.0) Gecko/20100101 Firefox/33.0')
-			t0 = time.time()
-			response = urllib2.urlopen(url=request, timeout=timeout)
-			t1 = time.time()
-
-			self.lastAccessTime = t1 - t0
-			self.isAccessible = True
-
-			if response.info().get('Content-Encoding') == 'gzip':
-				buf = StringIO(response.read())
-				f = gzip.GzipFile(fileobj=buf)
-				data = f.read()
-			else:
-				data = response.read()
-			return data
-		except urllib2.HTTPError, e:
-			pass
-			#raise e
-		except urllib2.URLError, e:
-			pass
-			#raise e
-		self.lastAccessTime = 0
-		self.isAccessible = False
-		return None
+            if response.info().get('Content-Encoding') == 'gzip':
+                buf = StringIO(response.read())
+                f = gzip.GzipFile(fileobj=buf)
+                data = f.read()
+            else:
+                data = response.read()
+            return data
+        except urllib2.HTTPError, e:
+            pass
+        # raise e
+        except urllib2.URLError, e:
+            pass
+        # raise e
+        self.last_access_time = 0
+        self.is_accessible = False
+        return None
 
 
 class MultiHost(object):
+    def __init__(self, original_host, extra_hosts=[]):
+        self.logger = logging.getLogger(__name__)
 
-	def __init__(self, originalHost, extraHosts=[]):
-		self.logger = logging.getLogger(__name__)
+        self.original = original_host
+        self.hosts = [Host(original_host)]
+        for extraHost in extra_hosts:
+            self.hosts.append(Host(extraHost))
 
-		self.original = originalHost
-		self.hosts = [Host(originalHost)]
-		for extraHost in extraHosts:
-			self.hosts.append(Host(extraHost))
-
-	def openPath(self, path, scheme="http", timeout=10):
-		doSort = False
-		for host in self.hosts:
-			data = host.openPath(path, scheme, timeout)
-			if data:
-				self.logger.debug("%s used as host for %s", host.host, self.original)
-				if doSort:
-					self.hosts.sort(key=lambda h: h.lastAccessTime)
-				return data
-				break
-			else:
-				doSort = True
-		raise MultiHostError(self.original)
+    def open_path(self, path, scheme="http", timeout=10):
+        do_sort = False
+        for host in self.hosts:
+            data = host.open_path(path, scheme, timeout)
+            if data:
+                self.logger.debug("%s used as host for %s", host.host, self.original)
+                if do_sort:
+                    self.hosts.sort(key=lambda h: h.last_access_time)
+                return data
+            else:
+                do_sort = True
+        raise MultiHostError(self.original)

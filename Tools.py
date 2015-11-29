@@ -11,100 +11,99 @@ import re
 from Singleton import Singleton
 
 
-def getHash(filePath, blocSizeMax=1000000):
-	"""
+def get_hash(file_path, bloc_size_max=1000000):
+    """
 
-	Get the hash of a file using the nth last bytes. n=min(blockSizeMax, file.size/2). The hash is compute using sha256.
-	:type filePath : unicode
-	:param filePath: path of the file to hash
-	:param blocSizeMax: number of bytes used to compute the hash
-	:rtype : str
-	"""
-	#filePath = unicodedata.normalize('NFKC', unicode(filePath, "utf8"))
-	size = os.path.getsize(filePath)
-	f = open(filePath, 'rb')
-	blocSize = min(blocSizeMax, size / 2)
-	f.seek(-blocSize, 2)
-	d2 = f.read()
-	return hashlib.sha256(d2).hexdigest()
+    Get the hash of a file using the nth last bytes. n=min(blockSizeMax, file.size/2). The hash is compute using sha256.
+    :type file_path : unicode
+    :param file_path: path of the file to hash
+    :param bloc_size_max: number of bytes used to compute the hash
+    :rtype : str
+    """
+    # filePath = unicodedata.normalize('NFKC', unicode(filePath, "utf8"))
+    size = os.path.getsize(file_path)
+    f = open(file_path, 'rb')
+    bloc_size = min(bloc_size_max, size / 2)
+    f.seek(-bloc_size, 2)
+    d2 = f.read()
+    return hashlib.sha256(d2).hexdigest()
 
 
 @Singleton
 class FileSystemHelper:
-	def __init__(self):
-		self.logger = logging.getLogger(__name__)
-		self.fsGroup = None
-		self.fsUser = None
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.fsGroup = None
+        self.fsUser = None
 
-	def set(self, fsUser=None, fsGroup=None):
-		self.fsUser = fsUser
-		self.fsGroup = fsGroup
+    def set(self, fs_user=None, fs_group=None):
+        self.fsUser = fs_user
+        self.fsGroup = fs_group
 
-	def move(self, source, destination):
-		self.logger.debug("move: %s to %s", source, destination)
-		try:
-			directory = os.path.dirname(destination)
-			self.superMakedirs(directory, 0777)
-		except OSError:
-			pass
-		finally:
-			pass
-		shutil.move(source, destination)
-		os.chmod(destination, 0777)
-		try:
-			if self.fsUser is not None and self.fsGroup is not None:
-				os.chown(destination, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
-		except KeyError, e:
-			pass
-		finally:
-			pass
-		return True
+    def move(self, source, destination):
+        self.logger.info("move: %s to %s", source, destination)
+        try:
+            directory = os.path.dirname(destination)
+            self.super_makedirs(directory, 0777)
+        except OSError:
+            pass
+        finally:
+            pass
+        shutil.move(source, destination)
+        os.chmod(destination, 0777)
+        try:
+            if self.fsUser is not None and self.fsGroup is not None:
+                os.chown(destination, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
+        except KeyError, e:
+            pass
+        finally:
+            pass
+        return True
 
-	def superMakedirs(self, path, mode):
-		if not path or os.path.exists(path):
-			return []
-		(head, tail) = os.path.split(path)
-		res = self.superMakedirs(head, mode)
-		os.mkdir(path)
-		os.chmod(path, mode)
-		if self.fsUser is not None and self.fsGroup is not None:
-				os.chown(path, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
-		res += [path]
-		return res
+    def super_makedirs(self, path, mode):
+        if not path or os.path.exists(path):
+            return []
+        (head, tail) = os.path.split(path)
+        res = self.super_makedirs(head, mode)
+        os.mkdir(path)
+        os.chmod(path, mode)
+        if self.fsUser is not None and self.fsGroup is not None:
+            os.chown(path, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
+        res += [path]
+        return res
+
 
 @Singleton
-class PathSubstitution():
-	def __init__(self, substitution_peers_array=None):
-		"""
+class PathSubstitution:
+    def __init__(self, substitution_peers_array=None):
+        """
 
-		:param list of list substitution_peers_array:
-		:return:
-		"""
-		self.substitutions = []
-		if substitution_peers_array:
-			for peer in substitution_peers_array:
-				if len(peer) == 2:
-					self.substitutions.append((peer[0], peer[1],))
+        :param list of list substitution_peers_array:
+        :return:
+        """
+        self.substitutions = []
+        if substitution_peers_array:
+            for peer in substitution_peers_array:
+                if len(peer) == 2:
+                    self.substitutions.append((peer[0], peer[1],))
 
-	def add_substitution(self, lookup_regexp, substitution):
-		self.substitutions.append((lookup_regexp, substitution, ))
+    def add_substitution(self, lookup_regexp, substitution):
+        self.substitutions.append((lookup_regexp, substitution,))
 
-	def substitute(self, source):
-		for peer in self.substitutions:
-			source = re.sub(peer[0], peer[1], source)
-		return source
-
-
-def deleteBadChars(inp):
-		"""
-		Remove bad characters from inp. Useful when we want to use inp as a regex pattern.
-		:param unicode inp:
-		:return:
-		:rtype unicode:
-		"""
-		bad_chars = '(){}<>[]*'
-		badCharsDict = dict((ord(char), None) for char in bad_chars)
-		pattern = inp.translate(badCharsDict)
-		return pattern
+    def substitute(self, source):
+        for peer in self.substitutions:
+            source = re.sub(peer[0], peer[1], source)
+        return source
 
 
+def delete_bad_chars(inp):
+    """
+    Remove bad characters from inp. Useful when we want to use inp as a regex pattern.
+    :param unicode inp:
+    :return:
+    :rtype unicode:
+    """
+    bad_chars = '(){}<>[]*'
+    bad_chars_dict = dict((ord(char), None) for char in bad_chars)
+    pattern = inp.translate(bad_chars_dict)
+    return pattern

@@ -57,7 +57,7 @@ class DirectoryMapper:
                         self.indexedFiles[key] = []
                     self.indexedFiles[key].append(item)
 
-    def fileExists(self, file_):
+    def file_exists(self, file_):
         lowered_file = file_.lower()
         key = lowered_file[0]
         if key in self.indexedFiles:
