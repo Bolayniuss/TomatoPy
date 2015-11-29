@@ -161,9 +161,15 @@ class TvShowManager(AutomatedActionsExecutor):
                                     #self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
 
                                     episodes.append(TrackedEpisode(episode, trackedTvShow))
-                                    self.logger.debug("%s flagged as new.", episode.title)
+                                    self.logger.info("%s flagged as new.", episode.title)
+                                else:
+                                    self.logger.debug("%s not added, already in downloads", episode.title)
+                            else:
+                                self.logger.debug("%s not added, already in downloaded", episode.title)
+                    else:
+                        self.logger.debug("%s not added, already in added", episode.title)
             except Exception as e:
-                self.logger.debug(e)
+                self.logger.error(e)
         return episodes
 
     def addNewToTorrentManager(self, episodes=None):
@@ -186,7 +192,7 @@ class TvShowManager(AutomatedActionsExecutor):
                 newTorrent = self.torrentManager.addTorrentURL(torrentItems[0].link)
                 if newTorrent:
                     self.addAutomatedActions(newTorrent.hash, episode.trackedTvShow.title, episode.title)
-                    self.logger.debug("New torrent added for episode %s", episode.title)
+                    self.logger.info("New torrent added for episode %s", episode.title)
                     NotificationManager.Instance().addNotification(episode.title, "TvShowManager: New",
                                                                    Expiration(weeks=4))
                 else:
