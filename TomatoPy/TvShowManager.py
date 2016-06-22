@@ -2,23 +2,21 @@
 #
 __author__ = 'bolay'
 
-import re
-import os
-import time
 import logging
+import os
+import re
+import time
 
 import rarfile
 
-from DatabaseManager import DatabaseManager
 import Tools
-
+from DatabaseManager import DatabaseManager
 from Notifications import NotificationManager, Expiration
-from .ScrapperItem import EpisodeItem
-from .Scrapper import BetaserieRSSScrapper, TPBScrapper, KickAssTorrentScrapper
-from .SourceMapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
-
 from XbmcLibraryManager import XbmcLibraryManager
 from .AutomatedActionExecutor import AutomatedActionsExecutor
+from .Scrapper import BetaserieRSSScrapper, KickAssTorrentScrapper
+from .ScrapperItem import EpisodeItem
+from .SourceMapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
 from .TorrentRPC import TorrentFile
 
 
@@ -35,12 +33,12 @@ class TrackedEpisode(EpisodeItem):
     def __init__(self, episodeItem, trackedTvShow):
         """
 
-		:param episodeItem:
-		:param trackedTvShow:
-		:type episodeItem: EpisodeItem
-		:type trackedTvShow: TrackedTvShow
-		:return:
-		"""
+        :param episodeItem:
+        :param trackedTvShow:
+        :type episodeItem: EpisodeItem
+        :type trackedTvShow: TrackedTvShow
+        :return:
+        """
 
         super(TrackedEpisode, self).__init__(title=episodeItem.title,
                                              tvShow=episodeItem.tvShow,
@@ -49,8 +47,8 @@ class TrackedEpisode(EpisodeItem):
                                              torrentItem=episodeItem.torrentItem)
         # self.tvShow = episodeItem.tvShow
         # self.title = episodeItem.title
-        #self.episodeNumber = episodeItem.episodeNumber
-        #self.season = episodeItem.season
+        # self.episodeNumber = episodeItem.episodeNumber
+        # self.season = episodeItem.season
 
         self.trackedTvShow = trackedTvShow
 
@@ -78,7 +76,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
         query = "SELECT parameters FROM Parameters WHERE name='TvShowManager' LIMIT 1"
         dbm.cursor.execute(query)
-        (parametersString, ) = dbm.cursor.fetchone()
+        (parametersString,) = dbm.cursor.fetchone()
         parameters = parametersString.split("&&")
         self.bUser = parameters[1]
         self.tvShowDirectory = u"" + parameters[0]
@@ -151,14 +149,14 @@ class TvShowManager(AutomatedActionsExecutor):
                             # self.logger.debug("is in tracked tv shows")
 
                             if not self.directoryMapper.file_exists(episode.title):
-                                #self.logger.debug("%s ,is not in source directory", episode.title)
+                                # self.logger.debug("%s ,is not in source directory", episode.title)
 
                                 torrentSearchString = "%s S%02dE%02d" % (
                                     trackedTvShow.searchString, episode.season, episode.episodeNumber)
                                 pattern = Tools.delete_bad_chars(torrentSearchString)
                                 pattern = pattern.replace(" ", ".*")
                                 if not self.torrentManager.searchInTorrents(pattern):
-                                    #self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
+                                    # self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
 
                                     episodes.append(TrackedEpisode(episode, trackedTvShow))
                                     self.logger.info("%s flagged as new.", episode.title)
@@ -167,7 +165,7 @@ class TvShowManager(AutomatedActionsExecutor):
                             else:
                                 self.logger.debug("%s not added, already in downloaded", episode.title)
                         else:
-                                self.logger.debug("%s not added, already in tracked TvShow", episode.title)
+                            self.logger.debug("%s not added, already in tracked TvShow", episode.title)
                     else:
                         self.logger.debug("%s not added, already in added", episode.title)
             except Exception as e:
@@ -206,26 +204,25 @@ class TvShowManager(AutomatedActionsExecutor):
                                                                "TvShowManager: Error", Expiration())
                 self.logger.info("No torrent found for %s", episode.title)
 
-
     def addAutomatedActions(self, torrentId, tvShow, episodeName):
         self.logger.debug("addAutomatedActions | new (%s, %s, %s)", torrentId, tvShow, episodeName)
         query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', %s);"
         data = "&&".join(["move", torrentId, tvShow, episodeName])
         self.logger.info("add automated action, quest=%s, data=%s", query, data)
-        DatabaseManager.Instance().cursor.execute(query, (data, ))
+        DatabaseManager.Instance().cursor.execute(query, (data,))
         DatabaseManager.Instance().connector.commit()
 
     def getEpisodeFinalPath(self, file_, tvShow, episodeName):
         """
-		:param file_: file to move
-		:type file_ : FileItem
-		:param tvShow: tv show name
-		:type tvShow: unicode
-		:param episodeName: episode name (e.g. {tvShow} S01E01)
-		:type episodeName: unicode
-		:return: The final destination path for this episode
-		:rtype: unicode
-		"""
+        :param file_: file to move
+        :type file_ : FileItem
+        :param tvShow: tv show name
+        :type tvShow: unicode
+        :param episodeName: episode name (e.g. {tvShow} S01E01)
+        :type episodeName: unicode
+        :return: The final destination path for this episode
+        :rtype: unicode
+        """
 
         season = self.getSeasonFromTitle(episodeName)
         dst = os.path.join(self.tvShowDirectory, tvShow, "Saison " + season, episodeName + "." + file_.extension)
@@ -233,11 +230,11 @@ class TvShowManager(AutomatedActionsExecutor):
 
     def getTvShowFileFromTorrent(self, torrent, filter_):
         """
-		:param torrent:
-		:type torrent: TorrentObject
-		:param filter_:
-		:type filter_: FileFilter
-		"""
+        :param torrent:
+        :type torrent: TorrentObject
+        :param filter_:
+        :type filter_: FileFilter
+        """
         files = self.torrentManager.getTorrentFiles(torrent.hash)
         rarFilter = FileFilter(".*", ["rar"])
         validFiles = []
@@ -276,11 +273,11 @@ class TvShowManager(AutomatedActionsExecutor):
 
     def executeAction(self, actionData):
         """
-		Execute generic action
+        Execute generic action
 
-		:param list actionData: list
-		:return bool: success
-		"""
+        :param list actionData: list
+        :return bool: success
+        """
         data = actionData
 
         hashString = data[1]
@@ -353,8 +350,8 @@ class TvShowManager(AutomatedActionsExecutor):
 
     def executeOnTorrentDownloadedActions(self):
         """
-		Execute onTorrentDownloaded action
-		"""
+        Execute onTorrentDownloaded action
+        """
         curs = DatabaseManager.Instance().cursor
         # query = "SELECT id, data FROM AutomatedActions WHERE `trigger`='onTorrentDownloaded' AND notifier='TvShowManager';"
         # curs.execute(query)
@@ -376,17 +373,17 @@ class TvShowManager(AutomatedActionsExecutor):
             if delete:
                 self.logger.info("remove action with id=%d", id_)
                 delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
-                curs.execute(delQuery, (id_, ))
+                curs.execute(delQuery, (id_,))
                 DatabaseManager.Instance().connector.commit()
 
     def extractFromRar(self, filter_, file_):
         """
-		Extract valid files from RAR file
-		:param filter_: valid file filter
-		:type filter_: FileFilter
-		:param file_: rar file path
-		:type file_: unicode
-		"""
+        Extract valid files from RAR file
+        :param filter_: valid file filter
+        :type filter_: FileFilter
+        :param file_: rar file path
+        :type file_: unicode
+        """
         possibleFiles = []
         rar = rarfile.RarFile(file_)
         for f in rar.infolist():
@@ -408,10 +405,10 @@ class TvShowManager(AutomatedActionsExecutor):
     @staticmethod
     def getSeasonFromTitle(title):
         """
-		Static method to get tv show season number from file name (title)
-		:param title:
-		:type title: unicode
-		"""
+        Static method to get tv show season number from file name (title)
+        :param title:
+        :type title: unicode
+        """
         res = re.match(r".*S0?(\d+)E.*", title, re.IGNORECASE)
         if res is not None:
             return res.group(1)

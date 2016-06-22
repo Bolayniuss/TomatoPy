@@ -9,6 +9,8 @@ import logging
 
 from Singleton import Singleton
 
+logger = logging.getLogger(__name__)
+
 
 class MultiHostError(Exception):
     def __init__(self, hostname):
@@ -37,7 +39,6 @@ class MultiHostHandlerException(Exception):
 @Singleton
 class MultiHostHandler(object):
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
 
         self.hosts = {}
 
@@ -58,7 +59,6 @@ class MultiHostHandler(object):
 
 class Host(object):
     def __init__(self, host):
-        self.logger = logging.getLogger(__name__)
 
         self.host = host
         self._last_access_time = 0
@@ -107,7 +107,6 @@ class Host(object):
 
 class MultiHost(object):
     def __init__(self, original_host, extra_hosts=[]):
-        self.logger = logging.getLogger(__name__)
 
         self.original = original_host
         self.hosts = [Host(original_host)]
@@ -119,7 +118,7 @@ class MultiHost(object):
         for host in self.hosts:
             data = host.open_path(path, scheme, timeout)
             if data:
-                self.logger.debug("%s used as host for %s", host.host, self.original)
+                logger.debug("%s used as host for %s", host.host, self.original)
                 if do_sort:
                     self.hosts.sort(key=lambda h: h.last_access_time())
                 return data
