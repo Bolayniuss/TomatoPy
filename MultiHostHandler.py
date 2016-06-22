@@ -61,12 +61,12 @@ class Host(object):
         self.logger = logging.getLogger(__name__)
 
         self.host = host
-        self.last_access_time = 0
+        self._last_access_time = 0
         self.is_accessible = True
 
     def last_access_time(self):
         if self.is_accessible:
-            return self.last_access_time
+            return self._last_access_time
         return 999999
 
     def open_path(self, path, scheme="http", timeout=10):
@@ -84,7 +84,7 @@ class Host(object):
             response = urllib2.urlopen(url=request, timeout=timeout)
             t1 = time.time()
 
-            self.last_access_time = t1 - t0
+            self._last_access_time = t1 - t0
             self.is_accessible = True
 
             if response.info().get('Content-Encoding') == 'gzip':
@@ -100,7 +100,7 @@ class Host(object):
         except urllib2.URLError, e:
             pass
         # raise e
-        self.last_access_time = 0
+        self._last_access_time = 0
         self.is_accessible = False
         return None
 
@@ -121,7 +121,7 @@ class MultiHost(object):
             if data:
                 self.logger.debug("%s used as host for %s", host.host, self.original)
                 if do_sort:
-                    self.hosts.sort(key=lambda h: h.last_access_time)
+                    self.hosts.sort(key=lambda h: h.last_access_time())
                 return data
             else:
                 do_sort = True
