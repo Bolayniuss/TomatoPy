@@ -101,8 +101,8 @@ class TvShowManager(AutomatedActionsExecutor):
 
         # TODO: Change
         self.registeredEpisodeProviders = [BetaserieRSSScrapper(self.bUser)]
-        # self.registeredTorrentProviders = [KickAssTorrentScrapper()]
-        self.registeredTorrentProviders = [TPBScrapper(), KickAssTorrentScrapper()]
+        self.registeredTorrentProviders = [TPBScrapper()]
+        # self.registeredTorrentProviders = [TPBScrapper(), KickAssTorrentScrapper()]
 
         self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r"(.*)\.(mkv|avi|mp4|wmv)$",
                                                self.fileSystemEncoding)
