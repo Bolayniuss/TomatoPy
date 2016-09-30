@@ -14,7 +14,7 @@ from DatabaseManager import DatabaseManager
 from Notifications import NotificationManager, Expiration
 from XbmcLibraryManager import XbmcLibraryManager
 from .AutomatedActionExecutor import AutomatedActionsExecutor
-from .Scrapper import BetaserieRSSScrapper, KickAssTorrentScrapper
+from .Scrapper import BetaserieRSSScrapper, KickAssTorrentScrapper, TPBScrapper
 from .ScrapperItem import EpisodeItem
 from .SourceMapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
 from .TorrentRPC import TorrentFile
@@ -101,8 +101,8 @@ class TvShowManager(AutomatedActionsExecutor):
 
         # TODO: Change
         self.registeredEpisodeProviders = [BetaserieRSSScrapper(self.bUser)]
-        self.registeredTorrentProviders = [KickAssTorrentScrapper()]
-        # self.registeredTorrentProviders = [KickAssTorrentScrapper(), TPBScrapper()]
+        # self.registeredTorrentProviders = [KickAssTorrentScrapper()]
+        self.registeredTorrentProviders = [TPBScrapper(), KickAssTorrentScrapper()]
 
         self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r"(.*)\.(mkv|avi|mp4|wmv)$",
                                                self.fileSystemEncoding)
