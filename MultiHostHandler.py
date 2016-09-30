@@ -84,6 +84,8 @@ class Host(object):
             response = urllib2.urlopen(url=request, timeout=timeout)
             t1 = time.time()
 
+            logger.debug(response)
+
             self._last_access_time = t1 - t0
             self.is_accessible = True
 
@@ -94,12 +96,9 @@ class Host(object):
             else:
                 data = response.read()
             return data
-        except urllib2.HTTPError, e:
-            pass
-        # raise e
-        except urllib2.URLError, e:
-            pass
-        # raise e
+        except (urllib2.HTTPError, urllib2.URLError) as e:
+            logger.debug("error with %s: %s", self.host, e)
+            # raise e
         self._last_access_time = 0
         self.is_accessible = False
         return None
@@ -123,5 +122,6 @@ class MultiHost(object):
                     self.hosts.sort(key=lambda h: h.last_access_time())
                 return data
             else:
+                logger.debug("%s unusable as host for %s", host.host, self.original)
                 do_sort = True
         raise MultiHostError(self.original)
