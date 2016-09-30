@@ -147,7 +147,7 @@ class TPBScrapper(TorrentProvider):
 
         """
 
-        soup = bs4.BeautifulSoup(data)
+        soup = bs4.BeautifulSoup(data, "lxml")
         _torrents = soup.select("tr div.detName")
 
         for eachTorrent in _torrents:
