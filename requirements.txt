@@ -1,0 +1,5 @@
+tranmissionrpc
+mysql-connector
+rarfile
+beautifulsoup4
+lxml
