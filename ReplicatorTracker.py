@@ -334,12 +334,12 @@ class FileTracer:
                     tt = TrackedTorrent.from_sql_query(res)
                     if tt is not None:
                         sql = "SELECT count(1) FROM ReplicatorActions WHERE `torrentName`=%s AND `torrentFileName`=%s LIMIT 1;"
-                        self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrentFileName))
+                        self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrent_file_name))
                         if not self.dbm.cursor.fetchone()[0]:
-                            self.logger.info("New replicator action with file: %s", trackedFile.torrentFileName)
+                            self.logger.info("New replicator action with file: %s", trackedFile.torrent_file_name)
                             sql = "INSERT INTO `ReplicatorActions` (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
                             self.dbm.cursor.execute(sql, (tt.name,
-                                                          trackedFile.torrentFileName,
+                                                          trackedFile.torrent_file_name,
                                                           tt.magnet, destination.name,
                                                           destinationFile.relativePath))
                             self.dbm.connector.commit()
