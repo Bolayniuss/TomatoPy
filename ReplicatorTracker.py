@@ -327,7 +327,7 @@ class FileTracer:
             # For each tuple (trackedFile, destinationFile) in interestingFiles
             for trackedFile, destinationFile in destination.validInterestingFiles:
                 sql = "SELECT * FROM `TrackedTorrents` WHERE `hash`=%s LIMIT 1;"
-                self.dbm.cursor.execute(sql, (trackedFile.torrentHash,))
+                self.dbm.cursor.execute(sql, (trackedFile.torrent_hash,))
                 res = self.dbm.cursor.fetchone()
                 # If torrent is in TrackedTorrents DB
                 if res is not None:
