@@ -1,4 +1,4 @@
-tranmissionrpc
+transmissionrpc
 mysql-connector
 rarfile
 beautifulsoup4
