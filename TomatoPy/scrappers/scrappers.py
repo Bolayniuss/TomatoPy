@@ -265,7 +265,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 
 
 class BetaserieRSSScrapper(EpisodesProvider):
-    baseUrl = "http://www.betaseries.com/rss/episodes/all/"
+    baseUrl = "https://www.betaseries.com/rss/episodes/all/"
 
     def __init__(self, user):
         self.items = []
