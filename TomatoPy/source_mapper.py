@@ -6,7 +6,7 @@ import os
 from TomatoPy.filters import *
 
 
-class SourceMapperItem:
+class SourceMapperItem(object):
     def __init__(self):
         self.name = ""
         self.source = ""
