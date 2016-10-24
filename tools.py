@@ -54,7 +54,7 @@ class FileSystemHelper:
         try:
             if self.fsUser is not None and self.fsGroup is not None:
                 os.chown(destination, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
-        except KeyError, e:
+        except KeyError as e:
             pass
         finally:
             pass

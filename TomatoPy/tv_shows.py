@@ -290,19 +290,19 @@ class TvShowManager(AutomatedActionsExecutor):
                 if data[0] == "move":
                     self.logger.info("move action")
                     try:
-                        fileToMove = self.getTvShowFileFromTorrent(torrent, filter_)
-                        if fileToMove:
+                        file_to_move = self.getTvShowFileFromTorrent(torrent, filter_)
+                        if file_to_move:
                             success = False
-                            destinationPath = self.getEpisodeFinalPath(fileToMove, tvShow, episodeName)
-                            sourceFilePath = fileToMove.getFullPath()
-                            self.logger.info("try to move %s* to %s", sourceFilePath, destinationPath)
-                            if len(sourceFilePath) > 0:
-                                success = tools.FileSystemHelper.Instance().move(sourceFilePath, destinationPath)
+                            destination_path = self.getEpisodeFinalPath(file_to_move, tvShow, episodeName)
+                            source_file_path = file_to_move.get_full_path()()
+                            self.logger.info("try to move %s* to %s", source_file_path, destination_path)
+                            if len(source_file_path) > 0:
+                                success = tools.FileSystemHelper.Instance().move(source_file_path, destination_path)
                             if success:
                                 self.logger.info("move succeed")
                                 time.sleep(0.5)
                                 XbmcLibraryManager.Instance().scan_video_library(
-                                    tools.PathSubstitution.Instance().substitute(os.path.dirname(destinationPath))
+                                    tools.PathSubstitution.Instance().substitute(os.path.dirname(destination_path))
                                 )
                                 self.logger.info("delete associated torrent")
                                 self.torrentManager.remove_torrent(hashString, True)
