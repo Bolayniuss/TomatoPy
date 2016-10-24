@@ -47,6 +47,8 @@ class XbmcLibraryManager:
     def scan_video_library(self, directory=None):
         params = {}
         if directory:
+            if not directory.endswidth("/"):
+                directory += "/"
             params["directory"] = directory
         self.pendingRequests[('VideoLibrary.Scan', directory)] = self.build_request('VideoLibrary.Scan', params, self.generate_id())
         if directory:
