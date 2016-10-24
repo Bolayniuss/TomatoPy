@@ -46,7 +46,7 @@ class XbmcLibraryManager:
         params = {}
         if directory:
             params["directory"] = directory
-        self.pendingRequests['VideoLibrary.Scan'] = self.build_request('VideoLibrary.Scan', params, self.generate_id())
+        self.pendingRequests[('VideoLibrary.Scan', directory)] = self.build_request('VideoLibrary.Scan', params, self.generate_id())
         if directory:
             self.logger.info("add VideoLibrary.Scan action, directory %s", directory)
         else:
@@ -109,7 +109,7 @@ class XbmcLibraryManager:
 
     def execute_pending_requests(self):
         results = {}
-        for k, v in self.pendingRequests.iteritems():
+        for k, v in self.pendingRequests.items():
             r = self.send_request(v)
             if r is not None:
                 self.logger.debug("Request %s succeed", k)

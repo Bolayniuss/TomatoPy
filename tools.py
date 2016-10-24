@@ -91,8 +91,10 @@ class PathSubstitution:
         self.substitutions.append((lookup_regexp, substitution,))
 
     def substitute(self, source):
+        s = source
         for peer in self.substitutions:
             source = re.sub(peer[0], peer[1], source)
+        logging.debug("Substitute %s to %s", s, source)
         return source
 
 

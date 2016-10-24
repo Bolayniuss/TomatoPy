@@ -113,7 +113,10 @@ class ReplicatorManager(AutomatedActionsExecutor):
                             success = False
                     if success:
                         if destination_path is not None:
-                            XbmcLibraryManager.Instance().scan_video_library(os.path.dirname(destination_path))
+                            # XbmcLibraryManager.Instance().scan_video_library(
+                            #    tools.PathSubstitution.Instance().substitute(os.path.dirname(destination_path))
+                            # )
+                            XbmcLibraryManager.Instance().scan_video_library()
                         self.logger.info("delete associated torrent")
                         self.torrent_manager.remove_torrent(hash_string, True)
                         NotificationManager.Instance().addNotification(
