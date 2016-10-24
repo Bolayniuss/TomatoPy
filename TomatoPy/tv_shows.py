@@ -302,7 +302,7 @@ class TvShowManager(AutomatedActionsExecutor):
                                 self.logger.info("move succeed")
                                 time.sleep(0.5)
                                 XbmcLibraryManager.Instance().scan_video_library(
-                                    tools.PathSubstitution.Instance().substitute(os.path.dirname(destination_path))
+                                    tools.PathSubstitution.Instance().substitute(os.path.dirname(os.path.dirname(destination_path)))
                                 )
                                 self.logger.info("delete associated torrent")
                                 self.torrentManager.remove_torrent(hashString, True)
