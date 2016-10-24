@@ -34,6 +34,8 @@ class XbmcLibraryManager:
     def scan_audio_library(self, directory=None):
         params = {}
         if directory:
+            if not directory.endswidth("/"):
+                directory += "/"
             params["directory"] = directory
         self.pendingRequests['AudioLibrary.Scan'] = self.build_request('AudioLibrary.Scan', params, self.generate_id())
         if directory:
