@@ -34,7 +34,7 @@ class XbmcLibraryManager:
     def scan_audio_library(self, directory=None):
         params = {}
         if directory:
-            if not directory.endswidth("/"):
+            if not directory.endswith("/"):
                 directory += "/"
             params["directory"] = directory
         self.pendingRequests['AudioLibrary.Scan'] = self.build_request('AudioLibrary.Scan', params, self.generate_id())
@@ -47,7 +47,7 @@ class XbmcLibraryManager:
     def scan_video_library(self, directory=None):
         params = {}
         if directory:
-            if not directory.endswidth("/"):
+            if not directory.endswith("/"):
                 directory += "/"
             params["directory"] = directory
         self.pendingRequests[('VideoLibrary.Scan', directory)] = self.build_request('VideoLibrary.Scan', params, self.generate_id())
