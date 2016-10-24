@@ -4,6 +4,8 @@ import multi_host
 
 __author__ = 'bolay'
 
+import requests
+
 import urllib2
 import urllib
 import re
@@ -273,8 +275,12 @@ class BetaserieRSSScrapper(EpisodesProvider):
 
     def parse(self):
         url = self.baseUrl + self.rssFeedUser
-        page = urllib2.urlopen(url)
-        soup = bs4.BeautifulSoup(page.read(), "xml")
+
+        logging.info("Fetching episodes from %s", url)
+
+        resp = requests.get(url)
+
+        soup = bs4.BeautifulSoup(resp.text, "xml")
 
         _items = soup.find_all("entry")
         for eachItem in _items:

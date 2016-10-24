@@ -3,3 +3,4 @@ mysql-connector
 rarfile
 beautifulsoup4
 lxml
+requests
