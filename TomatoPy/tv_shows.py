@@ -294,7 +294,7 @@ class TvShowManager(AutomatedActionsExecutor):
                         if file_to_move:
                             success = False
                             destination_path = self.getEpisodeFinalPath(file_to_move, tvShow, episodeName)
-                            source_file_path = file_to_move.get_full_path()()
+                            source_file_path = file_to_move.get_full_path()
                             self.logger.info("try to move %s* to %s", source_file_path, destination_path)
                             if len(source_file_path) > 0:
                                 success = tools.FileSystemHelper.Instance().move(source_file_path, destination_path)
