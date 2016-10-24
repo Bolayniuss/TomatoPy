@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-import MultiHostHandler
+import multi_host
 
 __author__ = 'bolay'
 
@@ -13,9 +13,9 @@ from operator import attrgetter
 
 import bs4
 
-from .ScrapperItem import TorrentItem, EpisodeItem
-from .Filters import TorrentFilter
-from MultiHostHandler import MultiHostHandler, MultiHostHandlerException, Host
+from .items import TorrentItem, EpisodeItem
+from TomatoPy.filters import TorrentFilter
+from multi_host import MultiHostHandler, MultiHostHandlerException, Host
 
 TAG_RE = re.compile(r'<[^>]+>')
 SPECIAL_RE = re.compile(r'[()]')
@@ -133,7 +133,7 @@ class TPBScrapper(TorrentProvider):
 
     def getTPB_HTML(self, searchString):
         try:
-            return MultiHostHandler.Instance().openURL(
+            return multi_host.Instance().openURL(
                 "https://thepiratebay.org/search/" + urllib.quote(sub_special_tags(searchString)) + "/0/7/0",
                 self.timeout)
         except MultiHostHandlerException as e:

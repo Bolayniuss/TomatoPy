@@ -1,6 +1,4 @@
 # -*- coding: utf8 -*-
-#
-__author__ = 'bolay'
 
 import logging
 import os
@@ -9,15 +7,15 @@ import time
 
 import rarfile
 
-import Tools
-from DatabaseManager import DatabaseManager
-from Notifications import NotificationManager, Expiration
-from XbmcLibraryManager import XbmcLibraryManager
-from .AutomatedActionExecutor import AutomatedActionsExecutor
-from .Scrapper import BetaserieRSSScrapper, KickAssTorrentScrapper, TPBScrapper
-from .ScrapperItem import EpisodeItem
-from .SourceMapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
-from .TorrentRPC import TorrentFile
+import tools
+from TomatoPy.api.torrents._base import TorrentFile
+from TomatoPy.automated_action import AutomatedActionsExecutor
+from TomatoPy.scrappers import BetaserieRSSScrapper, TPBScrapper
+from TomatoPy.scrappers.items import EpisodeItem
+from TomatoPy.source_mapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
+from database import DatabaseManager
+from kodi_api import XbmcLibraryManager
+from notifications import NotificationManager, Expiration
 
 
 class TrackedTvShow:
@@ -107,7 +105,7 @@ class TvShowManager(AutomatedActionsExecutor):
         self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r"(.*)\.(mkv|avi|mp4|wmv)$",
                                                self.fileSystemEncoding)
 
-        self.loadActions()
+        self.load_actions()
 
     def getTrackedTvShow(self, episode):
         """
@@ -153,9 +151,9 @@ class TvShowManager(AutomatedActionsExecutor):
 
                                 torrentSearchString = "%s S%02dE%02d" % (
                                     trackedTvShow.searchString, episode.season, episode.episodeNumber)
-                                pattern = Tools.delete_bad_chars(torrentSearchString)
+                                pattern = tools.delete_bad_chars(torrentSearchString)
                                 pattern = pattern.replace(" ", ".*")
-                                if not self.torrentManager.searchInTorrents(pattern):
+                                if not self.torrentManager.search_in_torrents(pattern):
                                     # self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
 
                                     episodes.append(TrackedEpisode(episode, trackedTvShow))
@@ -169,7 +167,7 @@ class TvShowManager(AutomatedActionsExecutor):
                     else:
                         self.logger.debug("%s not added, already in added", episode.title)
             except Exception as e:
-                self.logger.error(e)
+                self.logger.exception(e)
         return episodes
 
     def addNewToTorrentManager(self, episodes=None):
@@ -189,7 +187,7 @@ class TvShowManager(AutomatedActionsExecutor):
                         break
 
             if len(torrentItems) > 0:
-                newTorrent = self.torrentManager.addTorrentURL(torrentItems[0].link)
+                newTorrent = self.torrentManager.add_torrent_url(torrentItems[0].link)
                 if newTorrent:
                     self.addAutomatedActions(newTorrent.hash, episode.trackedTvShow.title, episode.title)
                     self.logger.info("New torrent added for episode %s", episode.title)
@@ -235,16 +233,16 @@ class TvShowManager(AutomatedActionsExecutor):
         :param filter_:
         :type filter_: FileFilter
         """
-        files = self.torrentManager.getTorrentFiles(torrent.hash)
+        files = self.torrentManager.get_torrent_files(torrent.hash)
         rarFilter = FileFilter(".*", ["rar"])
         validFiles = []
         for file_ in files:
-            fileItem = FileItem.fromFilename(file_.name, "")
+            fileItem = FileItem.from_filename(file_.name, "")
             if filter_.test(fileItem):
                 validFiles.append(file_)
             elif rarFilter.test(fileItem):
                 extractedFile = self.extractFromRar(filter_,
-                                                    self.torrentManager.getTorrentFilePath(torrent.name, file_.name))
+                                                    self.torrentManager.get_torrent_file_path(torrent.name, file_.name))
                 if extractedFile is not None:
                     validFiles.append(extractedFile)
 
@@ -252,7 +250,7 @@ class TvShowManager(AutomatedActionsExecutor):
             # TODO: Make filter parameter "extensions" not hardcoded
             mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi"])
             for file_ in files:
-                if mediaFilter.test(FileItem.fromFilename(file_.name, "")):
+                if mediaFilter.test(FileItem.from_filename(file_.name, "")):
                     validFiles.append(file_)
         if len(validFiles) == 0:
             self.logger.info("No valid files found")
@@ -265,10 +263,10 @@ class TvShowManager(AutomatedActionsExecutor):
             i += 1
         self.logger.debug("validFile id_=%d, name=%s", id_, validFiles[id_].name)
         try:
-            completePath = self.torrentManager.getTorrentFilePath(torrent.name, validFiles[id_].name)
+            completePath = self.torrentManager.get_torrent_file_path(torrent.name, validFiles[id_].name)
         except IOError, e:
             raise e
-        file_ = FileItem.fromCompletePath(completePath)
+        file_ = FileItem.from_complete_path(completePath)
         return file_
 
     def executeAction(self, actionData):
@@ -284,9 +282,9 @@ class TvShowManager(AutomatedActionsExecutor):
         tvShow = data[2]
         episodeName = data[3]
         try:
-            torrent = self.torrentManager.getTorrent(hashString)
+            torrent = self.torrentManager.get_torrent(hashString)
             if torrent.isFinished:
-                pattern = Tools.delete_bad_chars(episodeName)
+                pattern = tools.delete_bad_chars(episodeName)
                 pattern = pattern.replace(" ", ".")
                 filter_ = FileFilter(pattern, ["mkv", "avi", "mp4"])
                 if data[0] == "move":
@@ -299,15 +297,15 @@ class TvShowManager(AutomatedActionsExecutor):
                             sourceFilePath = fileToMove.getFullPath()
                             self.logger.info("try to move %s* to %s", sourceFilePath, destinationPath)
                             if len(sourceFilePath) > 0:
-                                success = Tools.FileSystemHelper.Instance().move(sourceFilePath, destinationPath)
+                                success = tools.FileSystemHelper.Instance().move(sourceFilePath, destinationPath)
                             if success:
                                 self.logger.info("move succeed")
                                 time.sleep(0.5)
                                 XbmcLibraryManager.Instance().scan_video_library(
-                                    Tools.PathSubstitution.Instance().substitute(os.path.dirname(destinationPath))
+                                    tools.PathSubstitution.Instance().substitute(os.path.dirname(destinationPath))
                                 )
                                 self.logger.info("delete associated torrent")
-                                self.torrentManager.removeTorrent(hashString, True)
+                                self.torrentManager.remove_torrent(hashString, True)
                                 NotificationManager.Instance().addNotification(
                                     torrent.name,
                                     "TvShowManager: Done", Expiration(weeks=4)
@@ -387,7 +385,7 @@ class TvShowManager(AutomatedActionsExecutor):
         possibleFiles = []
         rar = rarfile.RarFile(file_)
         for f in rar.infolist():
-            if filter_.test(FileItem.fromFilename(f.filename, "")):
+            if filter_.test(FileItem.from_filename(f.filename, "")):
                 possibleFiles.append(f)
         if len(possibleFiles) != 0:
             theFile = possibleFiles[0]

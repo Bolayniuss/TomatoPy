@@ -8,8 +8,8 @@ import io
 import urllib2
 import  urllib
 from exceptions import NotImplementedError
-from Singleton import Singleton
-from DatabaseManager import DatabaseManager
+from singleton import Singleton
+from database import DatabaseManager
 
 
 class Serializable(object):

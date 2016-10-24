@@ -1,26 +1,29 @@
 # -*- coding: utf8 -*-
 #
-__author__ = 'bolay'
+from __future__ import absolute_import, unicode_literals, print_function
 
 import json
 import logging
 import os
-import urllib2
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 
-import Tools
-from DatabaseManager import DatabaseManager
-from Notifications import Expiration, NotificationManager
-from TomatoPy.AutomatedActionExecutor import AutomatedActionsExecutor
-from XbmcLibraryManager import XbmcLibraryManager
+import tools
+from database import DatabaseManager
+from notifications import Expiration, NotificationManager
+from TomatoPy.automated_action import AutomatedActionsExecutor
+from kodi_api import XbmcLibraryManager
 
 
 class ReplicatorManager(AutomatedActionsExecutor):
-    def __init__(self, user, torrentManager):
+    def __init__(self, user, torrent_manager):
         """
         :type user: str
-        :type torrentManager: TorrentManager
+        :type torrent_manager: TomatoPy.api.torrents._base.TorrentManager
         :param user:
-        :param torrentManager:
+        :param torrent_manager:
         :return:
         """
         super(ReplicatorManager, self).__init__("ReplicatorManager")
@@ -30,14 +33,14 @@ class ReplicatorManager(AutomatedActionsExecutor):
         self.user = user
         self.serviceName = "Replicator"
         self.dbm = DatabaseManager.Instance()
-        self.torrentManager = torrentManager
-        self.replicatorActions = {}
-        self.replicatorServers = []
+        self.torrent_manager = torrent_manager
+        self.replicator_actions = {}
+        self.replicator_servers = []
 
         sql = "SELECT * FROM RemoteServices WHERE `ServiceName`=%s;"
         self.dbm.cursor.execute(sql, (self.serviceName,))
         for res in self.dbm.cursor:
-            self.replicatorServers.append({"name": res[1], "url": res[2]})
+            self.replicator_servers.append(dict(name=res[1], url=res[2]))
 
         # Load destinations from DB
         self.destinations = {}
@@ -46,71 +49,73 @@ class ReplicatorManager(AutomatedActionsExecutor):
         for res in self.dbm.cursor:
             self.destinations[res[0]] = res[1]
 
-        self.loadRemoteActions()
-        self.processReplicatorActions()
-        self.loadActions()
+        self.load_remote_actions()
+        self.process_replicator_actions()
+        self.load_actions()
 
-    def loadRemoteActions(self):
-        for server in self.replicatorServers:
+    def load_remote_actions(self):
+        for server in self.replicator_servers:
             self.logger.info("Loading actions from remote server, %s", server["name"])
             url = server["url"] + "?q=getReplicatorActions&user=" + self.user
 
-            jsonData = urllib2.urlopen(url).read()
+            json_data = urlopen(url).read()
             # print "ReplicatorManager: jsonData=", jsonData
-            data = json.loads(jsonData)
-            if server["name"] not in self.replicatorActions:
-                self.replicatorActions[server["name"]] = []
-            self.replicatorActions[server["name"]].append(data)
+            data = json.loads(json_data)
+            if server["name"] not in self.replicator_actions:
+                self.replicator_actions[server["name"]] = []
+            self.replicator_actions[server["name"]].append(data)
 
-    def processReplicatorActions(self):
-        for serverName, serverActionsList in self.replicatorActions.iteritems():
-            for actionsDict in serverActionsList:
-                for torrentName, actions in actionsDict.iteritems():
-                    actionParams = []
+    def process_replicator_actions(self):
+        for server_name, server_actions_list in self.replicator_actions.items():
+            for actions_dict in server_actions_list:
+                for torrentName, actions in actions_dict.items():
+                    action_params = []
                     for action in actions:
 
                         # Test if source exist
                         if action["destinationName"] in self.destinations:
-                            destinationPath = os.path.join(self.destinations[action["destinationName"]],
+                            destination_path = os.path.join(self.destinations[action["destinationName"]],
                                                            action["destinationRelativePath"])
-                            if not os.path.exists(destinationPath):
-                                actionParams.append(action["torrentFileName"])
-                                actionParams.append(destinationPath)
+                            if not os.path.exists(destination_path):
+                                action_params.append(action["torrentFileName"])
+                                action_params.append(destination_path)
 
-                    if actionParams:
+                    if action_params:
                         # Add Torrent
-                        t = self.torrentManager.addTorrentURL(action["torrentData"])
+                        t = self.torrent_manager.add_torrent_url(action["torrentData"])
 
-                        # Add move action with torrentHash, fileName, destinationPath
-                        aa = "move&&" + t.hash + "&&" + "&&".join(actionParams)
+                        # Add move action with torrentHash, fileName, destination_path
+                        aa = "move&&" + t.hash + "&&" + "&&".join(action_params)
                         sql = "INSERT INTO AutomatedActions (notifier, `trigger`, `data`) VALUES(%s, %s, %s);"
                         self.dbm.cursor.execute(sql, (self.actionNotifierName, "onTorrentDownloaded", aa))
                         self.dbm.connector.commit()
 
-                        self.logger.info("Add new automated action from server=%s, %s", serverName, aa)
+                        self.logger.info("Add new automated action from server=%s, %s", server_name, aa)
 
-    def executeAction(self, data):
+    def execute_action(self, data):
         if data[0] == "move":
-            hashString = data[1]
+            hash_string = data[1]
             try:
-                torrent = self.torrentManager.getTorrent(hashString)
+                torrent = self.torrent_manager.get_torrent(hash_string)
                 if torrent.isFinished:
-                    nFiles = (len(data) - 2) / 2
+                    n_files = (len(data) - 2) / 2
                     success = True
-                    for i in xrange(nFiles):
+                    destination_path = None
+                    for i in range(n_files):
                         filename = data[2 + i * 2]
-                        destinationPath = data[3 + i * 2]
-                        fileToMove = self.torrentManager.getTorrentFilePath(torrent.name, filename)
+                        destination_path = data[3 + i * 2]
+                        file_to_move = self.torrent_manager.get_torrent_file_path(torrent.name, filename)
 
-                        if Tools.FileSystemHelper.Instance().move(fileToMove, destinationPath):
-                            self.logger.info("file (%d/%d) move succeeded.", (i + 1), nFiles)
+                        if tools.FileSystemHelper.Instance().move(file_to_move, destination_path):
+                            self.logger.info("file (%d/%d) move succeeded.", (i + 1), n_files)
                         # time.sleep(0.5)
                         else:
                             success = False
                     if success:
-                        XbmcLibraryManager.Instance().scan_video_library(os.path.dirname(destinationPath))
+                        if destination_path is not None:
+                            XbmcLibraryManager.Instance().scan_video_library(os.path.dirname(destination_path))
                         self.logger.info("delete associated torrent")
-                        self.torrentManager.removeTorrent(hashString, True)
+                        self.torrent_manager.remove_torrent(hash_string, True)
                         NotificationManager.Instance().addNotification(
                             torrent.name,
                             "Replicator: Done",
@@ -139,16 +144,16 @@ class ReplicatorManager(AutomatedActionsExecutor):
                 pass
         return False
 
-    def executeOnTorrentDownloadedActions(self):
+    def execute_on_torrent_downloaded_actions(self):
         # print self.actions
         curs = DatabaseManager.Instance().cursor
         actions = self.actions["onTorrentDownloaded"]
         # for a in curs:
         #	actions.append(a)
-        for id_, data in actions.iteritems():
+        for id_, data in actions.items():
             try:
                 self.logger.info("try to execute action id=%d", id_)
-                success = self.executeAction(data)
+                success = self.execute_action(data)
                 self.logger.info("action (id=%d) result=%s", id_, success)
                 delete = success
             except KeyError as e:
@@ -159,6 +164,6 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
             if delete:
                 self.logger.info("remove action with id=%d", id_)
-                delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
-                curs.execute(delQuery, (id_,))
+                del_query = "DELETE FROM AutomatedActions WHERE id=%s;"
+                curs.execute(del_query, (id_,))
                 DatabaseManager.Instance().connector.commit()

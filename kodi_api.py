@@ -7,8 +7,8 @@ import json
 import random
 import logging
 
-from Singleton import Singleton
-from DatabaseManager import DatabaseManager
+from singleton import Singleton
+from database import DatabaseManager
 
 
 @Singleton

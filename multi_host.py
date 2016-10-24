@@ -7,7 +7,7 @@ import time
 import urllib2
 import logging
 
-from Singleton import Singleton
+from singleton import Singleton
 
 logger = logging.getLogger(__name__)
 

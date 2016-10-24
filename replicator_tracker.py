@@ -1,14 +1,14 @@
 __author__ = 'bolay'
 
+import base64
+import logging
 import os
 import re
-import logging
-import base64
 
-import Tools
-from DatabaseManager import DatabaseManager
-from TomatoPy.TransmissionWrapper import TransmissionTorrentRPC
-from Singleton import Singleton
+import tools
+from database import DatabaseManager
+from singleton import Singleton
+from TomatoPy.api.torrents.transmission import TransmissionTorrentRPC
 
 
 class TrackedTorrent:
@@ -47,7 +47,7 @@ class InterestingFile:
         self.torrent_file_name = torrent_file_name
         self.hash = hash
         if (self.hash is None) or (len(self.hash)) == 0:
-            self.hash = Tools.get_hash(self.name)
+            self.hash = tools.get_hash(self.name)
 
     def set_timeout(self, timeout=2538000):
         # default timeout set to 30 days
@@ -91,10 +91,10 @@ class DoneTorrentFilter:
                 self.interesting_files[iF.name] = iF
 
         # Get new from torrent manager
-        torrents = self.torrent_manager.getTorrents()
+        torrents = self.torrent_manager.get_torrents()
         for torrent in torrents:
             if torrent.isFinished:
-                torrentFiles = self.torrent_manager.getTorrentFiles(torrent.hash)
+                torrentFiles = self.torrent_manager.get_torrent_files(torrent.hash)
                 # for each torrentFile in torrent
                 for f in torrentFiles:
                     file = File(os.path.join(self.torrent_manager.downloadDirectory, f.name))
@@ -161,7 +161,7 @@ class Destination:
 
         :type path: str
         :type name: str
-        :type filter: TomatoPy.Filters.FileFilter
+        :type filter: TomatoPy.filters.FileFilter
         :param path: path of the destination directory
         :param name: name of the destination
         """
@@ -277,7 +277,7 @@ class FileWithHash(File):
         self.hash = hash
         self.destination_name = destination_name
         if hash is None:
-            self.hash = Tools.get_hash(self.fullPath)
+            self.hash = tools.get_hash(self.fullPath)
         self.relativePath = path
         if relative_path is not None:
             self.relativePath = relative_path
@@ -359,7 +359,7 @@ class FileTracer:
         # self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE timeout<UNIX_TIMESTAMP()")
         self.logger.debug("Beginning Clean up.")
         torrents = {}
-        for torrent in self.torrent_manager.getTorrents():
+        for torrent in self.torrent_manager.get_torrents():
             torrents[torrent.hash] = 1
 
         delete_tt_sql = "DELETE FROM `TrackedTorrents` WHERE `hash`=%s;"

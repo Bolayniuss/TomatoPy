@@ -1,39 +1,54 @@
 # -*- coding: utf8 -*-
-__author__ = 'bolay'
 
 import sys
+import os
 
-from .Filters import *
-from .SourceMapperItem import *
+from TomatoPy.filters import *
 
 
-# old class
-# class DirectoryMapper:
-#
-#	def __init__(self, path, filter=FileFilter(), encoding=None):
-#		self.path = path
-#		if encoding is not None:
-#			self.path = path.encode(encoding)
-#		self.filter = filter
-#		self.files = []
-#		self.map()
-#
-#	def map(self):
-#		reload(sys)
-#		sys.setdefaultencoding('UTF8')
-#		fsEncoding = "UTF8" #sys.getfilesystemencoding()
-#		#path = self.path.encode(fsEncoding)
-#		for root, dirs, files in os.walk(self.path):
-#			for file in files:
-#				#file = file.decode(fsEncoding)
-#				#root = root.decode(fsEncoding)
-#				#print file, type(file)
-#				item = FileItem.fromFilename(file, root)
-#				if self.filter.test(item):
-#					self.files.append(item)
+class SourceMapperItem:
+    def __init__(self):
+        self.name = ""
+        self.source = ""
+
+
+class FileItem(SourceMapperItem):
+    def __init__(self, filename, extension, path):
+        super(FileItem, self).__init__()
+        self.filename = filename + "." + extension
+        self.extension = extension
+        self.name = filename
+        self.source = path
+
+    def get_full_path(self):
+        return os.path.join(self.source, self.filename)
+
+    @staticmethod
+    def from_filename(filename, path):
+        """
+        :type filename: str
+        :type path: str
+        """
+        try:
+            p = filename.rindex(".")
+            return FileItem(filename[0:p], filename[p + 1:], path)
+        except ValueError:
+            return FileItem(filename, "", path)
+
+    @staticmethod
+    def from_complete_path(path):
+        filename = os.path.basename(path)
+        directory = os.path.dirname(path)
+        return FileItem.from_filename(filename, directory)
 
 
 class DirectoryMapper:
+    """
+    :type path: str
+    :type filter: str
+    :type files: list[FileItem]
+    :type indexedFiles: dict[str, list[FileItem]]
+    """
     def __init__(self, path, filter_=r"", encoding=None):
         self.path = path
         if encoding is not None:

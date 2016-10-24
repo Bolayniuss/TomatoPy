@@ -4,7 +4,8 @@
 __author__ = 'Michael Bolay'
 
 import unittest
-from TomatoPy.Scrapper import BetaserieRSSScrapper
+
+from TomatoPy.scrappers.scrappers import BetaserieRSSScrapper
 
 
 class BetaSeriesTestCase(unittest.TestCase):

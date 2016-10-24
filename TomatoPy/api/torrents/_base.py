@@ -6,10 +6,10 @@ import logging
 import os
 import re
 
-from DatabaseManager import DatabaseManager
+from database import DatabaseManager
 
 
-class TorrentObject:
+class TorrentObject(object):
     """
     Object that represents a torrent (task)
     """
@@ -17,9 +17,8 @@ class TorrentObject:
     def __init__(self, _hash, name):
         """
 
-        :param unicode hash:
-        :param unicode name:
-        :return:
+        :param str _hash:
+        :param str name:
         """
         self.name = ""
         self.hash = ""
@@ -57,11 +56,10 @@ class TorrentFile:
     def __init__(self, name=None, size=None, completed=None, priority=None):
         """
 
-        :param unicode name:
+        :param str name:
         :param int size:
         :param bool completed:
         :param int priority:
-        :return:
         """
         # FILE NAME (string),
         # FILE SIZE (integer, in bytes),
@@ -81,12 +79,6 @@ class TorrentFile:
 
 
 class TorrentManager(object):
-    # getTorrent(hash)
-    # getTorrents
-    # getTorrentFiles(hash)
-    # addTorrentURL(torrentURL)
-    # addTorrent(torrentFilePath)
-    # removeTorrent(hash, deleteData)
 
     def __init__(self, parameters=None):
         self.logger = logging.getLogger(__name__)
@@ -107,61 +99,78 @@ class TorrentManager(object):
         if len(parameters) > 4:
             self.password = parameters[4]
         if len(parameters) > 5:
-            self.initWithExtraParams(parameters[5:])
+            self.init_with_extra_params(parameters[5:])
 
-    def initWithExtraParams(self, extraParams):
+    def init_with_extra_params(self, extra_params):
         pass
 
-    def getTorrentFilePath(self, torrentName, filename):
+    def get_torrent_file_path(self, torrent_name, filename):
+        """
+
+        :param str torrent_name:
+        :param str filename:
+        :return: path for the given torrent and filename
+        :rtype: str
+        """
         if os.path.isfile(os.path.join(self.downloadDirectory, filename)):
             return os.path.join(self.downloadDirectory, filename)
-        elif os.path.isfile(os.path.join(self.downloadDirectory, torrentName, filename)):
-            return os.path.join(self.downloadDirectory, torrentName, filename)
-        self.logger.warn("no file found in %s with filename %s", torrentName, filename)
+        elif os.path.isfile(os.path.join(self.downloadDirectory, torrent_name, filename)):
+            return os.path.join(self.downloadDirectory, torrent_name, filename)
+        self.logger.warn("no file found in %s with filename %s", torrent_name, filename)
         raise IOError("file not found")
 
-    def searchInTorrents(self, pattern):
+    def search_in_torrents(self, pattern):
         """
         Test if the regular expression pattern match a torrent's name. If so return True, False otherwise.
         :param str pattern: The regular expression to test
         :return: True if pattern found in a torrent's name
         :rtype: bool
         """
-        torrents = self.getTorrents()
+        torrents = self.get_torrents()
         for torrent in torrents:
             if re.search(pattern, torrent.name, re.IGNORECASE) is not None:
                 return True
         return False
 
-    def getTorrents(self):
+    def get_torrents(self):
         """
 
         :return:
-        :rtype: list of TorrentObject
+        :rtype: list[TorrentObject]
         """
-        return list()
+        raise NotImplementedError()
 
-    def getTorrent(self, hash_):
+    def get_torrent(self, hash_):
         """
 
         :type hash_: str
-        :rtype: TorrentObject
+        :rtype: TorrentObject | None
         """
-        return None
+        raise NotImplementedError()
 
-    def getTorrentFiles(self, torrentHash):
+    def get_torrent_files(self, torrent_hash):
         """
 
-        :type torrentHash: str
-        :rtype: list of TorrentFile
+        :type torrent_hash: str
+        :rtype: list[TorrentFile]
         """
-        return list()
+        raise NotImplementedError()
 
-    def addTorrent(self, torrentFilePath):
-        return None
+    def add_torrent(self, torrent_file_path):
+        """
 
-    def addTorrentURL(self, torrentUrl):
-        return None
+        :param str torrent_file_path:
+        :return:
+        """
+        raise NotImplementedError()
 
-    def removeTorrent(self, hash_, deleteData=False):
-        return None
+    def add_torrent_url(self, torrent_url):
+        """
+
+        :param str torrent_url:
+        :return:
+        """
+        raise NotImplementedError()
+
+    def remove_torrent(self, hash_, delete_data=False):
+        raise NotImplementedError()

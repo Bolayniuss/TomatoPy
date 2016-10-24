@@ -1,7 +1,7 @@
 __author__ = 'bolay'
 
 import mysql.connector
-from Singleton import Singleton
+from singleton import Singleton
 
 @Singleton
 class DatabaseManager:

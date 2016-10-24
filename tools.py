@@ -8,7 +8,7 @@ import os
 import logging
 import re
 
-from Singleton import Singleton
+from singleton import Singleton
 
 
 def get_hash(file_path, bloc_size_max=1000000):
