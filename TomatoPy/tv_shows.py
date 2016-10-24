@@ -159,13 +159,13 @@ class TvShowManager(AutomatedActionsExecutor):
                                     episodes.append(TrackedEpisode(episode, trackedTvShow))
                                     self.logger.info("%s flagged as new.", episode.title)
                                 else:
-                                    self.logger.debug("%s not added, already in downloads", episode.title)
+                                    self.logger.debug("%s not added, already in the downloads list.", episode.title)
                             else:
-                                self.logger.debug("%s not added, already in downloaded", episode.title)
+                                self.logger.debug("%s not added, already in the downloaded list.", episode.title)
                         else:
-                            self.logger.debug("%s not added, already in tracked TvShow", episode.title)
+                            self.logger.debug("%s not added, not a tracked TvShow.", episode.title)
                     else:
-                        self.logger.debug("%s not added, already in added", episode.title)
+                        self.logger.debug("%s not added, already in the added list.", episode.title)
             except Exception as e:
                 self.logger.exception(e)
         return episodes
