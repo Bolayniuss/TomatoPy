@@ -113,7 +113,8 @@ class XbmcLibraryManager:
 
     def execute_pending_requests(self):
         results = {}
-        for k, v in self.pendingRequests.items():
+        for k in self.pendingRequests.keys():
+            v = self.pendingRequests.pop(k)
             r = self.send_request(v)
             if r is not None:
                 self.logger.debug("Request %s succeed", k)
