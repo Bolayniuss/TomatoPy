@@ -56,7 +56,6 @@ class TorrentProvider(object):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self._torrentItems = []
-        pass
 
     def grabTorrents(self, search):
         """
@@ -125,7 +124,6 @@ class TPBScrapper(TorrentProvider):
     def __init__(self, ):
         super(TPBScrapper, self).__init__()
         self.logger = logging.getLogger(__name__)
-        self._torrentItems = []
 
     def grabTorrents(self, searchString):
         self._torrentItems = []
@@ -270,6 +268,7 @@ class BetaserieRSSScrapper(EpisodesProvider):
     baseUrl = "https://www.betaseries.com/rss/episodes/all/"
 
     def __init__(self, user):
+        super(BetaserieRSSScrapper, self).__init__()
         self.items = []
         self.rssFeedUser = user
 

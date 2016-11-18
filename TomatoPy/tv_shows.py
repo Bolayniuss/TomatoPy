@@ -166,8 +166,8 @@ class TvShowManager(AutomatedActionsExecutor):
                             self.logger.debug("%s not added, not a tracked TvShow.", episode.title)
                     else:
                         self.logger.debug("%s not added, already in the added list.", episode.title)
-            except Exception as e:
-                self.logger.exception(e)
+            except Exception:
+                self.logger.exception("Error while getting new episodes")
         return episodes
 
     def addNewToTorrentManager(self, episodes=None):
@@ -342,6 +342,8 @@ class TvShowManager(AutomatedActionsExecutor):
                     "TvShowManager: Downloading", Expiration()
                 )
                 return False
+        except:
+            self.logger.exception("Error while executing action %s", actionData)
         finally:
             pass
         return False
