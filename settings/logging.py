@@ -22,12 +22,13 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'verbose'
         },
         'rollbar': {
             'level': 'WARNING',
             'class': 'rollbar.logger.RollbarHandler',
-            'access_token': ROLLBAR_TOKEN
+            'access_token': ROLLBAR_TOKEN,
+            'formatter': 'verbose'
         }
     },
     'loggers': {
