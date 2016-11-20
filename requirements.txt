@@ -1,3 +1,4 @@
+python-dotenv
 transmissionrpc
 mysql-connector
 rarfile

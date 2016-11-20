@@ -1,3 +1,4 @@
 .pyc
 run.py
 scripts/*
+.env
