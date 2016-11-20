@@ -9,7 +9,6 @@ from .environment import DEBUG, ENV_NAME
 
 ROLLBAR_TOKEN = os.environ.get("ROLLBAR_TOKEN")
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_logger': False,
