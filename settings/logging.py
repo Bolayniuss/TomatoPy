@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import, unicode_literals
 import os
 import logging.config
 
-from .environment import DEBUG
+from .environment import DEBUG, ENV_NAME
 
 
 ROLLBAR_TOKEN = os.environ.get("ROLLBAR_TOKEN")
@@ -28,7 +28,8 @@ LOGGING = {
             'level': 'WARNING',
             'class': 'rollbar.logger.RollbarHandler',
             'access_token': ROLLBAR_TOKEN,
-            'formatter': 'verbose'
+            'formatter': 'verbose',
+            'environment': ENV_NAME
         }
     },
     'loggers': {
