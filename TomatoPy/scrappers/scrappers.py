@@ -159,7 +159,7 @@ class TPBScrapper(TorrentProvider):
             tds = eachTorrent.find_all("td")
             item.seeds = int(tds[2].text)
             item.leeches = int(tds[3].text)
-            reg = re.compile(".* ([\d.]+).*?([BkKmMgG])(iB|.?).*")
+            reg = re.compile(".* (\d[\d.]*).*?([BkKmMgG])(iB|.?).*")
             m = reg.match(textTag.text)
             item.size = float(m.group(1))
             item.author = unicode(textTag.find(["a", "i"]).string)
