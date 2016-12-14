@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+import base64
 
 import transmissionrpc
 
@@ -61,7 +62,9 @@ class TransmissionTorrentRPC(TorrentManager):
             return False
 
     def add_torrent(self, torrent_file_path):
-        return
+        with open(torrent_file_path, "r") as f:
+            torrent_data = base64.b64encode(f.read())
+        return self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), True)
 
     def add_torrent_url(self, torrent_url):
         return self.build_torrent_object(self.torrentClient.add_torrent(torrent_url), True)
