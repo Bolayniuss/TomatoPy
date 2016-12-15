@@ -99,7 +99,7 @@ class TransmissionTorrentRPC(TorrentManager):
         # torrent.ratio = transmissionTorrent.uploadRatio
         # torrent.dlRate = transmissionTorrent.rateDownload
         # torrent.ulRate = transmissionTorrent.rateUpload
-        # torrent.isFinished = transmissionTorrent.percentDone == 1
+        # torrent.is_finished = transmissionTorrent.percentDone == 1
         if not mini:
             # torrent.eta = transmissionTorrent.eta
             torrent.size = transmission_torrent.totalSize

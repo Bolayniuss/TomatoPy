@@ -301,7 +301,7 @@ class TvShowManager(AutomatedActionsExecutor):
         episode_name = data[3]
         try:
             torrent = self.torrent_manager.get_torrent(hash_string)
-            if torrent.isFinished:
+            if torrent.is_finished:
                 pattern = tools.delete_bad_chars(episode_name)
                 pattern = pattern.replace(" ", ".")
                 filter_ = FileFilter(pattern, ["mkv", "avi", "mp4"])
