@@ -1,4 +1,5 @@
-__author__ = 'bolay'
+# -*- coding: utf8 -*-
+from __future__ import print_function, absolute_import, unicode_literals
 import json
 import logging
 import re
@@ -7,7 +8,7 @@ from base64 import b64encode
 from httplib import HTTPConnection
 from urllib import quote
 
-from constants import *
+from .constants import *
 
 #        uTorrent
 #

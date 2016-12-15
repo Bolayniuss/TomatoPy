@@ -77,6 +77,11 @@ class InterestingFile:
 
 class DoneTorrentFilter:
     def __init__(self, torrent_manager):
+        """
+
+        :param torrent_manager:
+        :type torrent_manager: TomatoPy.api.torrents._base.TorrentManager
+        """
         self.torrent_manager = torrent_manager
         self.filter = RFileFilter("avi|mkv|mp4|wmv")
         self.interesting_files = {}
@@ -86,26 +91,26 @@ class DoneTorrentFilter:
         sql = "SELECT * FROM `TrackedTorrentFiles`;"
         DatabaseManager.Instance().cursor.execute(sql)
         for res in DatabaseManager.Instance().cursor:
-            iF = InterestingFile.from_sql_query(res)
-            if iF is not None:
-                self.interesting_files[iF.name] = iF
+            interesting_file = InterestingFile.from_sql_query(res)
+            if interesting_file is not None:
+                self.interesting_files[interesting_file.name] = interesting_file
 
         # Get new from torrent manager
         torrents = self.torrent_manager.get_torrents()
         for torrent in torrents:
-            if torrent.isFinished:
-                torrentFiles = self.torrent_manager.get_torrent_files(torrent.hash)
+            if torrent.is_finished:
+                torrent_files = self.torrent_manager.get_torrent_files(torrent.hash)
                 # for each torrentFile in torrent
-                for f in torrentFiles:
-                    file = File(os.path.join(self.torrent_manager.downloadDirectory, f.name))
+                for f in torrent_files:
+                    file_ = File(os.path.join(self.torrent_manager.download_directory, f.name))
                     # if "file" is a valide file
-                    if self.filter.test(file):
+                    if self.filter.test(file_):
                         # if file exists
-                        if os.path.exists(file.fullPath):
-                            iF = InterestingFile(file.fullPath, torrent.hash, f.name)
-                            iF.insert_or_update_in_db()  # update timeout in any case
-                            if file.fullPath not in self.interesting_files:
-                                self.interesting_files[file.fullPath] = iF
+                        if os.path.exists(file_.fullPath):
+                            interesting_file = InterestingFile(file_.fullPath, torrent.hash, f.name)
+                            interesting_file.insert_or_update_in_db()  # update timeout in any case
+                            if file_.fullPath not in self.interesting_files:
+                                self.interesting_files[file_.fullPath] = interesting_file
                             sql = "INSERT INTO `TrackedTorrents` (`hash`, `name`, `torrentFile`, `magnet`) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE `hash`=VALUES(hash);"
                             t = TrackedTorrent.from_torrent(torrent)
                             DatabaseManager.Instance().cursor.execute(sql, (t.hash,
@@ -168,7 +173,7 @@ class Destination:
         self.path = path
         self.name = name
         self.files = {}
-        self.validInterestingFiles = []
+        self.valid_interesting_files = []
         self.filter = filter
 
         self.logger = logging.getLogger("Destination")
@@ -193,42 +198,43 @@ class Destination:
         self.files = {}
         curs = DatabaseManager.Instance().cursor
         if clean:
-            curs.execute("DELETE FROM DestinationsFilesList WHERE `destinationName`=%s;", (self.name,))
+            curs.execute("DELETE FROM DestinationsFilesList WHERE `destinationName`={};".format(self.name))
             DatabaseManager.Instance().connector.commit()
-        for root, dir, files in os.walk(self.path):
+        for root, directory, files in os.walk(self.path):
 
-            for file in files:
-                path = os.path.join(root, file)
-                relativePath = self.getRelativePath(path)
+            for file_ in files:
+                path = os.path.join(root, file_)
+                relative_path = self.getRelativePath(path)
                 if self.filter.test(File(path)):
                     fwh = None
                     if not clean:
                         sql = "SELECT * FROM DestinationsFilesList WHERE `path`=%s AND `destinationName`=%s LIMIT 1;"
-                        curs.execute(sql, (relativePath, self.name))
+                        curs.execute(sql, (relative_path, self.name))
                         res = curs.fetchone()
                         # curs.fetchall()
                         if res is not None:
                             # file already in DB, so use it
                             fwh = FileWithHash.from_sql_query(res)
                     if fwh is None:
-                        fwh = FileWithHash(path, self.name, None, relativePath)
+                        fwh = FileWithHash(path, self.name, None, relative_path)
                         sql2 = "INSERT INTO DestinationsFilesList (`hash`, `path`, `destinationName`) VALUES(%s, %s, %s);"
-                        # self.logger.info("%s add: %s", [self.name, relativePath]
-                        curs.execute(sql2, (fwh.hash, relativePath, fwh.destination_name))
+                        # self.logger.info("%s add: %s", [self.name, relative_path]
+                        curs.execute(sql2, (fwh.hash, relative_path, fwh.destination_name))
                         DatabaseManager.Instance().connector.commit()
                     self.files[fwh.hash] = fwh
 
-    def look_for_interesting_files(self, ifList):
+    def look_for_interesting_files(self, interesting_files):
         """
         Build the list of all interesting
-        :param ifList:
+        :param interesting_files:
+        :type interesting_files: dict of File
         :return:
         """
-        self.validInterestingFiles = []
-        for i, f in ifList.iteritems():
+        self.valid_interesting_files = []
+        for i, f in interesting_files.items():
             if f.hash in self.files:
                 self.logger.info("New interesting file : %s", f.name)
-                self.validInterestingFiles.append((f, self.files[f.hash]))
+                self.valid_interesting_files.append((f, self.files[f.hash]))
 
     @staticmethod
     def from_sql_query(query):

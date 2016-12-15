@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+from __future__ import print_function, absolute_import, unicode_literals
 import base64
 
 import transmissionrpc
@@ -30,17 +31,17 @@ class TransmissionTorrentRPC(TorrentManager):
         """
         files = {}
         try:
-            for j, _files in self.torrentClient.get_files(hash_).iteritems():
-                torrentFiles = []
-                for i, file in _files.iteritems():
-                    tFile = self.build_torrent_file_object(file)
-                    torrentFiles.append(tFile)
+            for j, _files in self.torrentClient.get_files(hash_).items():
+                torrent_files = []
+                for i, file in _files.items():
+                    torrent_file = self.build_torrent_file_object(file)
+                    torrent_files.append(torrent_file)
                 # break
-                files[j] = torrentFiles
+                files[j] = torrent_files
             if len(files) == 1:
-                return files[j]
+                return files[-1]
             return files
-        # return torrentFiles
+        # return torrent_files
 
         except KeyError as e:
             raise e
@@ -78,6 +79,7 @@ class TransmissionTorrentRPC(TorrentManager):
 
     def build_torrent_object(self, transmission_torrent, mini=False):
         """
+        :param mini:
         :type transmission_torrent Torrent
         :param transmission_torrent:
         :return:
@@ -107,15 +109,16 @@ class TransmissionTorrentRPC(TorrentManager):
             # torrent.totalSeeders = transmissionTorrent.seeders
             torrent.peers = transmission_torrent.peersGettingFromUs
             # torrent.totalPeers = transmissionTorrent.peersKnown
-            torrent.magnetLink = transmission_torrent.magnetLink
-            torrent.torrentFilePath = transmission_torrent.torrentFile
+            torrent.magnet_link = transmission_torrent.magnetLink
+            torrent.torrent_file_path = transmission_torrent.torrentFile
             torrent.ratio = transmission_torrent.uploadRatio
-            torrent.dlRate = transmission_torrent.rateDownload
-            torrent.ulRate = transmission_torrent.rateUpload
-            torrent.isFinished = transmission_torrent.percentDone == 1
+            torrent.download_rate = transmission_torrent.rateDownload
+            torrent.upload_rate = transmission_torrent.rateUpload
+            torrent.is_finished = transmission_torrent.percentDone == 1
         return torrent
 
-    def build_torrent_file_object(self, transmission_torrent_file):
+    @staticmethod
+    def build_torrent_file_object(transmission_torrent_file):
         # 'noDl'|'high'|'normal'|'low'
         name = transmission_torrent_file["name"]
         size = transmission_torrent_file["size"]

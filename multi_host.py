@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-# 
-__author__ = 'Michael Bolay'
+# -*- coding: utf8 -*-
+from __future__ import print_function, absolute_import, unicode_literals
 
 from urlparse import urlparse
 import time

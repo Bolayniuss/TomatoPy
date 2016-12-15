@@ -33,12 +33,12 @@ def get_hash(file_path, bloc_size_max=1000000):
 class FileSystemHelper:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.fsGroup = None
-        self.fsUser = None
+        self.fs_group = None
+        self.fs_user = None
 
     def set(self, fs_user=None, fs_group=None):
-        self.fsUser = fs_user
-        self.fsGroup = fs_group
+        self.fs_user = fs_user
+        self.fs_group = fs_group
 
     def move(self, source, destination):
         self.logger.info("move: %s to %s", source, destination)
@@ -52,8 +52,8 @@ class FileSystemHelper:
         shutil.move(source, destination)
         os.chmod(destination, 0777)
         try:
-            if self.fsUser is not None and self.fsGroup is not None:
-                os.chown(destination, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
+            if self.fs_user is not None and self.fs_group is not None:
+                os.chown(destination, pwd.getpwnam(self.fs_user).pw_uid, grp.getgrnam(self.fs_group).gr_gid)
         except KeyError as e:
             pass
         finally:
@@ -67,8 +67,8 @@ class FileSystemHelper:
         res = self.super_makedirs(head, mode)
         os.mkdir(path)
         os.chmod(path, mode)
-        if self.fsUser is not None and self.fsGroup is not None:
-            os.chown(path, pwd.getpwnam(self.fsUser).pw_uid, grp.getgrnam(self.fsGroup).gr_gid)
+        if self.fs_user is not None and self.fs_group is not None:
+            os.chown(path, pwd.getpwnam(self.fs_user).pw_uid, grp.getgrnam(self.fs_group).gr_gid)
         res += [path]
         return res
 

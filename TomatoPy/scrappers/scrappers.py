@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
-#
-import multi_host
+from __future__ import print_function, absolute_import, unicode_literals
 
 __author__ = 'bolay'
 
@@ -220,6 +219,85 @@ class KickAssTorrentScrapper(TorrentProvider):
         for selector in selectors:
 
             torrent = selector.parent.parent
+            item = TorrentItem()
+            item.link = torrent.find("a", href=re.compile(r"^magnet"))["href"]
+            item.title = unicode(torrent.find("a", class_="cellMainLink").text)
+            tds = torrent.find_all("td")
+            item.seeds = int(tds[4].text)
+            item.leeches = int(tds[5].text)
+            reg = re.compile("([\d.]+).*?([BkKmMgG])(iB|.?).*")
+            m = reg.match(tds[1].text)
+            item.size = float(m.group(1))
+
+            author = torrent.find("a", href=re.compile(r"^/user/"))
+            if author:
+                item.author = unicode(author.text)
+            prescaler = m.group(2).upper()
+
+            item.size *= prescaler_converter(prescaler)
+
+            if re.search(search_string, item.title, re.IGNORECASE) is not None:
+                self._torrentItems.append(item)
+
+
+class T411TorrentScrapper(TorrentProvider):
+    """
+    <tr>
+        <td valign="center">
+            <a href="/torrents/search/?subcat=433">
+                <i class="categories-icons category-spline-video-tv-series"></i>
+            </a>
+        </td>
+        <td valign="center">
+            <a href="//www.t411.li/torrents/un-village-franais-s06e06-hd-1080p-french-fb" title="Un.village.français.S06E06.HD.1080p.FRENCH.FB">Un.village.français.S06E06.HD.1080p.FRENCH.FB&nbsp;<span class="up">(A)</span></a>
+            <a href="#" class="switcher alignright"></a>
+                                <a href="http://www.xmediaserve.com/apu.php?n=&zoneid=16673&direct=1&lcat=download&q=Un.village.fran%C3%A7ais.S06E06.HD.1080p.FRENCH.FB"><img src="http://i.imgur.com/wbD6VXb.png" alt="" /></a>
+                                            <dl>
+                <dt>Ajout&#233; le:</dt>
+                <dd>2015-10-11 14:19:42 (+00:00)</dd>
+                <dt>Ajout&#233; par:</dt>
+                <dd><a href="/users/profile/GCDomlol86" title="GCDomlol86" class="profile">GCDomlol86</a></dd>
+                <dt>Status:</dt>
+                <dd><strong class="up">BON</strong> &mdash; Ce torrent est actif (<strong>77</strong> seeders et <strong>0</strong> leechers) et devrait &#281;tre t&#233;l&#233;charg&#233; rapidement</dd>
+            </dl>
+        </td>
+        <td>
+            <a href="/torrents/nfo/?id=5390527" class="ajax nfo"></a>
+        </td>
+        <td align="center">9</td>
+        <td align="center">1 an</td>
+        <td align="center">2.02 GB</td>
+        <td align="center">1782</td>
+        <td align="center" class="up">77</td>
+        <td align="center" class="down">0</td>
+    </tr>
+    """
+
+    host = "https://www.t411.li"
+
+    login_url = "/users/login/"
+    search_url = "/torrents/search/"     # GET search=str, cat=210, name=un+village+français, user=uploader, &order=seeders&type=desc
+    download_url = "/torrents/download/"  # GET id=id
+
+    def __init__(self, user, password):
+        super(T411TorrentScrapper, self).__init__()
+        self.logger = logging.getLogger(__name__)
+
+    def parse(self, data, search_string):
+        """
+
+        """
+
+        search_string = r"^" + search_string + r"[\s+]"
+
+        soup = bs4.BeautifulSoup(data)
+
+        results = soup.table(class_="results")
+        selectors = results.select("tr")
+
+        #self.logger.debug("%s", selectors)
+
+        for torrent in selectors:
             item = TorrentItem()
             item.link = torrent.find("a", href=re.compile(r"^magnet"))["href"]
             item.title = unicode(torrent.find("a", class_="cellMainLink").text)

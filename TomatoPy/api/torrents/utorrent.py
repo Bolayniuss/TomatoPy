@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+from __future__ import print_function, absolute_import, unicode_literals
 
 import logging
 
@@ -34,10 +35,10 @@ class UTorrentRPC(TorrentManager):
 
         :rtype: list[TorrentRPC.TorrentObject]
         """
-        rawTorrents = self.client.webui_ls()
+        raw_torrents = self.client.webui_ls()
         torrents = []
         self.torrents.clear()
-        for rawTorrent in rawTorrents:
+        for rawTorrent in raw_torrents:
             t = self.build_torrent_object(rawTorrent)
             self.torrents[t.hash] = t
             torrents.append(t)
@@ -60,10 +61,10 @@ class UTorrentRPC(TorrentManager):
                 files.append(self.get_torrent_files(hash2))
             return files
 
-        rawFiles = self.client.getTorrentFiles(hash_)
+        raw_files = self.client.getTorrentFiles(hash_)
         files = []
-        for rawFile in rawFiles:
-            files.append(self.build_torrent_file_object(rawFile))
+        for raw_file in raw_files:
+            files.append(self.build_torrent_file_object(raw_file))
         return files
 
     def add_torrent_url(self, torrent_url):
@@ -163,15 +164,15 @@ class UTorrentRPC(TorrentManager):
         torrent.downloaded = utorrent_torrent[5]  # downloadedEver	TORRENT_DOWNLOADED: 5
         torrent.uploaded = utorrent_torrent[6]  # uploadedEver	TORRENT_UPLOADED: 6
         torrent.seeders = utorrent_torrent[14]  # peersSendingToUs	TORRENT_SEEDS_CONNECTED: 14
-        torrent.totalSeeders = utorrent_torrent[15]  # seeders	TORRENT_SEEDS_SWARM: 15
+        torrent.total_seeders = utorrent_torrent[15]  # seeders	TORRENT_SEEDS_SWARM: 15
         torrent.peers = utorrent_torrent[12]  # peersGettingFromUs	TORRENT_PEERS_CONNECTED: 12
-        torrent.totalPeers = utorrent_torrent[13]  # peersKnown	TORRENT_PEERS_SWARM: 13
-        torrent.magnetLink = None  # magnetLink	create from torrent file
-        torrent.torrentFilePath = ""  # torrentFile	/(dl dir)/_torrent_file/(torrentName).torrent
+        torrent.total_peers = utorrent_torrent[13]  # peersKnown	TORRENT_PEERS_SWARM: 13
+        torrent.magnet_link = None  # magnetLink	create from torrent file
+        torrent.torrent_file_path = ""  # torrentFile	/(dl dir)/_torrent_file/(torrentName).torrent
         torrent.ratio = utorrent_torrent[7]  # uploadRatio	TORRENT_RATIO: 7
-        torrent.dlRate = utorrent_torrent[9]  # rateDownload (bps)	TORRENT_DOWNSPEED: 9
-        torrent.ulRate = utorrent_torrent[8]  # rateUpload (bps)	TORRENT_UPSPEED: 8
-        torrent.isFinished = utorrent_torrent[4] >= 1000  # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000
+        torrent.download_rate = utorrent_torrent[9]  # rateDownload (bps)	TORRENT_DOWNSPEED: 9
+        torrent.upload_rate = utorrent_torrent[8]  # rateUpload (bps)	TORRENT_UPSPEED: 8
+        torrent.is_finished = utorrent_torrent[4] >= 1000  # percentDone == 1	(TORRENT_PROGRESS: 4) == 1'000
 
         return torrent
 

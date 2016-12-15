@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
-#
-__author__ = 'bolay'
+from __future__ import print_function, absolute_import, unicode_literals
 
 import re
 
