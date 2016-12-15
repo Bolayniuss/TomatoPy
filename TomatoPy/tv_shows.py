@@ -18,37 +18,33 @@ from kodi_api import XbmcLibraryManager
 from notifications import NotificationManager, Expiration
 
 
-class TrackedTvShow:
-    def __init__(self, title, torrentFilter, searchString=""):
+class TrackedTvShow(object):
+    def __init__(self, title, torrent_filter, search_string=""):
         self.title = title
-        self.torrentFilter = torrentFilter
-        self.searchString = searchString
-        if not self.searchString:
-            self.searchString = self.title
+        self.torrent_filter = torrent_filter
+        self.search_string = search_string
+        if not self.search_string:
+            self.search_string = self.title
 
 
 class TrackedEpisode(EpisodeItem):
-    def __init__(self, episodeItem, trackedTvShow):
+    def __init__(self, episode_item, tracked_tv_show):
         """
 
-        :param episodeItem:
-        :param trackedTvShow:
-        :type episodeItem: EpisodeItem
-        :type trackedTvShow: TrackedTvShow
+        :param episode_item:
+        :param tracked_tv_show:
+        :type episode_item: EpisodeItem
+        :type tracked_tv_show: TrackedTvShow
         :return:
         """
 
-        super(TrackedEpisode, self).__init__(title=episodeItem.title,
-                                             tvShow=episodeItem.tvShow,
-                                             season=episodeItem.season,
-                                             episodeNumber=episodeItem.episodeNumber,
-                                             torrentItem=episodeItem.torrentItem)
-        # self.tvShow = episodeItem.tvShow
-        # self.title = episodeItem.title
-        # self.episodeNumber = episodeItem.episodeNumber
-        # self.season = episodeItem.season
+        super(TrackedEpisode, self).__init__(title=episode_item.title,
+                                             tv_show=episode_item.tv_show,
+                                             season=episode_item.season,
+                                             episode_number=episode_item.episode_number,
+                                             torrent_item=episode_item.torrent_item)
 
-        self.trackedTvShow = trackedTvShow
+        self.tracked_tv_show = tracked_tv_show
 
 
 class TvShowManager(AutomatedActionsExecutor):
@@ -62,52 +58,51 @@ class TvShowManager(AutomatedActionsExecutor):
         - update XBMC library if needed
     """
 
-    def __init__(self, torrentManager):
+    def __init__(self, torrent_manager):
         super(TvShowManager, self).__init__("TvShowManager")
 
         self.logger = logging.getLogger("TvShowManager")
 
         dbm = DatabaseManager.Instance()
-        self.torrentManager = torrentManager
+        self.torrent_manager = torrent_manager
 
-        self.trackedTvShows = []  # tv shows that can be downloaded // Get them form db
+        self.tracked_tv_shows = []  # tv shows that can be downloaded // Get them form db
 
         query = "SELECT parameters FROM Parameters WHERE name='TvShowManager' LIMIT 1"
         dbm.cursor.execute(query)
         (parametersString,) = dbm.cursor.fetchone()
         parameters = parametersString.split("&&")
-        self.bUser = parameters[1]
-        self.tvShowDirectory = u"" + parameters[0]
-        self.fileSystemEncoding = None
+        self.beta_user = parameters[1]
+        self.tv_show_directory = u"" + parameters[0]
+        self.file_system_encoding = None
         if len(parameters) > 2:
-            self.fileSystemEncoding = parameters[2]
+            self.file_system_encoding = parameters[2]
 
         query = "SELECT title, filter, authorFilter, sizeLimits, episodeProviderSearchString FROM TrackedTvShows;"
         dbm.cursor.execute(query)
 
-        for (title, nameFilter, authorFilter, sizeLimits, searchString) in dbm.cursor:
+        for (title, name_filter, author_filter, size_limits, search_string) in dbm.cursor:
             sizes = {}
-            sizeLimits = sizeLimits.split(":")
-            if len(sizeLimits[0]) > 0:
-                sizes["gt"] = int(sizeLimits[0])
-            if len(sizeLimits) > 1:
-                if len(sizeLimits[1]) > 0:
-                    sizes["lt"] = int(sizeLimits[1])
-            filter_ = TorrentFilter(nameFilter.split(":"), authorFilter, sizes)
-            self.trackedTvShows.append(TrackedTvShow(title, filter_, searchString))
+            size_limits = size_limits.split(":")
+            if len(size_limits[0]) > 0:
+                sizes["gt"] = int(size_limits[0])
+            if len(size_limits) > 1:
+                if len(size_limits[1]) > 0:
+                    sizes["lt"] = int(size_limits[1])
+            filter_ = TorrentFilter(name_filter.split(":"), author_filter, sizes)
+            self.tracked_tv_shows.append(TrackedTvShow(title, filter_, search_string))
         dbm.connector.commit()
 
         # TODO: Change
-        self.registeredEpisodeProviders = [BetaserieRSSScrapper(self.bUser)]
-        self.registeredTorrentProviders = [TPBScrapper()]
-        # self.registeredTorrentProviders = [TPBScrapper(), KickAssTorrentScrapper()]
+        self.registered_episode_providers = [BetaserieRSSScrapper(self.beta_user)]
+        self.registered_torrent_providers = [TPBScrapper()]
 
-        self.directoryMapper = DirectoryMapper(self.tvShowDirectory, r"(.*)\.(mkv|avi|mp4|wmv)$",
-                                               self.fileSystemEncoding)
+        self.directory_mapper = DirectoryMapper(self.tv_show_directory, r"(.*)\.(mkv|avi|mp4|wmv)$",
+                                                self.file_system_encoding)
 
         self.load_actions()
 
-    def getTrackedTvShow(self, episode):
+    def get_tracked_tv_show(self, episode):
         """
         Returns the associate tracked tv show if it exists, otherwise return None
         :param episode: the episode to test
@@ -115,13 +110,13 @@ class TvShowManager(AutomatedActionsExecutor):
         :return: The associate tracked tv show if exists, otherwise return None
         :rtype: TrackedTvShow
         """
-        if episode.tvShow:
-            for trackedTvShow in self.trackedTvShows:
-                if episode.tvShow.lower() == trackedTvShow.title.lower():
-                    return trackedTvShow
+        if episode.tv_show:
+            for tracked_tv_show in self.tracked_tv_shows:
+                if episode.tv_show.lower() == tracked_tv_show.title.lower():
+                    return tracked_tv_show
         return None
 
-    def getNewEpisodes(self):
+    def get_new_episodes(self):
         """
         Returns a list of episodes ready to download
         :return: a list of episodes ready to download
@@ -130,33 +125,33 @@ class TvShowManager(AutomatedActionsExecutor):
         # TODO: move content of first "for loop" in EpisodeProvider.getNewEpisode(trackedTvShows). Keep verification on torrent manager
         # TODO: move deleteBadChars to Tools module
         episodes = []
-        for episodeProvider in self.registeredEpisodeProviders:
+        for episode_provider in self.registered_episode_providers:
             try:
-                episode_provided = episodeProvider.getEpisodes()
+                episode_provided = episode_provider.get_episodes()
                 for episode in episode_provided:
                     added = False
                     for e in episodes:
-                        if e.tvShow == episode.tvShow and e.season == episode.season and e.episodeNumber == episode.episodeNumber:
+                        if e.tv_show == episode.tv_show and e.season == episode.season and e.episode_number == episode.episode_number:
                             added = True
                             break
                     if not added:
                         # self.logger.debug("Episode : %s (%s)", episode.title, episode.tvShow)
 
-                        trackedTvShow = self.getTrackedTvShow(episode)
-                        if trackedTvShow:
+                        tracked_tv_show = self.get_tracked_tv_show(episode)
+                        if tracked_tv_show:
                             # self.logger.debug("is in tracked tv shows")
 
-                            if not self.directoryMapper.file_exists(episode.title):
+                            if not self.directory_mapper.file_exists(episode.title):
                                 # self.logger.debug("%s ,is not in source directory", episode.title)
 
-                                torrentSearchString = "%s S%02dE%02d" % (
-                                    trackedTvShow.searchString, episode.season, episode.episodeNumber)
-                                pattern = tools.delete_bad_chars(torrentSearchString)
+                                torrent_search_string = "%s S%02dE%02d" % (
+                                    tracked_tv_show.search_string, episode.season, episode.episode_number)
+                                pattern = tools.delete_bad_chars(torrent_search_string)
                                 pattern = pattern.replace(" ", ".*")
-                                if not self.torrentManager.search_in_torrents(pattern):
+                                if not self.torrent_manager.search_in_torrents(pattern):
                                     # self.logger.debug("%s doesn't exists in torrentManager.torrents", episode.title)
 
-                                    episodes.append(TrackedEpisode(episode, trackedTvShow))
+                                    episodes.append(TrackedEpisode(episode, tracked_tv_show))
                                     self.logger.info("%s flagged as new.", episode.title)
                                 else:
                                     self.logger.debug("%s not added, already in the downloads list.", episode.title)
@@ -170,130 +165,152 @@ class TvShowManager(AutomatedActionsExecutor):
                 self.logger.exception("Error while getting new episodes")
         return episodes
 
-    def addNewToTorrentManager(self, episodes=None):
+    def add_new_to_torrent_manager(self, episodes=None):
+        """
+        :param episodes:
+        :type episodes: list of TrackedEpisode
+        :return:
+        """
         if not episodes:
-            episodes = self.getNewEpisodes()
+            episodes = self.get_new_episodes()
         self.logger.info("Episodes ready for download:")
         for episode in episodes:
-            torrentItems = []
-            if episode.torrentProvided:
-                torrentItems.append(episode.torrentItem)
+            torrent_items = []
+            if episode.torrent_provided:
+                torrent_items.append(episode.torrent_item)
             else:
-                for torrentProvider in self.registeredTorrentProviders:
-                    torrentSearchString = "%s S%02dE%02d" % (
-                        episode.trackedTvShow.searchString, episode.season, episode.episodeNumber)
-                    torrentItems = torrentProvider.getTorrents(torrentSearchString, episode.trackedTvShow.torrentFilter)
-                    if torrentItems:
+                for torrentProvider in self.registered_torrent_providers:
+                    torrent_search_string = "%s S%02dE%02d" % (
+                        episode.tracked_tv_show.search_string, episode.season, episode.episode_number)
+                    torrent_items = torrentProvider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
+                    if torrent_items:
                         break
 
-            if len(torrentItems) > 0:
-                newTorrent = self.torrentManager.add_torrent_url(torrentItems[0].link)
-                if newTorrent:
-                    self.addAutomatedActions(newTorrent.hash, episode.trackedTvShow.title, episode.title)
+            if len(torrent_items) > 0:
+                new_torrent = self.torrent_manager.add_torrent_url(torrent_items[0].link)
+                if new_torrent:
+                    self.add_automated_actions(new_torrent.hash, episode.tracked_tv_show.title, episode.title)
                     self.logger.info("New torrent added for episode %s", episode.title)
-                    NotificationManager.Instance().addNotification(episode.title, "TvShowManager: New",
-                                                                   Expiration(weeks=4))
+                    NotificationManager.Instance().add_notification(
+                        episode.title,
+                        "TvShowManager: New",
+                        Expiration(weeks=4)
+                    )
                 else:
                     self.logger.info("No torrent added for %s", episode.title)
-                    NotificationManager.Instance().addNotification("Unable to add %s to TM" % episode.title,
-                                                                   "TvShowManager: Error", Expiration())
+                    NotificationManager.Instance().add_notification(
+                        "Unable to add %s to TM" % episode.title,
+                        "TvShowManager: Error",
+                        Expiration()
+                    )
             else:
-                NotificationManager.Instance().addNotification("No torrent found for %s" % episode.title,
-                                                               "TvShowManager: Error", Expiration())
+                NotificationManager.Instance().add_notification(
+                    "No torrent found for %s" % episode.title,
+                    "TvShowManager: Error", Expiration()
+                )
                 self.logger.info("No torrent found for %s", episode.title)
 
-    def addAutomatedActions(self, torrentId, tvShow, episodeName):
-        self.logger.debug("addAutomatedActions | new (%s, %s, %s)", torrentId, tvShow, episodeName)
-        query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', %s);"
-        data = "&&".join(["move", torrentId, tvShow, episodeName])
+    def add_automated_actions(self, torrent_id, tv_show, episode_name):
+        self.logger.debug("addAutomatedActions | new (%s, %s, %s)", torrent_id, tv_show, episode_name)
+        data = "&&".join(["move", torrent_id, tv_show, episode_name])
+        query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', {});".format(data)
         self.logger.info("add automated action, quest=%s, data=%s", query, data)
-        DatabaseManager.Instance().cursor.execute(query, (data,))
+        DatabaseManager.Instance().cursor.execute(query)
         DatabaseManager.Instance().connector.commit()
 
-    def getEpisodeFinalPath(self, file_, tvShow, episodeName):
+    def get_episode_final_path(self, file_, tv_show, episode_name):
         """
         :param file_: file to move
         :type file_ : FileItem
-        :param tvShow: tv show name
-        :type tvShow: unicode
-        :param episodeName: episode name (e.g. {tvShow} S01E01)
-        :type episodeName: unicode
+        :param tv_show: tv show name
+        :type tv_show: unicode
+        :param episode_name: episode name (e.g. {tvShow} S01E01)
+        :type episode_name: unicode
         :return: The final destination path for this episode
         :rtype: unicode
         """
 
-        season = self.getSeasonFromTitle(episodeName)
-        dst = os.path.join(self.tvShowDirectory, tvShow, "Saison " + season, episodeName + "." + file_.extension)
+        season = self.get_season_from_title(episode_name)
+        dst = os.path.join(
+            self.tv_show_directory,
+            tv_show,
+            "Saison %d" % season,
+            "%s.%s" % (episode_name, file_.extension)
+        )
         return dst
 
-    def getTvShowFileFromTorrent(self, torrent, filter_):
+    def get_tv_show_file_from_torrent(self, torrent, filter_):
         """
         :param torrent:
         :type torrent: TorrentObject
         :param filter_:
         :type filter_: FileFilter
+        :rtype FileItem:
         """
-        files = self.torrentManager.get_torrent_files(torrent.hash)
-        rarFilter = FileFilter(".*", ["rar"])
-        validFiles = []
+        files = self.torrent_manager.get_torrent_files(torrent.hash)
+        rar_filter = FileFilter(".*", ["rar"])
+        valid_files = []
         for file_ in files:
-            fileItem = FileItem.from_filename(file_.name, "")
-            if filter_.test(fileItem):
-                validFiles.append(file_)
-            elif rarFilter.test(fileItem):
-                extractedFile = self.extractFromRar(filter_,
-                                                    self.torrentManager.get_torrent_file_path(torrent.name, file_.name))
-                if extractedFile is not None:
-                    validFiles.append(extractedFile)
+            file_item = FileItem.from_filename(file_.name, "")
+            if filter_.test(file_item):
+                valid_files.append(file_)
+            elif rar_filter.test(file_item):
+                extracted_file = self.extract_from_rar(
+                    filter_,
+                    self.torrent_manager.get_torrent_file_path(torrent.name, file_.name)
+                )
+                if extracted_file is not None:
+                    valid_files.append(extracted_file)
 
-        if len(validFiles) == 0:
+        if len(valid_files) == 0:
             # TODO: Make filter parameter "extensions" not hardcoded
-            mediaFilter = FileFilter(".*", ["mkv", "mp4", "avi"])
+            media_filter = FileFilter(".*", ["mkv", "mp4", "avi"])
             for file_ in files:
-                if mediaFilter.test(FileItem.from_filename(file_.name, "")):
-                    validFiles.append(file_)
-        if len(validFiles) == 0:
+                if media_filter.test(FileItem.from_filename(file_.name, "")):
+                    valid_files.append(file_)
+        if len(valid_files) == 0:
             self.logger.info("No valid files found")
             return None
         id_ = 0
         i = 1
-        while i < len(validFiles):
-            if validFiles[i].size > validFiles[id_].size:
+        while i < len(valid_files):
+            if valid_files[i].size > valid_files[id_].size:
                 id_ = i
             i += 1
-        self.logger.debug("validFile id_=%d, name=%s", id_, validFiles[id_].name)
+        self.logger.debug("validFile id_=%d, name=%s", id_, valid_files[id_].name)
         try:
-            completePath = self.torrentManager.get_torrent_file_path(torrent.name, validFiles[id_].name)
-        except IOError, e:
-            raise e
-        file_ = FileItem.from_complete_path(completePath)
+            complete_path = self.torrent_manager.get_torrent_file_path(torrent.name, valid_files[id_].name)
+        except IOError as e:
+            raise
+        file_ = FileItem.from_complete_path(complete_path)
         return file_
 
-    def executeAction(self, actionData):
+    def execute_action(self, action_data):
         """
         Execute generic action
 
-        :param list actionData: list
-        :return bool: success
+        :param list action_data: list
+        :return: success
+        :rtype bool:
         """
-        data = actionData
+        data = action_data
 
-        hashString = data[1]
-        tvShow = data[2]
-        episodeName = data[3]
+        hash_string = data[1]
+        tv_show = data[2]
+        episode_name = data[3]
         try:
-            torrent = self.torrentManager.get_torrent(hashString)
+            torrent = self.torrent_manager.get_torrent(hash_string)
             if torrent.isFinished:
-                pattern = tools.delete_bad_chars(episodeName)
+                pattern = tools.delete_bad_chars(episode_name)
                 pattern = pattern.replace(" ", ".")
                 filter_ = FileFilter(pattern, ["mkv", "avi", "mp4"])
                 if data[0] == "move":
                     self.logger.info("move action")
                     try:
-                        file_to_move = self.getTvShowFileFromTorrent(torrent, filter_)
+                        file_to_move = self.get_tv_show_file_from_torrent(torrent, filter_)
                         if file_to_move:
                             success = False
-                            destination_path = self.getEpisodeFinalPath(file_to_move, tvShow, episodeName)
+                            destination_path = self.get_episode_final_path(file_to_move, tv_show, episode_name)
                             source_file_path = file_to_move.get_full_path()
                             self.logger.info("try to move %s* to %s", source_file_path, destination_path)
                             if len(source_file_path) > 0:
@@ -305,63 +322,58 @@ class TvShowManager(AutomatedActionsExecutor):
                                     tools.PathSubstitution.Instance().substitute(os.path.dirname(os.path.dirname(destination_path)))
                                 )
                                 self.logger.info("delete associated torrent")
-                                self.torrentManager.remove_torrent(hashString, True)
-                                NotificationManager.Instance().addNotification(
+                                self.torrent_manager.remove_torrent(hash_string, True)
+                                NotificationManager.Instance().add_notification(
                                     torrent.name,
                                     "TvShowManager: Done", Expiration(weeks=4)
                                 )
                                 return True
                             # else
                             self.logger.warn("Failed to move %s", torrent.name)
-                            NotificationManager.Instance().addNotification(
+                            NotificationManager.Instance().add_notification(
                                 "Move failure in %s" % torrent.name,
                                 "TvShowManager: Errors", Expiration()
                             )
                         else:
                             self.logger.warn("No valid file found in %s", torrent.name)
-                            NotificationManager.Instance().addNotification(
+                            NotificationManager.Instance().add_notification(
                                 "No valid file found in %s" % torrent.name,
                                 "TvShowManager: Errors", Expiration()
                             )
                         return False
                     except IOError:
                         self.logger.error("error while moving file, file does not exists.")
-                        NotificationManager.Instance().addNotification(
+                        NotificationManager.Instance().add_notification(
                             "File doesn't exists %s" % torrent.name,
                             "TvShowManager: Errors", Expiration()
                         )
             else:
                 self.logger.info("Torrent %s isn't yet finished", torrent.name)
-                prc = 0
-                try:
-                    prc = float(torrent.downloaded) / torrent.size
-                except Exception:
-                    pass
-                NotificationManager.Instance().addNotification(
+                prc = 0 if not torrent.size else float(torrent.downloaded) / torrent.size
+                NotificationManager.Instance().add_notification(
                     "%s %s" % ('{0:.0%}'.format(prc), torrent.name),
                     "TvShowManager: Downloading", Expiration()
                 )
                 return False
         except:
-            self.logger.exception("Error while executing action %s", actionData)
+            self.logger.exception("Error while executing action %s", action_data)
         finally:
             pass
         return False
 
-    def executeOnTorrentDownloadedActions(self):
+    def execute_on_torrent_downloaded_actions(self):
         """
         Execute onTorrentDownloaded action
         """
         curs = DatabaseManager.Instance().cursor
-        # query = "SELECT id, data FROM AutomatedActions WHERE `trigger`='onTorrentDownloaded' AND notifier='TvShowManager';"
-        # curs.execute(query)
+        # "SELECT id, data FROM AutomatedActions WHERE `trigger`='onTorrentDownloaded' AND notifier='TvShowManager';"
         actions = self.actions["onTorrentDownloaded"]
         for a in curs:
             actions.append(a)
-        for id_, data in actions.iteritems():
+        for id_, data in actions.items():
             try:
                 self.logger.info("try to execute action id=%d", id_)
-                success = self.executeAction(data)
+                success = self.execute_action(data)
                 self.logger.info("action (id=%d) result=%d", id_, success)
                 delete = success
             except KeyError:
@@ -372,11 +384,11 @@ class TvShowManager(AutomatedActionsExecutor):
 
             if delete:
                 self.logger.info("remove action with id=%d", id_)
-                delQuery = "DELETE FROM AutomatedActions WHERE id=%s;"
-                curs.execute(delQuery, (id_,))
+                delete_query = "DELETE FROM AutomatedActions WHERE id={};".format(id_)
+                curs.execute(delete_query)
                 DatabaseManager.Instance().connector.commit()
 
-    def extractFromRar(self, filter_, file_):
+    def extract_from_rar(self, filter_, file_):
         """
         Extract valid files from RAR file
         :param filter_: valid file filter
@@ -384,32 +396,33 @@ class TvShowManager(AutomatedActionsExecutor):
         :param file_: rar file path
         :type file_: unicode
         """
-        possibleFiles = []
+        possible_files = []
         rar = rarfile.RarFile(file_)
         for f in rar.infolist():
             if filter_.test(FileItem.from_filename(f.filename, "")):
-                possibleFiles.append(f)
-        if len(possibleFiles) != 0:
-            theFile = possibleFiles[0]
-            for f in possibleFiles:
-                if f.file_size > theFile.file_size:
-                    theFile = f
-            rar.extract(theFile, os.path.split(file_)[0])
-            self.logger.info("extract file, %s --- %s from rar, %s", os.path.split(file_)[0], theFile.filename, file_)
-            fakeTorrentFile = TorrentFile()
-            fakeTorrentFile.name = theFile.filename
-            fakeTorrentFile.size = theFile.file_size
-            return fakeTorrentFile
+                possible_files.append(f)
+        if len(possible_files) != 0:
+            the_file = possible_files[0]
+            for f in possible_files:
+                if f.file_size > the_file.file_size:
+                    the_file = f
+            rar.extract(the_file, os.path.split(file_)[0])
+            self.logger.info("extract file, %s --- %s from rar, %s", os.path.split(file_)[0], the_file.filename, file_)
+            fake_torrent_file = TorrentFile()
+            fake_torrent_file.name = the_file.filename
+            fake_torrent_file.size = the_file.file_size
+            return fake_torrent_file
         return None
 
     @staticmethod
-    def getSeasonFromTitle(title):
+    def get_season_from_title(title):
         """
         Static method to get tv show season number from file name (title)
         :param title:
         :type title: unicode
+        :rtype: int or None
         """
         res = re.match(r".*S0?(\d+)E.*", title, re.IGNORECASE)
         if res is not None:
-            return res.group(1)
+            return int(res.group(1))
         return None

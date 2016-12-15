@@ -119,14 +119,14 @@ class ReplicatorManager(AutomatedActionsExecutor):
                             XbmcLibraryManager.Instance().scan_video_library()
                         self.logger.info("delete associated torrent")
                         self.torrent_manager.remove_torrent(hash_string, True)
-                        NotificationManager.Instance().addNotification(
+                        NotificationManager.Instance().add_notification(
                             torrent.name,
                             "Replicator: Done",
                             Expiration(weeks=4)
                         )
                     else:
                         self.logger.error("failed to move %s", torrent.name)
-                        NotificationManager.Instance().addNotification(
+                        NotificationManager.Instance().add_notification(
                             "Move error on %s" % torrent.name,
                             "Replicator: Errors", Expiration(weeks=4)
                         )
@@ -138,7 +138,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
                         prc = float(torrent.downloaded) / torrent.size
                     except Exception:
                         pass
-                    NotificationManager.Instance().addNotification(
+                    NotificationManager.Instance().add_notification(
                         "%s %s" % ('{0:.0%}'.format(prc), torrent.name),
                         "Replicator: Downloading", Expiration()
                     )
@@ -148,11 +148,8 @@ class ReplicatorManager(AutomatedActionsExecutor):
         return False
 
     def execute_on_torrent_downloaded_actions(self):
-        # print self.actions
         curs = DatabaseManager.Instance().cursor
         actions = self.actions["onTorrentDownloaded"]
-        # for a in curs:
-        #	actions.append(a)
         for id_, data in actions.items():
             try:
                 self.logger.info("try to execute action id=%d", id_)

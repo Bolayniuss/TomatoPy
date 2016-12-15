@@ -42,7 +42,7 @@ class MultiHostHandler(object):
 
         self.hosts = {}
 
-    def openURL(self, url, timeout):
+    def open_url(self, url, timeout):
         parsed_url = urlparse(url)
         if not parsed_url.scheme:
             parsed_url.scheme = "http"
@@ -52,9 +52,9 @@ class MultiHostHandler(object):
         else:
             raise MultiHostHandlerException(parsed_url.hostname)
 
-    def registerMultiHost(self, hostname, extraHosts):
+    def register_multi_host(self, hostname, extra_hosts):
         if not self.hosts.get(hostname):
-            self.hosts[hostname] = MultiHost(hostname, extraHosts)
+            self.hosts[hostname] = MultiHost(hostname, extra_hosts)
 
 
 class Host(object):
@@ -109,8 +109,8 @@ class MultiHost(object):
 
         self.original = original_host
         self.hosts = [Host(original_host)]
-        for extraHost in extra_hosts:
-            self.hosts.append(Host(extraHost))
+        for extra_host in extra_hosts:
+            self.hosts.append(Host(extra_host))
 
     def open_path(self, path, scheme="http", timeout=10):
         do_sort = False

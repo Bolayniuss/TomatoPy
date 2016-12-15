@@ -28,6 +28,7 @@ class FileItem(SourceMapperItem):
         """
         :type filename: str
         :type path: str
+        :rtype: FileItem
         """
         try:
             p = filename.rindex(".")
@@ -73,15 +74,14 @@ class DirectoryMapper:
                     self.indexedFiles[key].append(item)
 
     def file_exists(self, file_):
+        """
+        :param file_:
+        :rtype: bool
+        """
         lowered_file = file_.lower()
         key = lowered_file[0]
         if key in self.indexedFiles:
             for item in self.indexedFiles[key]:
                 if item.name.lower() == lowered_file:
-                    #print "debug: files for key=", key, "file=", lowered_file
-                    #for e in self.indexedFiles[key]:
-                    #    print "\t", e.name.lower()
-                    #print ""
-                    #print "\t", item.name.lower(), "==", lowered_file
                     return True
         return False
