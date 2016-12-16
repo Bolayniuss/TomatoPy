@@ -53,7 +53,7 @@ class TorrentItem(object):
         :param is_magnet_link:
         :param author:
         :param title:
-        :param TomatoPy.api.torrents.TorrentContent content:
+        :param TomatoPy.api.torrents.TorrentContent or object content:
         """
         self.url = url
         self.name = name
@@ -66,7 +66,21 @@ class TorrentItem(object):
         self.author = author
         self.title = title
 
-        self.content = content
+        self._content = content
+        self._cashed_content = None
+
+    @property
+    def content(self):
+        if callable(self._content):
+            if self._cashed_content:
+                return self._cashed_content
+            self._cashed_content = self._content()
+            return self._cashed_content
+        return self._content
+
+    @content.setter
+    def content(self, value):
+        self._content = value
 
     def __unicode__(self):
         return "%s [%s](%s), s:%d, l:%d" % (self.title, self.author, self.size, self.seeds, self.leeches,)

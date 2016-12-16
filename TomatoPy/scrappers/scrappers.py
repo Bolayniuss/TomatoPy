@@ -301,7 +301,6 @@ class T411Scrapper(TorrentProvider):
         self._torrentItems = []
         source = None
 
-        clean_search_string = re.sub(r" ", "+", search_string)
         try:
             params = dict(
                 search=urllib.quote_plus(search_string),
@@ -350,16 +349,17 @@ class T411Scrapper(TorrentProvider):
 
             if re.search(search_string, item.title, re.IGNORECASE) is not None:
                 # get torrent
-                resp = self.session.get(url=self.host + self.download_url, params=dict(id=t411_id))
-                if resp.ok:
-                    torrent_data = resp.content
+                def content_getter():
+                    resp = self.session.get(url=self.host + self.download_url, params=dict(id=t411_id))
+                    if resp.ok:
+                        torrent_data = resp.content
 
-                    # convert to magnet
-                    magnet = magnet_from_data(torrent_data)
-                    item.link = magnet
-                    item.content = TorrentContent(torrent_data, ctype=TorrentContent.TYPE_DATA),
-
-                    self._torrentItems.append(item)
+                        # convert to magnet
+                        magnet = magnet_from_data(torrent_data)
+                        item.link = magnet
+                        return TorrentContent(torrent_data, ctype=TorrentContent.TYPE_DATA)
+                item.content = content_getter
+                self._torrentItems.append(item)
 
 
 class BetaserieRSSScrapper(EpisodesProvider):
