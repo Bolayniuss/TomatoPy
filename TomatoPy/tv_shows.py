@@ -188,7 +188,7 @@ class TvShowManager(AutomatedActionsExecutor):
             else:
                 provider_name = episode.tracked_tv_show.preferred_torrent_provider or DEFAULT_TORRENT_PROVIDER
 
-                torrent_providers = [self.registered_torrent_providers[provider_name]] + [v for k, v in self.registered_torrent_providers if k != provider_name]
+                torrent_providers = [self.registered_torrent_providers[provider_name]] + [v for k, v in self.registered_torrent_providers.items()if k != provider_name]
 
                 for torrentProvider in torrent_providers:
                     torrent_search_string = "%s S%02dE%02d" % (
