@@ -1,4 +1,5 @@
-__author__ = 'bolay'
+# -*- coding: utf8 -*-
+from __future__ import print_function, absolute_import, unicode_literals
 
 import hashlib
 import shutil

@@ -8,6 +8,20 @@ import re
 from database import DatabaseManager
 
 
+class TorrentContent(object):
+    TYPE_MAGNET = 0
+    TYPE_DATA = 1
+    TYPE_FILE = 2
+
+    TYPES = [TYPE_MAGNET, TYPE_DATA, TYPE_FILE]
+
+    def __init__(self, content, ctype):
+        if ctype not in self.TYPES:
+            raise ValueError("'ctype' as to be a valid torrent content type")
+        self.content = content
+        self.type = ctype
+
+
 class TorrentObject(object):
     """
     Object that represents a torrent (task)
@@ -157,10 +171,10 @@ class TorrentManager(object):
         """
         raise NotImplementedError()
 
-    def add_torrent(self, torrent_file_path):
+    def add_torrent(self, torrent_content):
         """
 
-        :param str torrent_file_path:
+        :param TorrentContent torrent_content:
         :return:
         """
         raise NotImplementedError()

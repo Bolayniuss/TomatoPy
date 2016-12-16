@@ -21,7 +21,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
     def __init__(self, user, torrent_manager):
         """
         :type user: str
-        :type torrent_manager: TomatoPy.api.torrents._base.TorrentManager
+        :type torrent_manager: TomatoPy.api.torrents.TorrentManager
         :param user:
         :param torrent_manager:
         :return:

@@ -1,6 +1,8 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function, absolute_import, unicode_literals
 
+from TomatoPy.api.torrents import TorrentContent
+
 __author__ = 'bolay'
 
 import requests
@@ -14,6 +16,7 @@ from operator import attrgetter
 
 import bs4
 
+from TomatoPy.api.torrents.utils import magnet_from_data
 from .items import TorrentItem, EpisodeItem
 from TomatoPy.filters import TorrentFilter
 from multi_host import MultiHostHandler, MultiHostHandlerException, Host
@@ -164,20 +167,25 @@ class TPBScrapper(TorrentProvider):
 
         for each_torrent in _torrents:
             each_torrent = each_torrent.parent.parent
-            item = TorrentItem()
-            item.link = each_torrent.find("a", href=re.compile("^magnet"))["href"]
-            item.title = remove_html_tags(unicode(each_torrent.find("a", class_="detLink").string))
-            text_tag = each_torrent.find("font")
             tds = each_torrent.find_all("td")
-            item.seeds = int(tds[2].text)
-            item.leeches = int(tds[3].text)
-            reg = re.compile(".* (\d[\d.]*).*?([BkKmMgG])(iB|.?).*")
-            m = reg.match(text_tag.text)
-            item.size = float(m.group(1))
-            item.author = unicode(text_tag.find(["a", "i"]).string)
-            prescaler = m.group(2).upper()
+            text_tag = each_torrent.find("font")
+            m = re.match(r".* (\d[\d.]*).*?([BkKmMgG])(iB|.?).*", text_tag.text)
+            prescaler = prescaler_converter(m.group(2).upper())
+
+            size = float(m.group(1)) * prescaler
+            magnet = each_torrent.find("a", href=re.compile("^magnet"))["href"]
+
+            item = TorrentItem(
+                link=magnet,
+                title=remove_html_tags(each_torrent.find("a", class_="detLink").string),
+                seeds=int(tds[2].text),
+                leeches=int(tds[3].text),
+                size=size,
+                author=text_tag.find(["a", "i"]).string,
+            )
 
             item.size *= prescaler_converter(prescaler)
+            item.content = TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
 
             self._torrentItems.append(item)
 
@@ -219,22 +227,23 @@ class KickAssTorrentScrapper(TorrentProvider):
         for selector in selectors:
 
             torrent = selector.parent.parent
-            item = TorrentItem()
-            item.link = torrent.find("a", href=re.compile(r"^magnet"))["href"]
-            item.title = unicode(torrent.find("a", class_="cellMainLink").text)
+
             tds = torrent.find_all("td")
-            item.seeds = int(tds[4].text)
-            item.leeches = int(tds[5].text)
-            reg = re.compile("([\d.]+).*?([BkKmMgG])(iB|.?).*")
-            m = reg.match(tds[1].text)
-            item.size = float(m.group(1))
+            m = re.match(r"([\d.]+).*?([BkKmMgG])(iB|.?).*", tds[1].text)
+            prescaler = prescaler_converter(m.group(2).upper())
 
-            author = torrent.find("a", href=re.compile(r"^/user/"))
-            if author:
-                item.author = unicode(author.text)
-            prescaler = m.group(2).upper()
+            magnet = torrent.find("a", href=re.compile(r"^magnet"))["href"]
+            size = float(m.group(1)) * prescaler
 
-            item.size *= prescaler_converter(prescaler)
+            item = TorrentItem(
+                link=magnet,
+                title=torrent.find("a", class_="cellMainLink").text,
+                seeds=int(tds[4].text),
+                leeches=int(tds[5].text),
+                size=size,
+                author=torrent.find("a", href=re.compile(r"^/user/")) or "",
+                content=TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET),
+            )
 
             if re.search(search_string, item.title, re.IGNORECASE) is not None:
                 self._torrentItems.append(item)
@@ -279,9 +288,35 @@ class T411TorrentScrapper(TorrentProvider):
     search_url = "/torrents/search/"     # GET search=str, cat=210, name=un+village+français, user=uploader, &order=seeders&type=desc
     download_url = "/torrents/download/"  # GET id=id
 
+    timeout = 10
+
     def __init__(self, user, password):
         super(T411TorrentScrapper, self).__init__()
         self.logger = logging.getLogger(__name__)
+
+        self.session = requests.Session()
+        self.session.post(url=self.host+self.login_url, data=dict(login=user, password=password, url="/"))
+
+    def grab_torrents(self, search_string):
+        self._torrentItems = []
+        source = None
+
+        clean_search_string = re.sub(r" ", "+", search_string)
+        try:
+            params = dict(
+                search=urllib.quote_plus(search_string),
+                order="seeder",
+                type="desc",
+                cat=210
+            )
+            resp = self.session.get(self.host+self.search_url, params=params, timeout=self.timeout)
+            if resp.ok:
+                source = resp.text
+        except urllib2.HTTPError as e:
+            self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(search_string)))
+
+        if source:
+            self.parse(source, search_string)
 
     def parse(self, data, search_string):
         """
@@ -292,31 +327,39 @@ class T411TorrentScrapper(TorrentProvider):
 
         soup = bs4.BeautifulSoup(data)
 
-        results = soup.table(class_="results")
+        results = soup.find("table", class_="results").tbody
         selectors = results.select("tr")
 
-        #self.logger.debug("%s", selectors)
+        for torrent_tr in selectors:
+            nfo_link = torrent_tr.find("a", class_=["ajax", "nfo"])["href"]
+            re_id = re.search(r"\?id=(?P<id>\d+)", nfo_link)
+            t411_id = re_id.group('id')
 
-        for torrent in selectors:
-            item = TorrentItem()
-            item.link = torrent.find("a", href=re.compile(r"^magnet"))["href"]
-            item.title = unicode(torrent.find("a", class_="cellMainLink").text)
-            tds = torrent.find_all("td")
-            item.seeds = int(tds[4].text)
-            item.leeches = int(tds[5].text)
-            reg = re.compile("([\d.]+).*?([BkKmMgG])(iB|.?).*")
-            m = reg.match(tds[1].text)
-            item.size = float(m.group(1))
-
-            author = torrent.find("a", href=re.compile(r"^/user/"))
-            if author:
-                item.author = unicode(author.text)
+            tds = torrent_tr.find_all("td", align="center")
+            m = re.match(r"([\d.]+).*?([BkKmMgG])(iB|.?).*", tds[2].text)
             prescaler = m.group(2).upper()
+            size = float(m.group(1)) * prescaler_converter(prescaler)
 
-            item.size *= prescaler_converter(prescaler)
+            item = TorrentItem(
+                title=torrent_tr.find("a", href=re.compile(r"^//www\.t411\.li/torrents/")).text,
+                seeds=int(tds[4].text),
+                leeches=int(tds[5].text),
+                size=size,
+                author=torrent_tr.find("a", class_="profile").text,
+            )
 
             if re.search(search_string, item.title, re.IGNORECASE) is not None:
-                self._torrentItems.append(item)
+                # get torrent
+                resp = self.session.get(url=self.host + self.download_url, params=dict(id=t411_id))
+                if resp.ok:
+                    torrent_data = resp.content
+
+                    # convert to magnet
+                    magnet = magnet_from_data(torrent_data)
+                    item.link = magnet
+                    item.content = TorrentContent(torrent_data, ctype=TorrentContent.TYPE_DATA),
+
+                    self._torrentItems.append(item)
 
 
 class BetaserieRSSScrapper(EpisodesProvider):
@@ -338,7 +381,7 @@ class BetaserieRSSScrapper(EpisodesProvider):
 
         _items = soup.find_all("entry")
         for each_item in _items:
-            title = unicode(each_item.find("title").string)
+            title = each_item.find("title").string
             # item.content = unicode(eachItem.content.string)
             #item.published = unicode(eachItem.published.string)
             #item.filter = None
@@ -375,6 +418,11 @@ class ShowRSSScrapper(EpisodesProvider):
 
         for item in items:
             title = item.find("title").text
-            torrent_item = TorrentItem(link=item.find("link").text, title=title)
+            magnet = item.find("link").text
+            torrent_item = TorrentItem(
+                link=magnet,
+                title=title,
+                content=TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
+            )
             self.items.append(EpisodeItem.build_from_fullname(title, torrent_item))
 

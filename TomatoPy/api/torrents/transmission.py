@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function, absolute_import, unicode_literals
 import base64
+import os
 
 import transmissionrpc
 
@@ -62,10 +63,23 @@ class TransmissionTorrentRPC(TorrentManager):
         finally:
             return False
 
-    def add_torrent(self, torrent_file_path):
-        with open(torrent_file_path, "r") as f:
-            torrent_data = base64.b64encode(f.read())
-        return self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), True)
+    def add_torrent(self, torrent_content):
+        """
+
+        :param TomatoPy.api.torrents.TorrentContent torrent_content:
+        :return:
+        """
+        if torrent_content.type == torrent_content.TYPE_MAGNET:
+            return self.add_torrent_url(torrent_content.content)
+        elif torrent_content.type == torrent_content.TYPE_DATA:
+            torrent_data = base64.b64encode(torrent_content.content)
+            return self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), False)
+        elif torrent_content.type == torrent_content.TYPE_FILE:
+            with open(torrent_content.content, "rb") as f:
+                torrent_data = base64.b64encode(f.read())
+            torrent = self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), False)
+            os.remove(torrent_content.content)
+            return torrent
 
     def add_torrent_url(self, torrent_url):
         return self.build_torrent_object(self.torrentClient.add_torrent(torrent_url), True)

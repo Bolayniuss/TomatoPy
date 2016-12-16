@@ -195,6 +195,26 @@ class UTorrent:
 
         return self.webui_action(r'action=add-file', method=method, headers=headers, data=data)
 
+    def webui_add_data(self, torrent_data):
+        CRLF = '\r\n'
+        method = r'POST'
+        boundary = r'---------------------------22385145923439'
+        headers = {r'Content-Type': r'multipart/form-data; boundary=' + boundary}
+        data = ''
+
+        torrent = torrent_data
+
+        data += "--%s%s" % (boundary, CRLF)
+        data += "Content-Disposition: form-data; name=\"torrent_file\"; filename=\"%s\"%s" % ("temp.torrent", CRLF)
+        data += "Content-Type: application/x-bittorrent%s" % CRLF
+        data += "%s" % CRLF
+        data += torrent + CRLF
+        data += "--%s--%s" % (boundary, CRLF)
+
+        headers['Content-Length'] = str(len(data))
+
+        return self.webui_action(r'action=add-file', method=method, headers=headers, data=data)
+
     #        removes a torrent
     def webui_remove(self, torrent_hash):
         return self.webui_action(r'action=remove&hash=' + torrent_hash)

@@ -11,16 +11,18 @@ class EpisodeItem(object):
         :param unicode tv_show:
         :param int season:
         :param int episode_number:
-        :return:
+        :param TorrentItem torrent_item:
         """
         self.title = title
         self.tv_show = tv_show
         self.season = season
         self.episode_number = episode_number
 
-        self.torrent_provided = (torrent_item is not None)
         self.torrent_item = torrent_item
 
+    @property
+    def torrent_provided(self):
+        return self.torrent_item is not None
 
     @staticmethod
     def build_from_fullname(full_name, torrent_item=None):
@@ -38,7 +40,21 @@ class EpisodeItem(object):
 
 class TorrentItem(object):
     def __init__(self, url="", name="", seeds=0, leeches=0, size=0., date="", link="", is_magnet_link=False, author="",
-                 title=""):
+                 title="", content=None):
+        """
+
+        :param url:
+        :param name:
+        :param seeds:
+        :param leeches:
+        :param size:
+        :param date:
+        :param link:
+        :param is_magnet_link:
+        :param author:
+        :param title:
+        :param TomatoPy.api.torrents.TorrentContent content:
+        """
         self.url = url
         self.name = name
         self.seeds = seeds
@@ -49,6 +65,8 @@ class TorrentItem(object):
         self.is_magnet_link = is_magnet_link
         self.author = author
         self.title = title
+
+        self.content = content
 
     def __unicode__(self):
         return "%s [%s](%s), s:%d, l:%d" % (self.title, self.author, self.size, self.seeds, self.leeches,)

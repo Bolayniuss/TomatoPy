@@ -2,8 +2,9 @@
 from __future__ import print_function, absolute_import, unicode_literals
 
 import logging
+import os
 
-from TomatoPy.api.torrents._base import TorrentManager, TorrentObject, TorrentFile
+from TomatoPy.api.torrents import TorrentManager, TorrentObject, TorrentFile
 from UTorrent.UTorrent import UTorrent
 
 
@@ -67,6 +68,23 @@ class UTorrentRPC(TorrentManager):
             files.append(self.build_torrent_file_object(raw_file))
         return files
 
+    def add_torrent(self, torrent_content):
+        """
+
+        :param TomatoPy.api.torrents.TorrentContent torrent_content:
+        :return:
+        """
+        if torrent_content.type == torrent_content.TYPE_MAGNET:
+            return self.add_torrent_url(torrent_content.content)
+        elif torrent_content.type == torrent_content.TYPE_DATA:
+            return self.add_torrent_data(torrent_content.content)
+        elif torrent_content.type == torrent_content.TYPE_FILE:
+            with open(torrent_content.content, "rb") as f:
+                torrent_data = f.read()
+            torrent = self.add_torrent_data(torrent_data)
+            os.remove(torrent_content.content)
+            return torrent
+
     def add_torrent_url(self, torrent_url):
         """
         Add a torrent with url torrentURL
@@ -87,17 +105,16 @@ class UTorrentRPC(TorrentManager):
             return added[0]
         return None
 
-    def add_torrent(self, torrent_file_path):
+    def add_torrent_data(self, torrent_data):
         """
         Add a torrent using a .torrent file
 
-        :param torrent_file_path: The path of the .torrent file
         :return: the added torrent
         :rtype: TorrentRPC.TorrentObject
         """
         self.get_torrents()
         old = self.torrents.copy()
-        self.client.webui_add_file(torrent_file_path)
+        self.client.webui_add_data(torrent_data)
         self.get_torrents()
         added = self.get_torrent_list_modifications(self.torrents, old)["added"]
         if len(added) > 0:

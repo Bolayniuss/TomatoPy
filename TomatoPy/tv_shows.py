@@ -9,7 +9,7 @@ import time
 import rarfile
 
 import tools
-from TomatoPy.api.torrents._base import TorrentFile
+from TomatoPy.api.torrents import TorrentFile
 from TomatoPy.automated_action import AutomatedActionsExecutor
 from TomatoPy.scrappers import BetaserieRSSScrapper, TPBScrapper
 from TomatoPy.scrappers.items import EpisodeItem
@@ -188,7 +188,7 @@ class TvShowManager(AutomatedActionsExecutor):
                         break
 
             if len(torrent_items) > 0:
-                new_torrent = self.torrent_manager.add_torrent_url(torrent_items[0].link)
+                new_torrent = self.torrent_manager.add_torrent(torrent_items[0].content)
                 if new_torrent:
                     self.add_automated_actions(new_torrent.hash, episode.tracked_tv_show.title, episode.title)
                     self.logger.info("New torrent added for episode %s", episode.title)

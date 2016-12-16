@@ -1,3 +1,4 @@
+bencode
 python-dotenv
 transmissionrpc
 mysql-connector
@@ -5,3 +6,4 @@ rarfile
 beautifulsoup4
 lxml
 requests
+enum34

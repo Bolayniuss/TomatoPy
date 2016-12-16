@@ -1,4 +1,5 @@
-__author__ = 'bolay'
+# -*- coding: utf8 -*-
+from __future__ import print_function, absolute_import, unicode_literals
 
 import base64
 import logging
@@ -13,10 +14,6 @@ from TomatoPy.api.torrents.transmission import TransmissionTorrentRPC
 
 class TrackedTorrent:
     def __init__(self, hash_, name, magnet, torrent_file=None):
-        """
-        :type torrent : transmissionrpc.Torrent
-        :param torrent:
-        """
         self.name = name
         self.hash = hash_
         self.torrent_file_data = ''
@@ -26,10 +23,10 @@ class TrackedTorrent:
             self.torrent_file_data = base64.b64encode(f.read())
 
     @staticmethod
-    def from_sql_query(sqlQuery):
-        if len(sqlQuery) >= 4:
-            tt = TrackedTorrent(sqlQuery[0], sqlQuery[1], sqlQuery[3])
-            tt.torrent_file_data = sqlQuery[2]
+    def from_sql_query(sql_query):
+        if len(sql_query) >= 4:
+            hash_, name, torrent_file, magnet = sql_query
+            tt = TrackedTorrent(hash_, name, torrent_file, magnet)
             return tt
         return None
 
@@ -39,13 +36,13 @@ class TrackedTorrent:
 
 
 class InterestingFile:
-    def __init__(self, name, torrent_hash, torrent_file_name, hash=None,
-                 timeout=2538000):  # default timeout set to 30 days
+    def __init__(self, name, torrent_hash, torrent_file_name, hash_=None, timeout=2538000):
+        # default timeout set to 30 days
         self.name = name
         self.timeout = timeout
         self.torrent_hash = torrent_hash
         self.torrent_file_name = torrent_file_name
-        self.hash = hash
+        self.hash = hash_
         if (self.hash is None) or (len(self.hash)) == 0:
             self.hash = tools.get_hash(self.name)
 
@@ -80,7 +77,7 @@ class DoneTorrentFilter:
         """
 
         :param torrent_manager:
-        :type torrent_manager: TomatoPy.api.torrents._base.TorrentManager
+        :type torrent_manager: TomatoPy.api.torrents.TorrentManager
         """
         self.torrent_manager = torrent_manager
         self.filter = RFileFilter("avi|mkv|mp4|wmv")
@@ -125,8 +122,8 @@ class DoneTorrentFilter:
 
 
 class RFileFilter:
-    def __init__(self, extensionPattern):
-        self.extension = extensionPattern
+    def __init__(self, extension_pattern):
+        self.extension = extension_pattern
 
     def test(self, file):
         """
