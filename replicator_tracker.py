@@ -195,7 +195,7 @@ class Destination:
         self.files = {}
         curs = DatabaseManager.Instance().cursor
         if clean:
-            curs.execute("DELETE FROM DestinationsFilesList WHERE `destinationName`={};".format(self.name))
+            curs.execute("DELETE FROM DestinationsFilesList WHERE `destinationName`=%s;", (self.name, ))
             DatabaseManager.Instance().connector.commit()
         for root, directory, files in os.walk(self.path):
 

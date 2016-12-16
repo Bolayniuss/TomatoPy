@@ -214,9 +214,9 @@ class TvShowManager(AutomatedActionsExecutor):
     def add_automated_actions(self, torrent_id, tv_show, episode_name):
         self.logger.debug("addAutomatedActions | new (%s, %s, %s)", torrent_id, tv_show, episode_name)
         data = "&&".join(["move", torrent_id, tv_show, episode_name])
-        query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', {});".format(data)
+        query = "INSERT INTO `AutomatedActions` (`notifier`, `trigger`, `data`) VALUES ('TvShowManager', 'onTorrentDownloaded', %s);"
         self.logger.info("add automated action, quest=%s, data=%s", query, data)
-        DatabaseManager.Instance().cursor.execute(query)
+        DatabaseManager.Instance().cursor.execute(query, (data, ))
         DatabaseManager.Instance().connector.commit()
 
     def get_episode_final_path(self, file_, tv_show, episode_name):
@@ -385,8 +385,8 @@ class TvShowManager(AutomatedActionsExecutor):
 
             if delete:
                 self.logger.info("remove action with id=%d", id_)
-                delete_query = "DELETE FROM AutomatedActions WHERE id={};".format(id_)
-                curs.execute(delete_query)
+                delete_query = "DELETE FROM AutomatedActions WHERE id=%d;"
+                curs.execute(delete_query, (id_, ))
                 DatabaseManager.Instance().connector.commit()
 
     def extract_from_rar(self, filter_, file_):

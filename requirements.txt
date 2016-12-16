@@ -6,4 +6,3 @@ rarfile
 beautifulsoup4
 lxml
 requests
-enum34
