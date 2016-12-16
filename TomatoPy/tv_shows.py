@@ -19,13 +19,16 @@ from kodi_api import XbmcLibraryManager
 from notifications import NotificationManager, Expiration
 
 
+PR
+
+
 class TrackedTvShow(object):
-    def __init__(self, title, torrent_filter, search_string=""):
+    def __init__(self, title, torrent_filter, search_string="", preferred_torrent_provider=None):
         self.title = title
         self.torrent_filter = torrent_filter
-        self.search_string = search_string
-        if not self.search_string:
-            self.search_string = self.title
+        self.search_string = search_string or title
+
+        self.preferred_torrent_provider = preferred_torrent_provider
 
 
 class TrackedEpisode(EpisodeItem):
@@ -79,10 +82,10 @@ class TvShowManager(AutomatedActionsExecutor):
         if len(parameters) > 2:
             self.file_system_encoding = parameters[2]
 
-        query = "SELECT title, filter, authorFilter, sizeLimits, episodeProviderSearchString FROM TrackedTvShows;"
+        query = "SELECT title, filter, authorFilter, sizeLimits, episodeProviderSearchString, preferredTorrentProvider FROM TrackedTvShows;"
         dbm.cursor.execute(query)
 
-        for (title, name_filter, author_filter, size_limits, search_string) in dbm.cursor:
+        for (title, name_filter, author_filter, size_limits, search_string, preferred_torrent_provider) in dbm.cursor:
             sizes = {}
             size_limits = size_limits.split(":")
             if len(size_limits[0]) > 0:

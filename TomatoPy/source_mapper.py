@@ -46,8 +46,8 @@ class FileItem(SourceMapperItem):
 
 class DirectoryMapper:
     """
-    :type path: str
-    :type filter: str
+    :type path: str | unicode
+    :type filter: str | unicode
     :type files: list[FileItem]
     :type indexedFiles: dict[str, list[FileItem]]
     """
