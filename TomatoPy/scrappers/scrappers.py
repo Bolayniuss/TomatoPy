@@ -249,7 +249,7 @@ class KickAssTorrentScrapper(TorrentProvider):
                 self._torrentItems.append(item)
 
 
-class T411TorrentScrapper(TorrentProvider):
+class T411Scrapper(TorrentProvider):
     """
     <tr>
         <td valign="center">
@@ -291,7 +291,7 @@ class T411TorrentScrapper(TorrentProvider):
     timeout = 10
 
     def __init__(self, user, password):
-        super(T411TorrentScrapper, self).__init__()
+        super(T411Scrapper, self).__init__()
         self.logger = logging.getLogger(__name__)
 
         self.session = requests.Session()

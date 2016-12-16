@@ -11,7 +11,7 @@ import rarfile
 import tools
 from TomatoPy.api.torrents import TorrentFile
 from TomatoPy.automated_action import AutomatedActionsExecutor
-from TomatoPy.scrappers import BetaserieRSSScrapper, TPBScrapper
+from TomatoPy.scrappers import BetaserieRSSScrapper, TPBScrapper, T411Scrapper
 from TomatoPy.scrappers.items import EpisodeItem
 from TomatoPy.source_mapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
 from database import DatabaseManager
@@ -19,7 +19,7 @@ from kodi_api import XbmcLibraryManager
 from notifications import NotificationManager, Expiration
 
 
-PR
+DEFAULT_TORRENT_PROVIDER = "TPB"
 
 
 class TrackedTvShow(object):
@@ -99,7 +99,10 @@ class TvShowManager(AutomatedActionsExecutor):
 
         # TODO: Change
         self.registered_episode_providers = [BetaserieRSSScrapper(self.beta_user)]
-        self.registered_torrent_providers = [TPBScrapper()]
+        self.registered_torrent_providers = {
+            "TPB": TPBScrapper(),
+            "T411": T411Scrapper("bolay", "12081987")
+        }
 
         self.directory_mapper = DirectoryMapper(self.tv_show_directory, r"(.*)\.(mkv|avi|mp4|wmv)$",
                                                 self.file_system_encoding)
@@ -183,7 +186,11 @@ class TvShowManager(AutomatedActionsExecutor):
             if episode.torrent_provided:
                 torrent_items.append(episode.torrent_item)
             else:
-                for torrentProvider in self.registered_torrent_providers:
+                provider_name = episode.tracked_tv_show.preferred_torrent_provider or DEFAULT_TORRENT_PROVIDER
+
+                torrent_providers = [self.registered_torrent_providers[provider_name]] + [v for k, v in self.registered_torrent_providers if k != provider_name]
+
+                for torrentProvider in torrent_providers:
                     torrent_search_string = "%s S%02dE%02d" % (
                         episode.tracked_tv_show.search_string, episode.season, episode.episode_number)
                     torrent_items = torrentProvider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
