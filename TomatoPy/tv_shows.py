@@ -395,7 +395,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
             if delete:
                 self.logger.info("remove action with id=%d", id_)
-                delete_query = "DELETE FROM AutomatedActions WHERE id=%d;"
+                delete_query = "DELETE FROM AutomatedActions WHERE id=%s;"
                 curs.execute(delete_query, (id_, ))
                 DatabaseManager.Instance().connector.commit()
 
