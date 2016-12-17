@@ -382,7 +382,7 @@ class BetaserieRSSScrapper(EpisodesProvider):
 
         resp = requests.get(url)
 
-        soup = bs4.BeautifulSoup(resp.text, "lxml")
+        soup = bs4.BeautifulSoup(resp.text, "xml")
 
         _items = soup.find_all("entry")
         for each_item in _items:
@@ -417,7 +417,7 @@ class ShowRSSScrapper(EpisodesProvider):
         """
         url = self.baseUrl % self.user_id
         page = urllib2.urlopen(url)
-        soup = bs4.BeautifulSoup(page.read(), "lxml")
+        soup = bs4.BeautifulSoup(page.read(), "xml")
 
         items = soup.find_all("item")
 

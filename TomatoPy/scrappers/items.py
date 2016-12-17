@@ -26,7 +26,6 @@ class EpisodeItem(object):
 
     @staticmethod
     def build_from_fullname(full_name, torrent_item=None):
-        print(full_name)
         m = re.match(r"^(.*?) *S0?(\d+)E0?(\d+)|^(.*?) *0?(\d+) ?x ?0?(\d+)", full_name)
         if m:
             if m.group(1) is None:
