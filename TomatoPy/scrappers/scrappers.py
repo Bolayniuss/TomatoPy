@@ -346,6 +346,7 @@ class T411Scrapper(TorrentProvider):
         for torrent_tr in selectors:
             tds = torrent_tr.find_all("td", align="center")
             if not tds:
+                self.logger.debug("%s", torrent_tr)
                 continue
 
             nfo_link = torrent_tr.find("a", class_=["ajax", "nfo"])["href"]
