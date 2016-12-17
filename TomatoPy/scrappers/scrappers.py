@@ -249,6 +249,20 @@ class KickAssTorrentScrapper(TorrentProvider):
                 self._torrentItems.append(item)
 
 
+# get torrent
+def content_getter_closure(scrapper, it, id):
+    def content_getter():
+        resp = scrapper.session.get(url=scrapper.host + scrapper.download_url, params=dict(id=id))
+        if resp.ok:
+            torrent_data = resp.content
+
+            # convert to magnet
+            magnet = magnet_from_data(torrent_data)
+            it.link = magnet
+            return TorrentContent(torrent_data, ctype=TorrentContent.TYPE_DATA)
+    return content_getter
+
+
 class T411Scrapper(TorrentProvider):
     """
     <tr>
@@ -348,17 +362,8 @@ class T411Scrapper(TorrentProvider):
             )
 
             if re.search(search_string, item.title, re.IGNORECASE) is not None:
-                # get torrent
-                def content_getter():
-                    resp = self.session.get(url=self.host + self.download_url, params=dict(id=t411_id))
-                    if resp.ok:
-                        torrent_data = resp.content
 
-                        # convert to magnet
-                        magnet = magnet_from_data(torrent_data)
-                        item.link = magnet
-                        return TorrentContent(torrent_data, ctype=TorrentContent.TYPE_DATA)
-                item.content = content_getter
+                item.content = content_getter_closure(self, item, t411_id)
                 self._torrentItems.append(item)
 
 
