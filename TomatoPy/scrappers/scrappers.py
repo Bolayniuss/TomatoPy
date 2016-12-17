@@ -340,42 +340,41 @@ class T411Scrapper(TorrentProvider):
 
         soup = bs4.BeautifulSoup(data, "lxml")
 
+        self.logger.debug(data)
+
         selectors = soup.select("table.results tr")
         #selectors = results.select("tr")
 
         for torrent_tr in selectors:
             tds = torrent_tr.find_all("td", align="center")
-            if not tds:
-                self.logger.debug("%s", torrent_tr)
-                continue
+            if tds:
+                nfo_link = torrent_tr.find("a", class_=["ajax", "nfo"])["href"]
 
-            nfo_link = torrent_tr.find("a", class_=["ajax", "nfo"])["href"]
+                re_id = re.search(r"\?id=(?P<id>\d+)", nfo_link)
+                t411_id = re_id.group('id')
 
-            re_id = re.search(r"\?id=(?P<id>\d+)", nfo_link)
-            t411_id = re_id.group('id')
+                m = re.match(r"([\d.]+).*?([BkKmMgG])(iB|.?).*", tds[2].text)
+                prescaler = m.group(2).upper()
+                size = float(m.group(1)) * prescaler_converter(prescaler)
 
-            m = re.match(r"([\d.]+).*?([BkKmMgG])(iB|.?).*", tds[2].text)
-            prescaler = m.group(2).upper()
-            size = float(m.group(1)) * prescaler_converter(prescaler)
+                pre_author = torrent_tr.find("a", class_="profile")
+                author = pre_author.text if pre_author else ""
 
-            pre_author = torrent_tr.find("a", class_="profile")
-            author = pre_author.text if pre_author else ""
+                item = TorrentItem(
+                    title=torrent_tr.find("a", href=re.compile(r"^//www\.t411\.li/torrents/")).text,
+                    seeds=int(tds[4].text),
+                    leeches=int(tds[5].text),
+                    size=size,
+                    author=author,
+                )
 
-            item = TorrentItem(
-                title=torrent_tr.find("a", href=re.compile(r"^//www\.t411\.li/torrents/")).text,
-                seeds=int(tds[4].text),
-                leeches=int(tds[5].text),
-                size=size,
-                author=author,
-            )
+                self.logger.debug("%s", item)
 
-            self.logger.debug("%s", item)
-
-            if re.search(search_string, item.title, re.IGNORECASE) is not None:
-                item.content = content_getter_closure(self, item, t411_id)
-                self._torrentItems.append(item)
-            else:
-                self.logger.debug("No match between %s and %s", item.title, search_string)
+                if re.search(search_string, item.title, re.IGNORECASE) is not None:
+                    item.content = content_getter_closure(self, item, t411_id)
+                    self._torrentItems.append(item)
+                else:
+                    self.logger.debug("No match between %s and %s", item.title, search_string)
 
 
 class BetaserieRSSScrapper(EpisodesProvider):
