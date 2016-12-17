@@ -100,7 +100,7 @@ class TvShowManager(AutomatedActionsExecutor):
                 if len(size_limits[1]) > 0:
                     sizes["lt"] = int(size_limits[1])
             filter_ = TorrentFilter(name_filter.split(":"), author_filter, sizes)
-            self.tracked_tv_shows.append(TrackedTvShow(title, filter_, search_string))
+            self.tracked_tv_shows.append(TrackedTvShow(title, filter_, search_string, preferred_torrent_provider))
         dbm.connector.commit()
 
         # TODO: Change
