@@ -24,9 +24,9 @@ DEFAULT_TORRENT_PROVIDER = "TPB"
 
 class TrackedTvShow(object):
     def __init__(self, title, torrent_filter, search_string="", preferred_torrent_provider=None):
-        self.title = title.encode('utf8')
+        self.title = title
         self.torrent_filter = torrent_filter
-        self.search_string = (search_string or title).encode('utf8')
+        self.search_string = search_string or title
 
         self.preferred_torrent_provider = preferred_torrent_provider
 
@@ -192,7 +192,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
                 for torrentProvider in torrent_providers:
                     torrent_search_string = ("%s S%02dE%02d" % (
-                        episode.tracked_tv_show.search_string, episode.season, episode.episode_number)).encode("utf-8")
+                        episode.tracked_tv_show.search_string, episode.season, episode.episode_number))
                     torrent_items = torrentProvider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
                     if torrent_items:
                         break

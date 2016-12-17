@@ -92,6 +92,7 @@ class TorrentProvider(object):
         :return: An ordered and filtered list of torrents
         :rtype: list
         """
+        search = search.encode("utf-8")
         self.grab_torrents(search)
         torrent_list = self._torrentItems
         if filter_:
