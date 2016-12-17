@@ -217,7 +217,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 
         search_string = r"^" + search_string + r"[\s+]"
 
-        soup = bs4.BeautifulSoup(data, "lxml")
+        soup = bs4.BeautifulSoup(data)
         # print data
         selectors = soup.select("div.torrentname")
 
@@ -338,7 +338,7 @@ class T411Scrapper(TorrentProvider):
 
         search_string = r"^" + search_string + r"[\s+]"
 
-        soup = bs4.BeautifulSoup(data, "lxml")
+        soup = bs4.BeautifulSoup(data)
 
         try:
             results = soup.find("table", class_="results").tbody
