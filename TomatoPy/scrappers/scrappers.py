@@ -3,8 +3,6 @@ from __future__ import print_function, absolute_import, unicode_literals
 
 from TomatoPy.api.torrents import TorrentContent
 
-__author__ = 'bolay'
-
 import requests
 
 import urllib2
@@ -218,7 +216,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 
         search_string = r"^" + search_string + r"[\s+]"
 
-        soup = bs4.BeautifulSoup(data)
+        soup = bs4.BeautifulSoup(data, "lxml")
         # print data
         selectors = soup.select("div.torrentname")
 
@@ -339,7 +337,7 @@ class T411Scrapper(TorrentProvider):
 
         search_string = r"^" + search_string + r"[\s+]"
 
-        soup = bs4.BeautifulSoup(data)
+        soup = bs4.BeautifulSoup(data, "lxml")
 
         results = soup.find("table", class_="results").tbody
         selectors = results.select("tr")
@@ -384,7 +382,7 @@ class BetaserieRSSScrapper(EpisodesProvider):
 
         resp = requests.get(url)
 
-        soup = bs4.BeautifulSoup(resp.text, "xml")
+        soup = bs4.BeautifulSoup(resp.text, "lxml")
 
         _items = soup.find_all("entry")
         for each_item in _items:
@@ -419,7 +417,7 @@ class ShowRSSScrapper(EpisodesProvider):
         """
         url = self.baseUrl % self.user_id
         page = urllib2.urlopen(url)
-        soup = bs4.BeautifulSoup(page.read(), "xml")
+        soup = bs4.BeautifulSoup(page.read(), "lxml")
 
         items = soup.find_all("item")
 

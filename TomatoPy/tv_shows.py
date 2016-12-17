@@ -24,11 +24,11 @@ DEFAULT_TORRENT_PROVIDER = "TPB"
 
 class TrackedTvShow(object):
     def __init__(self, title, torrent_filter, search_string="", preferred_torrent_provider=None):
-        self.title = title
-        self.torrent_filter = torrent_filter
-        self.search_string = search_string or title
+        self.title = title.encode('utf8')
+        self.torrent_filter = torrent_filter.encode('utf8')
+        self.search_string = (search_string or title).encode('utf8')
 
-        self.preferred_torrent_provider = preferred_torrent_provider
+        self.preferred_torrent_provider = preferred_torrent_provider.encode('utf8')
 
 
 class TrackedEpisode(EpisodeItem):
