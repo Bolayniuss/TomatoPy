@@ -368,6 +368,8 @@ class T411Scrapper(TorrentProvider):
                 author=author,
             )
 
+            self.logger.debug("%s", item)
+
             if re.search(search_string, item.title, re.IGNORECASE) is not None:
                 item.content = content_getter_closure(self, item, t411_id)
                 self._torrentItems.append(item)
