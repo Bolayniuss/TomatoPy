@@ -28,7 +28,7 @@ class TrackedTvShow(object):
         self.torrent_filter = torrent_filter
         self.search_string = (search_string or title).encode('utf8')
 
-        self.preferred_torrent_provider = preferred_torrent_provider.encode('utf8')
+        self.preferred_torrent_provider = preferred_torrent_provider
 
 
 class TrackedEpisode(EpisodeItem):
