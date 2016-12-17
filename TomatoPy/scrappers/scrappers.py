@@ -252,6 +252,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 # get torrent
 def content_getter_closure(scrapper, it, id):
     def content_getter():
+        scrapper.logger.debug("Download torrent: item.title=%s, id=%d", it.title, id)
         resp = scrapper.session.get(url=scrapper.host + scrapper.download_url, params=dict(id=id))
         if resp.ok:
             torrent_data = resp.content
