@@ -217,7 +217,7 @@ class KickAssTorrentScrapper(TorrentProvider):
 
         search_string = r"^" + search_string + r"[\s+]"
 
-        soup = bs4.BeautifulSoup(data)
+        soup = bs4.BeautifulSoup(data, "lxml")
         # print data
         selectors = soup.select("div.torrentname")
 
@@ -338,37 +338,41 @@ class T411Scrapper(TorrentProvider):
 
         search_string = r"^" + search_string + r"[\s+]"
 
-        soup = bs4.BeautifulSoup(data)
+        soup = bs4.BeautifulSoup(data, "lxml")
 
-        try:
-            results = soup.find("table", class_="results").tbody
-            selectors = results.select("tr")
+        selectors = soup.select("table.results tr")
+        #selectors = results.select("tr")
 
-            for torrent_tr in selectors:
-                nfo_link = torrent_tr.find("a", class_=["ajax", "nfo"])["href"]
-                re_id = re.search(r"\?id=(?P<id>\d+)", nfo_link)
-                t411_id = re_id.group('id')
+        for torrent_tr in selectors:
+            tds = torrent_tr.find_all("td", align="center")
+            if not tds:
+                continue
 
-                tds = torrent_tr.find_all("td", align="center")
-                m = re.match(r"([\d.]+).*?([BkKmMgG])(iB|.?).*", tds[2].text)
-                prescaler = m.group(2).upper()
-                size = float(m.group(1)) * prescaler_converter(prescaler)
+            nfo_link = torrent_tr.find("a", class_=["ajax", "nfo"])["href"]
 
-                item = TorrentItem(
-                    title=torrent_tr.find("a", href=re.compile(r"^//www\.t411\.li/torrents/")).text,
-                    seeds=int(tds[4].text),
-                    leeches=int(tds[5].text),
-                    size=size,
-                    author=torrent_tr.find("a", class_="profile").text,
-                )
+            re_id = re.search(r"\?id=(?P<id>\d+)", nfo_link)
+            t411_id = re_id.group('id')
 
-                if re.search(search_string, item.title, re.IGNORECASE) is not None:
-                    item.content = content_getter_closure(self, item, t411_id)
-                    self._torrentItems.append(item)
-                else:
-                    self.logger.debug("No match between %s and %s", item.title, search_string)
-        except Exception as e:
-            self.logger.debug(e)
+            m = re.match(r"([\d.]+).*?([BkKmMgG])(iB|.?).*", tds[2].text)
+            prescaler = m.group(2).upper()
+            size = float(m.group(1)) * prescaler_converter(prescaler)
+
+            pre_author = torrent_tr.find("a", class_="profile")
+            author = pre_author.text if pre_author else ""
+
+            item = TorrentItem(
+                title=torrent_tr.find("a", href=re.compile(r"^//www\.t411\.li/torrents/")).text,
+                seeds=int(tds[4].text),
+                leeches=int(tds[5].text),
+                size=size,
+                author=author,
+            )
+
+            if re.search(search_string, item.title, re.IGNORECASE) is not None:
+                item.content = content_getter_closure(self, item, t411_id)
+                self._torrentItems.append(item)
+            else:
+                self.logger.debug("No match between %s and %s", item.title, search_string)
 
 
 class BetaserieRSSScrapper(EpisodesProvider):
