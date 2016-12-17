@@ -117,7 +117,7 @@ class TorrentProvider(object):
                 valid_torrent_items.append(torrent_item)
             results.append((torrent_item, filter_result))
         if not valid_torrent_items:
-            self.logger.debug("No valid torrents Found, test results:")
+            self.logger.debug("No valid torrents Found, test results [%d]:", len(results))
             for result in results:
                 torrent, flag = result
                 if flag & TorrentFilter.TEST_FAILED_AUTHOR_NO_MATCH:
@@ -363,9 +363,10 @@ class T411Scrapper(TorrentProvider):
             )
 
             if re.search(search_string, item.title, re.IGNORECASE) is not None:
-
                 item.content = content_getter_closure(self, item, t411_id)
                 self._torrentItems.append(item)
+            else:
+                self.logger.debug("No match between %s and %s", item.title, search_string)
 
 
 class BetaserieRSSScrapper(EpisodesProvider):
