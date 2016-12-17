@@ -30,6 +30,9 @@ class TrackedTvShow(object):
 
         self.preferred_torrent_provider = preferred_torrent_provider
 
+    def __str__(self):
+        return "%s - %s|%s" % (self.title, self.search_string, self.preferred_torrent_provider)
+
 
 class TrackedEpisode(EpisodeItem):
     def __init__(self, episode_item, tracked_tv_show):
@@ -49,6 +52,9 @@ class TrackedEpisode(EpisodeItem):
                                              torrent_item=episode_item.torrent_item)
 
         self.tracked_tv_show = tracked_tv_show
+
+    def __str__(self):
+        return "%s, %s" % (super(TrackedEpisode, self), self.tracked_tv_show)
 
 
 class TvShowManager(AutomatedActionsExecutor):
@@ -190,6 +196,7 @@ class TvShowManager(AutomatedActionsExecutor):
 
                 torrent_providers = [self.registered_torrent_providers[provider_name]] + [v for k, v in self.registered_torrent_providers.items()if k != provider_name]
 
+                self.logger.debug("Episode: %s", episode)
                 self.logger.debug("PROVIDER: %s", provider_name)
                 self.logger.debug("PROVIDERS: %s", torrent_providers)
 
