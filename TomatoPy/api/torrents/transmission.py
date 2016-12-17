@@ -73,11 +73,11 @@ class TransmissionTorrentRPC(TorrentManager):
             return self.add_torrent_url(torrent_content.content)
         elif torrent_content.type == torrent_content.TYPE_DATA:
             torrent_data = base64.b64encode(torrent_content.content)
-            return self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), False)
+            return self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), True)
         elif torrent_content.type == torrent_content.TYPE_FILE:
             with open(torrent_content.content, "rb") as f:
                 torrent_data = base64.b64encode(f.read())
-            torrent = self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), False)
+            torrent = self.build_torrent_object(self.torrentClient.add_torrent(torrent_data), True)
             os.remove(torrent_content.content)
             return torrent
 
