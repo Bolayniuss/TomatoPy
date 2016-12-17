@@ -191,8 +191,8 @@ class TvShowManager(AutomatedActionsExecutor):
                 torrent_providers = [self.registered_torrent_providers[provider_name]] + [v for k, v in self.registered_torrent_providers.items()if k != provider_name]
 
                 for torrentProvider in torrent_providers:
-                    torrent_search_string = "%s S%02dE%02d" % (
-                        episode.tracked_tv_show.search_string, episode.season, episode.episode_number)
+                    torrent_search_string = ("%s S%02dE%02d" % (
+                        episode.tracked_tv_show.search_string, episode.season, episode.episode_number)).encode("utf-8")
                     torrent_items = torrentProvider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
                     if torrent_items:
                         break
