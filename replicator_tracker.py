@@ -177,7 +177,7 @@ class Destination:
 
         DestinationManager.Instance().add(self)
 
-    def getRelativePath(self, path):
+    def get_relative_path(self, path):
         """
         :type path: str
         :param path: absolute path
@@ -201,7 +201,7 @@ class Destination:
 
             for file_ in files:
                 path = os.path.join(root, file_)
-                relative_path = self.getRelativePath(path)
+                relative_path = self.get_relative_path(path)
                 if self.filter.test(File(path)):
                     fwh = None
                     if not clean:
@@ -327,36 +327,36 @@ class FileTracer:
         self.dbm.connector.commit()
         # For each destinations
         for destination in self.destinations:
-            # For each tuple (trackedFile, destinationFile) in interestingFiles
-            for trackedFile, destinationFile in destination.validInterestingFiles:
+            # For each tuple (tracked_file, destinationFile) in interestingFiles
+            for tracked_file, destinationFile in destination.valid_interesting_files:
                 sql = "SELECT * FROM `TrackedTorrents` WHERE `hash`=%s LIMIT 1;"
-                self.dbm.cursor.execute(sql, (trackedFile.torrent_hash,))
+                self.dbm.cursor.execute(sql, (tracked_file.torrent_hash,))
                 res = self.dbm.cursor.fetchone()
                 # If torrent is in TrackedTorrents DB
                 if res is not None:
                     tt = TrackedTorrent.from_sql_query(res)
                     if tt is not None:
                         sql = "SELECT count(1) FROM ReplicatorActions WHERE `torrentName`=%s AND `torrentFileName`=%s LIMIT 1;"
-                        self.dbm.cursor.execute(sql, (tt.name, trackedFile.torrent_file_name))
+                        self.dbm.cursor.execute(sql, (tt.name, tracked_file.torrent_file_name))
                         if not self.dbm.cursor.fetchone()[0]:
-                            self.logger.info("New replicator action with file: %s", trackedFile.torrent_file_name)
+                            self.logger.info("New replicator action with file: %s", tracked_file.torrent_file_name)
                             sql = "INSERT INTO `ReplicatorActions` (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
                             self.dbm.cursor.execute(sql, (tt.name,
-                                                          trackedFile.torrent_file_name,
+                                                          tracked_file.torrent_file_name,
                                                           tt.magnet, destination.name,
                                                           destinationFile.relativePath))
                             self.dbm.connector.commit()
                         else:
                             self.logger.warn("This action already exists in the database.")
                         # Remove File from TrackedTorrentFiles DB
-                        # self.logger.info("Remove TrackedTorrentFile %s", trackedFile.name)
+                        # self.logger.info("Remove TrackedTorrentFile %s", tracked_file.name)
                         # sql = "DELETE FROM `TrackedTorrentFiles` WHERE `hash`=%s;"
-                        # self.dbm.cursor.execute(sql, (trackedFile.hash, ))
+                        # self.dbm.cursor.execute(sql, (tracked_file.hash, ))
                         # self.dbm.connector.commit()
                     else:
                         self.logger.error("Unable to create TrackedTorrent with query %s", res)
                 else:
-                    self.logger.error("res is None for hash=%s", trackedFile.torrent_hash)
+                    self.logger.error("res is None for hash=%s", tracked_file.torrent_hash)
 
     def clean(self):
         # self.dbm.cursor.execute("DELETE FROM TrackedTorrentFiles WHERE timeout<UNIX_TIMESTAMP()")
