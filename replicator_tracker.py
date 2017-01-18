@@ -32,7 +32,7 @@ class TrackedTorrent:
 
     @staticmethod
     def from_torrent(torrent):
-        return TrackedTorrent(torrent.hash, torrent.name, torrent.magnetLink, torrent.torrentFilePath)
+        return TrackedTorrent(torrent.hash, torrent.name, torrent.magnet_link, torrent.torrent_file_path)
 
 
 class InterestingFile:
@@ -100,7 +100,7 @@ class DoneTorrentFilter:
                 # for each torrentFile in torrent
                 for f in torrent_files:
                     file_ = File(os.path.join(self.torrent_manager.download_directory, f.name))
-                    # if "file" is a valide file
+                    # if "file" is a valid file
                     if self.filter.test(file_):
                         # if file exists
                         if os.path.exists(file_.fullPath):
