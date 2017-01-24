@@ -5,6 +5,7 @@ from urlparse import urlparse
 import time
 import urllib2
 import logging
+import requests
 
 from singleton import Singleton
 
@@ -72,31 +73,13 @@ class Host(object):
         try:
             url = scheme + "://" + self.host + path
 
-            from StringIO import StringIO
-            import gzip
+            resp = requests.get(url=url, timeout=(2, timeout - 2))
 
-            request = urllib2.Request(url)
-            request.add_header('Accept-encoding', 'gzip')
-            request.add_header('User-Agent',
-                               'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:33.0) Gecko/20100101 Firefox/33.0')
-            t0 = time.time()
-            response = urllib2.urlopen(url=request, timeout=timeout)
-            t1 = time.time()
-
-            logger.debug(response)
-
-            self._last_access_time = t1 - t0
-            self.is_accessible = True
-
-            if response.info().get('Content-Encoding') == 'gzip':
-                buf = StringIO(response.read())
-                f = gzip.GzipFile(fileobj=buf)
-                data = f.read()
-            else:
-                data = response.read()
-            return data
-        except (urllib2.HTTPError, urllib2.URLError) as e:
-            logger.debug("error with %s: %s", self.host, e)
+            if resp.status_code in (200, 201):
+                data = resp.text
+                return data
+        except requests.exceptions.RequestException as e:
+            logger.exception("error with %s: %s", self.host, e)
             # raise e
         self._last_access_time = 0
         self.is_accessible = False
