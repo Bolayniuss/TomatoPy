@@ -26,7 +26,7 @@ class TrackedTorrent:
     def from_sql_query(sql_query):
         if len(sql_query) >= 4:
             hash_, name, torrent_file, magnet = sql_query
-            tt = TrackedTorrent(hash_, name, torrent_file, magnet)
+            tt = TrackedTorrent(hash_, name, magnet, torrent_file)
             return tt
         return None
 
@@ -343,7 +343,8 @@ class FileTracer:
                             sql = "INSERT INTO `ReplicatorActions` (torrentName, torrentFileName, torrentData, destinationName, destinationRelativePath) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE torrentFileName=torrentFileName;"
                             self.dbm.cursor.execute(sql, (tt.name,
                                                           tracked_file.torrent_file_name,
-                                                          tt.magnet, destination.name,
+                                                          tt.magnet,
+                                                          destination.name,
                                                           destinationFile.relativePath))
                             self.dbm.connector.commit()
                         else:
