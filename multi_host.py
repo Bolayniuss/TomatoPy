@@ -1,11 +1,13 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function, absolute_import, unicode_literals
 
-from urlparse import urlparse
-import time
-import urllib2
-import logging
+import six
+if six.PY3:
+    from urllib.parse import urlparse
+else:
+    from urlparse import urlparse
 import requests
+import logging
 
 from singleton import Singleton
 
