@@ -152,7 +152,7 @@ class TPBScrapper(TorrentProvider):
     def get_source(self, search_string):
         try:
             return MultiHostHandler.Instance().open_url(
-                "https://thepiratebay.org/search/" + urllib.quote(sub_special_tags(search_string)) + "/0/7/0",
+                "https://thepiratebay.se/search/" + urllib.quote(sub_special_tags(search_string)) + "/0/7/0",
                 self.timeout)
         except MultiHostHandlerException as e:
             #print e
