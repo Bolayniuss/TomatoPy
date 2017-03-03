@@ -72,9 +72,8 @@ class TorrentItem(object):
     @property
     def content(self):
         if callable(self._content):
-            if self._cashed_content:
-                return self._cashed_content
-            self._cashed_content = self._content()
+            if self._cashed_content is not None:
+                self._cashed_content = self._content()
             return self._cashed_content
         return self._content
 
