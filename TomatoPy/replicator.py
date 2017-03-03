@@ -5,6 +5,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 import json
 import logging
 import os
+
 try:
     from urllib2 import urlopen
 except ImportError:
@@ -74,8 +75,10 @@ class ReplicatorManager(AutomatedActionsExecutor):
 
                         # Test if source exist
                         if action["destinationName"] in self.destinations:
-                            destination_path = os.path.join(self.destinations[action["destinationName"]],
-                                                           action["destinationRelativePath"])
+                            destination_path = os.path.join(
+                                self.destinations[action["destinationName"]],
+                                action["destinationRelativePath"]
+                            )
                             if not os.path.exists(destination_path):
                                 action_params.append(action["torrentFileName"])
                                 action_params.append(destination_path)
