@@ -32,10 +32,10 @@ class MultiHostHandlerException(Exception):
         self.host = hostname
 
     def __str__(self):
-        return "Host %s not registered %s" % self.host
+        return "Host %s not registered" % self.host
 
     def __unicode__(self):
-        return "Host %s not registered %s" % self.host
+        return "Host %s not registered" % self.host
 
 
 @Singleton
