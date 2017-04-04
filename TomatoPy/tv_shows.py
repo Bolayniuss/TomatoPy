@@ -204,16 +204,23 @@ class TvShowManager(AutomatedActionsExecutor):
                         break
 
             if len(torrent_items) > 0:
-                new_torrent = self.torrent_manager.add_torrent(torrent_items[0].content)
-                if new_torrent:
-                    self.add_automated_actions(new_torrent.hash, episode.tracked_tv_show.title, episode.title)
-                    self.logger.info("New torrent added for episode %s", episode.title)
-                    NotificationManager.Instance().add_notification(
-                        episode.title,
-                        "TvShowManager: New",
-                        Expiration(weeks=4)
-                    )
+                success = True
+                torrent_data = torrent_items[0].content
+                if torrent_data is not None:
+                    new_torrent = self.torrent_manager.add_torrent(torrent_data)
+                    if new_torrent:
+                        self.add_automated_actions(new_torrent.hash, episode.tracked_tv_show.title, episode.title)
+                        self.logger.info("New torrent added for episode %s", episode.title)
+                        NotificationManager.Instance().add_notification(
+                            episode.title,
+                            "TvShowManager: New",
+                            Expiration(weeks=4)
+                        )
+                    else:
+                        success = False
                 else:
+                    success = False
+                if not success:
                     self.logger.info("No torrent added for %s", episode.title)
                     NotificationManager.Instance().add_notification(
                         "Unable to add %s to TM" % episode.title,

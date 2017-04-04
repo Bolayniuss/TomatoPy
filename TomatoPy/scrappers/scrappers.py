@@ -257,9 +257,13 @@ def content_getter_closure(scrapper, it, id):
             torrent_data = resp.content
 
             # convert to magnet
-            magnet = magnet_from_data(torrent_data)
+            try:
+                magnet = magnet_from_data(torrent_data)
+            except:
+                return None
             it.link = magnet
             return TorrentContent(torrent_data, ctype=TorrentContent.TYPE_DATA)
+        return None
     return content_getter
 
 
@@ -296,7 +300,7 @@ class T411Scrapper(TorrentProvider):
     </tr>
     """
 
-    host = "https://www.t411.li"
+    host = "https://www.t411.ai"
 
     login_url = "/users/login/"
     search_url = "/torrents/search/"     # GET search=str, cat=210, name=un+village+français, user=uploader, &order=seeders&type=desc
@@ -322,7 +326,7 @@ class T411Scrapper(TorrentProvider):
                 type="desc",
                 cat=210
             )
-            resp = self.session.get(self.host+self.search_url, params=params, timeout=self.timeout)
+            resp = self.session.get(self.host + self.search_url, params=params, timeout=self.timeout)
             if resp.ok:
                 source = resp.text
         except urllib2.HTTPError as e:
@@ -336,7 +340,7 @@ class T411Scrapper(TorrentProvider):
 
         """
 
-        search_string = r"^" + search_string + r"[\s+]"
+        search_string = r"^%s.+" % (search_string, )
 
         soup = bs4.BeautifulSoup(data, "lxml")
 
@@ -361,7 +365,7 @@ class T411Scrapper(TorrentProvider):
                 author = pre_author.text if pre_author else ""
 
                 item = TorrentItem(
-                    title=torrent_tr.find("a", href=re.compile(r"^//www\.t411\.li/torrents/")).text,
+                    title=torrent_tr.find("a", href=re.compile(r"/torrents/"), title=re.compile(r".+")).text,
                     seeds=int(tds[4].text),
                     leeches=int(tds[5].text),
                     size=size,
