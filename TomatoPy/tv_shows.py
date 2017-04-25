@@ -16,6 +16,7 @@ from TomatoPy.scrappers.items import EpisodeItem
 from TomatoPy.source_mapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
 from database import DatabaseManager
 from kodi_api import XbmcLibraryManager
+from multi_host import MultiHostError
 from notifications import NotificationManager, Expiration
 
 
@@ -199,7 +200,10 @@ class TvShowManager(AutomatedActionsExecutor):
                 for torrentProvider in torrent_providers:
                     torrent_search_string = ("%s S%02dE%02d" % (
                         episode.tracked_tv_show.search_string, episode.season, episode.episode_number))
-                    torrent_items = torrentProvider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
+                    try:
+                        torrent_items = torrentProvider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
+                    except MultiHostError as e:
+                        self.logger.exception(e.message)
                     if torrent_items:
                         break
 
