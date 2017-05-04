@@ -300,7 +300,7 @@ class T411Scrapper(TorrentProvider):
     </tr>
     """
 
-    host = "https://www.t411.ai"
+    host = "https://www.t411.al"
 
     login_url = "/users/login/"
     search_url = "/torrents/search/"     # GET search=str, cat=210, name=un+village+français, user=uploader, &order=seeders&type=desc
