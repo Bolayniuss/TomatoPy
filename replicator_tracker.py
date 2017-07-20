@@ -348,7 +348,7 @@ class FileTracer:
                                                           destinationFile.relativePath))
                             self.dbm.connector.commit()
                         else:
-                            self.logger.warn("This action already exists in the database.")
+                            self.logger.debug("This action already exists in the database.")
                         # Remove File from TrackedTorrentFiles DB
                         # self.logger.info("Remove TrackedTorrentFile %s", tracked_file.name)
                         # sql = "DELETE FROM `TrackedTorrentFiles` WHERE `hash`=%s;"
