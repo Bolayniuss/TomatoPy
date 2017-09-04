@@ -108,7 +108,7 @@ class TvShowManager(AutomatedActionsExecutor):
         self.registered_episode_providers = [BetaserieRSSScrapper(self.beta_user)]
         self.registered_torrent_providers = {
             "TPB": TPBScrapper(),
-            "T411": T411Scrapper("bolay", "12081987")
+            #"T411": T411Scrapper("bolay", "12081987")
         }
 
         self.directory_mapper = DirectoryMapper(self.tv_show_directory, r"(.*)\.(mkv|avi|mp4|wmv)$",
