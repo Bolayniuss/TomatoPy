@@ -136,7 +136,7 @@ class UTorrent:
         try:
             jData = json.loads(data)
         except ValueError:
-            logging.error("JSON error while parsing: ", data)
+            logging.error("JSON error while parsing: %s", data)
         return jData
 
     #        gets torrent properties
