@@ -160,7 +160,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
                 self.logger.info("action (id=%d) result=%s", id_, success)
                 delete = success
             except KeyError as e:
-                self.logger.error("error while processing action (id=%d) torrent does not exist", id_)
+                self.logger.exception("error while processing action (id=%d) torrent does not exist", id_)
                 delete = True
             finally:
                 pass
