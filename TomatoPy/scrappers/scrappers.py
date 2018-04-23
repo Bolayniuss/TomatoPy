@@ -139,6 +139,8 @@ class TorrentProvider(object):
 class TPBScrapper(TorrentProvider):
     timeout = 10
 
+    host = "thepiratebay.org"
+
     def __init__(self, ):
         super(TPBScrapper, self).__init__()
         self.logger = logging.getLogger(__name__)
@@ -152,8 +154,9 @@ class TPBScrapper(TorrentProvider):
     def get_source(self, search_string):
         try:
             return MultiHostHandler.Instance().open_url(
-                "https://thepiratebay.se/search/" + urllib.quote(sub_special_tags(search_string)) + "/0/7/0",
-                self.timeout)
+                "https://%s/search/%s/0/7/0" % (self.host, urllib.quote(sub_special_tags(search_string))),
+                self.timeout
+            )
         except MultiHostHandlerException as e:
             #print e
             self.logger.warning(e)
