@@ -56,6 +56,10 @@ class MultiHostHandler(object):
             return requests.get(url)
 
     def register_multi_host(self, hostname, extra_hosts):
+        """
+        :param basestring hostname:
+        :param list extra_hosts:
+        """
         if not self.hosts.get(hostname):
             self.hosts[hostname] = MultiHost(hostname, extra_hosts)
 
