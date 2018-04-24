@@ -18,17 +18,17 @@ class BetaSeriesTestCase(unittest.TestCase):
         self.assertEqual(self.episodes[0].episode_number, 1)
 
 
-class T411TestCase(unittest.TestCase):
-    def setUp(self):
-        self.scrapper = T411Scrapper("bolay", "12081987")
-        self.episodes = self.scrapper.get_torrents("Homeland")
-
-    def test_scrapper_result_ok(self):
-        self.assertGreater(len(self.episodes), 0)
-        e = self.episodes[0]
-        self.assertIn("Homeland", e.title)
-        self.assertTrue(callable(e._content))
-        self.assertIsNotNone(e.content)
+# class T411TestCase(unittest.TestCase):
+#     def setUp(self):
+#         self.scrapper = T411Scrapper("bolay", "12081987")
+#         self.episodes = self.scrapper.get_torrents("Homeland")
+#
+#     def test_scrapper_result_ok(self):
+#         self.assertGreater(len(self.episodes), 0)
+#         e = self.episodes[0]
+#         self.assertIn("Homeland", e.title)
+#         self.assertTrue(callable(e._content))
+#         self.assertIsNotNone(e.content)
 
 
 if __name__ == '__main__':
