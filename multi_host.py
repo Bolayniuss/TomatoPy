@@ -55,11 +55,13 @@ class MultiHostHandler(object):
             logger.info("No MultiHost registered for url %s." % (url, ))
             return requests.get(url)
 
-    def register_multi_host(self, hostname, extra_hosts):
+    @classmethod
+    def register_multi_host(cls, hostname, extra_hosts):
         """
         :param basestring hostname:
         :param list extra_hosts:
         """
+        self = MultiHostHandler.Instance()
         if not self.hosts.get(hostname):
             self.hosts[hostname] = MultiHost(hostname, extra_hosts)
 
