@@ -53,7 +53,7 @@ class MultiHostHandler(object):
             return hosts.open_path(parsed_url.path, parsed_url.scheme, timeout)
         else:
             logger.info("No MultiHost registered for url %s." % (url, ))
-            return requests.get(url)
+            return requests.get(url).text
 
     @classmethod
     def register_multi_host(cls, hostname, extra_hosts):
