@@ -67,29 +67,35 @@ class MultiHostHandler(object):
 
 
 class Host(object):
-    def __init__(self, host):
+    def __init__(self, host, timeout=10, retries=1):
 
         self.host = host
         self._last_access_time = 0
         self.is_accessible = True
+        self.timeout = timeout
+        self.retries = retries
 
     def last_access_time(self):
         if self.is_accessible:
             return self._last_access_time
         return 999999
 
-    def open_path(self, path, scheme="http", timeout=10):
-        try:
-            url = scheme + "://" + self.host + path
+    def open_path(self, path, scheme="http"):
+        for i in range(self.retries):
+            try:
+                url = scheme + "://" + self.host + path
 
-            resp = requests.get(url=url, timeout=(2, timeout - 2))
+                resp = requests.get(url=url, timeout=(2, self.timeout - 2))
 
-            if resp.status_code in (200, 201):
-                data = resp.text
-                return data
-        except requests.exceptions.RequestException as e:
-            logger.exception("error with %s: %s", self.host, e)
-            # raise e
+                if resp.status_code in (200, 201):
+                    data = resp.text
+                    return data
+            except requests.exceptions.Timeout as e:
+                logging.warning("request timed out, retry=%d/%d" % (i + 1, self.retries))
+            except requests.exceptions.RequestException as e:
+                logger.exception("error with %s: %s", self.host, e)
+                break
+                # raise e
         self._last_access_time = 0
         self.is_accessible = False
         return None
@@ -103,10 +109,10 @@ class MultiHost(object):
         for extra_host in extra_hosts:
             self.hosts.append(Host(extra_host))
 
-    def open_path(self, path, scheme="http", timeout=10):
+    def open_path(self, path, scheme="http", timeout=None):
         do_sort = False
         for host in self.hosts:
-            data = host.open_path(path, scheme, timeout)
+            data = host.open_path(path, scheme)
             if data:
                 logger.debug("%s used as host for %s", host.host, self.original)
                 if do_sort:
