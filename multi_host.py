@@ -107,7 +107,9 @@ class MultiHost(object):
         self.original = original_host
         self.hosts = [Host(original_host)]
         for extra_host in extra_hosts:
-            self.hosts.append(Host(extra_host))
+            if not isinstance(extra_host, Host):
+                extra_host = Host(extra_host)
+            self.hosts.append(extra_host)
 
     def open_path(self, path, scheme="http", timeout=None):
         do_sort = False
