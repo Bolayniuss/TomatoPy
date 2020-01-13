@@ -5,8 +5,16 @@ import logging
 import re
 import sys
 from base64 import b64encode
-from httplib import HTTPConnection
-from urllib import quote
+
+try:
+    from httplib import HTTPConnection
+except ImportError:
+    from http.client import HTTPConnection
+
+try:
+    from urllib import quote
+except ImportError:
+    from urllib.parse import quote
 
 from .constants import *
 

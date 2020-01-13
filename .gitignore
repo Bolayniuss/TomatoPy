@@ -2,3 +2,4 @@
 run.py
 scripts/*
 .env
+.idea

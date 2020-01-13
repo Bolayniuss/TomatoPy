@@ -5,7 +5,8 @@ import io
 import json
 import time
 import urllib
-import urllib2
+
+import requests
 
 from database import DatabaseManager
 from singleton import Singleton
@@ -120,12 +121,12 @@ class NotificationManager(object):
     def get_notification(self, list_expired=False):
         if list_expired:
             return self.notifications
-        return dict(map(lambda (k, v): (k, filter(lambda x: x.expiration and not x.expiration.is_expired(), v)),
+        return dict(map(lambda k, v: (k, filter(lambda x: x.expiration and not x.expiration.is_expired(), v)),
                         self.notifications.items()))
 
     def serialize(self):
         notifications = dict(
-            map(lambda (k, v): (k, map(lambda x: x.to_dict(), v)), self.get_notification(True).items()))
+            map(lambda k, v: (k, map(lambda x: x.to_dict(), v)), self.get_notification(True).items()))
         return {"notifications": notifications}
 
     def un_serialize(self, data):
@@ -147,17 +148,30 @@ class NotificationManager(object):
     def get_from_remote_server(self):
         url = self.url + "?q=getNotifications&user=" + self.user
 
-        json_data = urllib2.urlopen(url).read()
+        resp = requests.get(url)
+
+        if not resp.ok:
+            print("oups, can't get data from `%s`: %s" % (url, resp.text))
+            return
         try:
-            data = json.loads(json_data)
-            self.un_serialize(data)
+            self.un_serialize(resp.json())
         except ValueError:
             pass
 
     def save_to_remote_server(self):
         url = self.url
-        urllib2.urlopen(url, urllib.urlencode(
-            (("q", "setNotifications"), ("user", self.user), ("data", json.dumps(self.serialize()))))).read()
+
+        data = {
+            "q": "setNotifications",
+            "user": self.user,
+            "data": json.dumps(self.serialize())
+        }
+
+        resp = requests.post(url, data=data)
+
+        if not resp.ok:
+            print("oups, can't get data from `%s`: %s" % (url, resp.text))
+            return
 
     def write_as_json(self, path):
         with io.open(path, 'wb') as fp:

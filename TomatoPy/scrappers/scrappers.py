@@ -5,8 +5,18 @@ from TomatoPy.api.torrents import TorrentContent
 
 import requests
 
-import urllib2
 import urllib
+
+try:
+    from urlib import quote
+except ImportError:
+    from urllib.parse import quote
+
+try:
+    import urllib2 as urllib_errors
+except ImportError:
+    import urllib.error as urllib_errors
+
 import re
 import logging
 
@@ -154,7 +164,7 @@ class TPBScrapper(TorrentProvider):
     def get_source(self, search_string):
         try:
             return MultiHostHandler.Instance().open_url(
-                "https://%s/search/%s/0/7/0" % (self.host, urllib.quote(sub_special_tags(search_string))),
+                "https://%s/search/%s/0/7/0" % (self.host, quote(sub_special_tags(search_string))),
                 self.timeout
             )
         except MultiHostHandlerException as e:
@@ -206,9 +216,9 @@ class KickAssTorrentScrapper(TorrentProvider):
         data = None
         try:
             kickass = Host(self.baseUrl)
-            data = kickass.open_path(self.path % urllib.quote(sub_special_tags(search_string)), "https", self.timeout)
-        except urllib2.HTTPError as e:
-            self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(search_string)))
+            data = kickass.open_path(self.path % quote(sub_special_tags(search_string)), "https", self.timeout)
+        except urllib_errors.HTTPError as e:
+            self.logger.warning("%s, url=%s", e, self.baseUrl % quote(sub_special_tags(search_string)))
 
         if data:
             self.parse(data, search_string)
@@ -324,7 +334,7 @@ class T411Scrapper(TorrentProvider):
 
         try:
             params = dict(
-                search=urllib.quote_plus(search_string),
+                search=quote_plus(search_string),
                 order="seeder",
                 type="desc",
                 cat=210
@@ -332,8 +342,8 @@ class T411Scrapper(TorrentProvider):
             resp = self.session.get(self.host + self.search_url, params=params, timeout=self.timeout)
             if resp.ok:
                 source = resp.text
-        except urllib2.HTTPError as e:
-            self.logger.warning("%s, url=%s", e, self.baseUrl % urllib.quote(sub_special_tags(search_string)))
+        except urllib_errors.HTTPError as e:
+            self.logger.warning("%s, url=%s", e, self.baseUrl % quote(sub_special_tags(search_string)))
 
         if source:
             self.parse(source, search_string)
@@ -433,8 +443,10 @@ class ShowRSSScrapper(EpisodesProvider):
         """
         """
         url = self.baseUrl % self.user_id
-        page = urllib2.urlopen(url)
-        soup = bs4.BeautifulSoup(page.read(), "xml")
+
+        resp = requests.get(url)
+
+        soup = bs4.BeautifulSoup(resp.text, "xml")
 
         items = soup.find_all("item")
 

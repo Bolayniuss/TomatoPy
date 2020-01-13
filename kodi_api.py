@@ -1,7 +1,11 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function, absolute_import, unicode_literals
 
-import httplib
+try:
+    from httplib import HTTPConnection
+except ImportError:
+    from http.client import HTTPConnection
+
 import json
 import random
 import logging
@@ -81,7 +85,7 @@ class XbmcLibraryManager:
         # print request
         # print "host: ", self.host
         # print "port: ", self.port
-        conn = httplib.HTTPConnection(self.host, self.port)
+        conn = HTTPConnection(self.host, self.port)
         conn.request("POST", "/jsonrpc", request, {"Content-type": "application/json"})
         self.logger.debug("Send request: %s", request)
         return self.process_response(conn.getresponse())
