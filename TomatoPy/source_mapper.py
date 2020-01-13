@@ -61,8 +61,12 @@ class DirectoryMapper:
         self.map()
 
     def map(self):
-        reload(sys)
-        sys.setdefaultencoding('UTF8')
+        try:
+            # do that only under py2
+            reload(sys)
+            sys.setdefaultencoding('UTF8')
+        except NameError:
+            pass
         for root, dirs, files in os.walk(self.path):
             for file_ in files:
                 m = self.filter.match(file_)
