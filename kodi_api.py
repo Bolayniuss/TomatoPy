@@ -6,6 +6,8 @@ try:
 except ImportError:
     from http.client import HTTPConnection
 
+import requests
+
 import json
 import random
 import logging
@@ -40,12 +42,11 @@ class XbmcLibraryManager:
             if not directory.endswith("/"):
                 directory += "/"
             params["directory"] = directory
-        self.pendingRequests['AudioLibrary.Scan'] = self.build_request('AudioLibrary.Scan', params, self.generate_id())
+        self.pendingRequests['AudioLibrary.Scan'] = self.build_request_data('AudioLibrary.Scan', params, self.generate_id())
         if directory:
             self.logger.info("add AudioLibrary.Scan action, directory %s", directory)
         else:
             self.logger.info("add AudioLibrary.Scan action")
-        # return self.sendRequest(request)
 
     def scan_video_library(self, directory=None):
         params = {}
@@ -53,24 +54,19 @@ class XbmcLibraryManager:
             if not directory.endswith("/"):
                 directory += "/"
             params["directory"] = directory
-        self.pendingRequests[('VideoLibrary.Scan', directory)] = self.build_request('VideoLibrary.Scan', params, self.generate_id())
+        self.pendingRequests[('VideoLibrary.Scan', directory)] = self.build_request_data('VideoLibrary.Scan', params, self.generate_id())
         if directory:
             self.logger.info("add VideoLibrary.Scan action, directory %s", directory)
         else:
             self.logger.info("add VideoLibrary.Scan action")
-        # return self.sendRequest(request)
 
     def clean_audio_library(self):
-        self.pendingRequests['AudioLibrary.Clean'] = self.build_request('AudioLibrary.Clean', {}, self.generate_id())
+        self.pendingRequests['AudioLibrary.Clean'] = self.build_request_data('AudioLibrary.Clean', {}, self.generate_id())
         self.logger.info("add AudioLibrary.Clean action")
 
-    # return self.sendRequest(request)
-
     def clean_video_library(self):
-        self.pendingRequests['VideoLibrary.Clean'] = self.build_request('VideoLibrary.Clean', {}, self.generate_id())
+        self.pendingRequests['VideoLibrary.Clean'] = self.build_request_data('VideoLibrary.Clean', {}, self.generate_id())
         self.logger.info("add VideoLibrary.Clean action")
-
-    # return self.sendRequest(request)
 
     def send_notification_message(self, title, message, displayTime=None):  # , image=None, displayTime=None):
         self.logger.info("send notification, title=%s message=%s", title, message)
@@ -78,23 +74,24 @@ class XbmcLibraryManager:
         if displayTime is not None:
             params["displaytime"] = displayTime
         id = self.generate_id()
-        request = self.build_request('GUI.ShowNotification', params, id)
+        request = self.build_request_data('GUI.ShowNotification', params, id)
         return self.send_request(request) is not None
 
-    def send_request(self, request):
-        # print request
-        # print "host: ", self.host
-        # print "port: ", self.port
-        conn = HTTPConnection(self.host, self.port)
-        conn.request("POST", "/jsonrpc", request, {"Content-type": "application/json"})
-        self.logger.debug("Send request: %s", request)
-        return self.process_response(conn.getresponse())
+    def send_request(self, request_data):
+        url = "http://%s:%s/jsonrpc" % (self.host, self.port)
+        resp = requests.post(url, json=request_data)
 
-    def build_request(self, type, parameters, id=0):
+        if resp.ok:
+            data = resp.json()
+            if data.get("result") == "OK":
+                return resp.json()
+        return None
+
+    def build_request_data(self, type, parameters, id=0):
         r = {"method": type, "params": parameters, "jsonrpc": self.jsonrpcVersion}
         if id != 0:
             r["id"] = id
-        return json.JSONEncoder().encode(r)
+        return r
 
     def generate_id(self):
         id = 0
@@ -102,21 +99,9 @@ class XbmcLibraryManager:
             id = random.randint(-9999999, 9999999)
         return id
 
-    def process_response(self, response):
-        if response.getheader("content-length") is not None:
-            page = response.read()
-            # print page
-            self.logger.debug("Receive: %s", page)
-            resp = json.JSONDecoder().decode(page)
-            if resp["result"] == "OK":
-                # print "Request Accepted."
-                return resp
-        # print "Error on request."
-        return None
-
     def execute_pending_requests(self):
         results = {}
-        for k in self.pendingRequests.keys():
+        for k in list(self.pendingRequests.keys()):
             v = self.pendingRequests.pop(k)
             r = self.send_request(v)
             if r is not None:
