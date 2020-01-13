@@ -45,13 +45,13 @@ class FileSystemHelper:
         self.logger.info("move: %s to %s", source, destination)
         try:
             directory = os.path.dirname(destination)
-            self.super_makedirs(directory, 0777)
+            self.super_makedirs(directory, 0o0777)
         except OSError:
             pass
         finally:
             pass
         shutil.move(source, destination)
-        os.chmod(destination, 0777)
+        os.chmod(destination, 0o0777)
         try:
             if self.fs_user is not None and self.fs_group is not None:
                 os.chown(destination, pwd.getpwnam(self.fs_user).pw_uid, grp.getgrnam(self.fs_group).gr_gid)
