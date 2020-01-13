@@ -402,9 +402,10 @@ class TvShowManager(AutomatedActionsExecutor):
         curs = DatabaseManager.Instance().cursor
         # "SELECT id, data FROM AutomatedActions WHERE `trigger`='onTorrentDownloaded' AND notifier='TvShowManager';"
         actions = self.actions["onTorrentDownloaded"]
-        for a in curs:
-            actions.append(a)
+        # for a in curs:
+        #     actions.append(a)
         for id_, data in actions.items():
+            id_ = int(id_)
             try:
                 self.logger.info("try to execute action id=%d", id_)
                 success = self.execute_action(data)
