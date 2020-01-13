@@ -40,7 +40,7 @@ class TransmissionTorrentRPC(TorrentManager):
                 # break
                 files[j] = torrent_files
             if len(files) == 1:
-                return files.values()[0]
+                return list(files.values())[0]
             return files
         # return torrent_files
 
