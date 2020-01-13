@@ -84,7 +84,7 @@ class TvShowManager(AutomatedActionsExecutor):
         (parametersString,) = dbm.cursor.fetchone()
         parameters = parametersString.split("&&")
         self.beta_user = parameters[1]
-        self.tv_show_directory = u"" + parameters[0]
+        self.tv_show_directory = "" + parameters[0]
         self.file_system_encoding = None
         if len(parameters) > 2:
             self.file_system_encoding = parameters[2]

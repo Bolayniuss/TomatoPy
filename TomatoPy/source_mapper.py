@@ -4,6 +4,8 @@ from __future__ import print_function, absolute_import, unicode_literals
 import sys
 import os
 
+import six
+
 from TomatoPy.filters import *
 
 
@@ -53,20 +55,20 @@ class DirectoryMapper:
     """
     def __init__(self, path, filter_=r"", encoding=None):
         self.path = path
-        if encoding is not None:
-            self.path = path.encode(encoding)
+
+        if six.PY2:
+            if encoding is not None:
+                self.path = path.encode(encoding)
         self.filter = re.compile(filter_)
         self.files = []
         self.indexedFiles = {}
         self.map()
 
     def map(self):
-        try:
+        if six.PY2:
             # do that only under py2
             reload(sys)
             sys.setdefaultencoding('UTF8')
-        except NameError:
-            pass
         for root, dirs, files in os.walk(self.path):
             for file_ in files:
                 m = self.filter.match(file_)
