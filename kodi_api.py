@@ -1,14 +1,8 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function, absolute_import, unicode_literals
 
-try:
-    from httplib import HTTPConnection
-except ImportError:
-    from http.client import HTTPConnection
-
 import requests
 
-import json
 import random
 import logging
 
