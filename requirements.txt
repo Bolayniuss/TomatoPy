@@ -1,4 +1,4 @@
-bencode
+bencode.py
 python-dotenv
 transmissionrpc
 mysql-connector==8.0.19

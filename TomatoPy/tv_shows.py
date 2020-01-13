@@ -93,6 +93,12 @@ class TvShowManager(AutomatedActionsExecutor):
         dbm.cursor.execute(query)
 
         for (title, name_filter, author_filter, size_limits, search_string, preferred_torrent_provider) in dbm.cursor:
+            print("title=%s" % (title, ))
+            print("name_filter=%s" % (name_filter, ))
+            print("author_filter=%s" % (author_filter, ))
+            print("size_limits=%s" % (size_limits, ))
+            print("search_string=%s" % (search_string, ))
+            print("preferred_torrent_provider=%s" % (preferred_torrent_provider, ))
             sizes = {}
             size_limits = size_limits.split(":")
             if len(size_limits[0]) > 0:
