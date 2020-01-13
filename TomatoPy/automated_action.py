@@ -42,6 +42,6 @@ class AutomatedActionsExecutor(object):
             query = "SELECT id, `trigger`, data FROM AutomatedActions WHERE notifier=%s;"
             curs.execute(query, (self.actionNotifierName,))
             for action in curs:
-                data = action[2].split("&&")
-                self.actions[action[1]][action[0]] = data
+                data = str(action[2]).split("&&")
+                self.actions[str(action[1])][str(action[0])] = data
             self.actionsLoaded = True

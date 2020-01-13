@@ -82,7 +82,7 @@ class TvShowManager(AutomatedActionsExecutor):
         query = "SELECT parameters FROM Parameters WHERE name='TvShowManager' LIMIT 1"
         dbm.cursor.execute(query)
         (parametersString,) = dbm.cursor.fetchone()
-        parameters = parametersString.split("&&")
+        parameters = str(parametersString).split("&&")
         self.beta_user = parameters[1]
         self.tv_show_directory = "" + parameters[0]
         self.file_system_encoding = None
@@ -93,8 +93,12 @@ class TvShowManager(AutomatedActionsExecutor):
         dbm.cursor.execute(query)
 
         for (title, name_filter, author_filter, size_limits, search_string, preferred_torrent_provider) in dbm.cursor:
-
+            title = str(title)
+            name_filter = str(name_filter)
+            author_filter = str(author_filter)
             size_limits = str(size_limits)
+            search_string = str(search_string)
+            preferred_torrent_provider = str(preferred_torrent_provider)
 
             sizes = {}
             size_limits = size_limits.split(":")

@@ -22,7 +22,7 @@ class XbmcLibraryManager:
         query = "SELECT parameters FROM Parameters WHERE name='XbmcLibraryManager' LIMIT 1"
         dbm.cursor.execute(query)
         (parametersString,) = dbm.cursor.fetchone()
-        parameters = parametersString.split("&&")
+        parameters = str(parametersString).split("&&")
 
         self.host = parameters[0]
         self.port = int(parameters[1])

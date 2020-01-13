@@ -96,7 +96,7 @@ class NotificationManager(object):
             sql = "SELECT * FROM RemoteServices WHERE `ServiceName`=%s LIMIT 1;"
             DatabaseManager.Instance().cursor.execute(sql, (self.service_name,))
             for res in DatabaseManager.Instance().cursor:
-                data = res[2].split("&&")
+                data = str(res[2]).split("&&")
                 self.user = data[0]
                 self.url = data[1]
                 break

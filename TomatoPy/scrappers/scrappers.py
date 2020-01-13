@@ -8,9 +8,9 @@ import requests
 import urllib
 
 try:
-    from urlib import quote
+    from urlib import quote, quote_plus
 except ImportError:
-    from urllib.parse import quote
+    from urllib.parse import quote, quote_plus
 
 try:
     import urllib2 as urllib_errors

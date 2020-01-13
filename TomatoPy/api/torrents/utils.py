@@ -4,7 +4,11 @@ from __future__ import print_function, absolute_import, unicode_literals
 
 import bencode
 import hashlib
-import urllib
+
+try:
+    from urllib import quote_plus
+except ImportError:
+    from urllib.parse import quote_plus
 
 
 def magnet_from_data(torrent_data):
@@ -27,7 +31,7 @@ def magnet_from_data(torrent_data):
 
     encoded_params = []
     for k, v in params:
-        v = urllib.quote_plus(bytes(v), safe=b":")
+        v = quote_plus(bytes(v), safe=b":")
         if k == "xt":
             v = b'urn:btih:%s' % v
         encoded_params.append("%s=%s" % (k, v))

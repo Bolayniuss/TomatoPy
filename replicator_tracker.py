@@ -6,6 +6,8 @@ import logging
 import os
 import re
 
+import six
+
 import tools
 from database import DatabaseManager
 from singleton import Singleton
@@ -26,7 +28,7 @@ class TrackedTorrent:
     def from_sql_query(sql_query):
         if len(sql_query) >= 4:
             hash_, name, torrent_file, magnet = sql_query
-            tt = TrackedTorrent(hash_, name, magnet, torrent_file)
+            tt = TrackedTorrent(str(hash_), str(name), str(magnet), str(torrent_file})
             return tt
         return None
 
@@ -63,9 +65,16 @@ class InterestingFile:
         DatabaseManager.Instance().connector.commit()
 
     @staticmethod
-    def from_sql_query(sqlQuery):
-        if len(sqlQuery) >= 5:
-            f = InterestingFile(sqlQuery[1], sqlQuery[3], sqlQuery[4], sqlQuery[0], sqlQuery[2])
+    def from_sql_query(sql_query):
+
+        if len(sql_query) >= 5:
+            f = InterestingFile(
+                str(sql_query[1]),
+                str(sql_query[3]),
+                str(sql_query[4]),
+                str(sql_query[0]),
+                int(sql_query[2])
+            )
             # f.isInDB = True
             return f
         # print "Fail to initiate InterestingFile with query : ", sqlQuery
@@ -236,8 +245,9 @@ class Destination:
     @staticmethod
     def from_sql_query(query):
         if len(query) >= 3:
-            if not isinstance(query[1], unicode):
-                query[1] = unicode(query[1])
+            if six.PY2:
+                if not isinstance(query[1], unicode):
+                    query[1] = unicode(query[1])
             return Destination(query[1], query[0], RFileFilter(query[2]))
         return None
 
@@ -287,6 +297,7 @@ class FileWithHash(File):
 
     @staticmethod
     def from_sql_query(sql_query):
+        sql_query = [str(el) for el in sql_query]
         if (sql_query is not None) and (len(sql_query) >= 3):
             f = FileWithHash(sql_query[3], sql_query[2], sql_query[1])
             f.id = sql_query[0]
@@ -387,7 +398,7 @@ class FileTracer:
             self.dbm.cursor.execute(sql)
             tracked_torrents = []
             for res in self.dbm.cursor:
-                tracked_torrents.append(res[0])
+                tracked_torrents.append(str(res[0]))
 
             for hashStr in tracked_torrents:
                 # No TrackedTorrentFile associated with this TrackedTorrent => remove

@@ -41,14 +41,14 @@ class ReplicatorManager(AutomatedActionsExecutor):
         sql = "SELECT * FROM RemoteServices WHERE `ServiceName`=%s;"
         self.dbm.cursor.execute(sql, (self.serviceName,))
         for res in self.dbm.cursor:
-            self.replicator_servers.append(dict(name=res[1], url=res[2]))
+            self.replicator_servers.append(dict(name=str(res[1]), url=str(res[2])))
 
         # Load destinations from DB
         self.destinations = {}
         sql = "SELECT * FROM TrackedDestinations;"
         self.dbm.cursor.execute(sql)
         for res in self.dbm.cursor:
-            self.destinations[res[0]] = res[1]
+            self.destinations[str(res[0])] = str(res[1])
 
         self.load_remote_actions()
         self.process_replicator_actions()

@@ -101,7 +101,7 @@ class TorrentManager(object):
             query = "SELECT parameters FROM Parameters WHERE name='TorrentManager' LIMIT 1"
             DatabaseManager.Instance().cursor.execute(query)
             (parameters_string,) = DatabaseManager.Instance().cursor.fetchone()
-            parameters = parameters_string.split("&&")
+            parameters = str(parameters_string).split("&&")
         self.download_directory = parameters[0]
         self.host = parameters[1]
         self.port = 9091
