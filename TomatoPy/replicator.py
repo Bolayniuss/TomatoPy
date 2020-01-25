@@ -102,7 +102,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
             try:
                 torrent = self.torrent_manager.get_torrent(hash_string)
                 if torrent.is_finished:
-                    n_files = (len(data) - 2) / 2
+                    n_files = int((len(data) - 2) / 2)
                     success = True
                     destination_path = None
                     for i in range(n_files):
