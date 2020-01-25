@@ -141,14 +141,14 @@ class ReplicatorManager(AutomatedActionsExecutor):
                     try:
                         prc = float(torrent.downloaded) / torrent.size
                     except Exception:
-                        pass
+                        self.logger.exception("Can't get prc")
                     NotificationManager.Instance().add_notification(
                         "%s %s" % ('{0:.0%}'.format(prc), torrent.name),
                         "Replicator: Downloading", Expiration()
                     )
                     return False
-            finally:
-                pass
+            except Exception as e:
+                self.logger.exception("Can't execute action with data: %s" % (data, ))
         return False
 
     def execute_on_torrent_downloaded_actions(self):
