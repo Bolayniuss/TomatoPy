@@ -2,9 +2,10 @@
 #
 from __future__ import absolute_import, unicode_literals, print_function
 
-import json
 import logging
 import os
+
+import requests
 
 try:
     from urllib2 import urlopen
@@ -59,9 +60,9 @@ class ReplicatorManager(AutomatedActionsExecutor):
             self.logger.info("Loading actions from remote server, %s", server["name"])
             url = server["url"] + "?q=getReplicatorActions&user=" + self.user
 
-            json_data = urlopen(url).read()
-            # print "ReplicatorManager: jsonData=", jsonData
-            data = json.loads(json_data)
+            resp = requests.get(url)
+
+            data = resp.json()
             if server["name"] not in self.replicator_actions:
                 self.replicator_actions[server["name"]] = []
             self.replicator_actions[server["name"]].append(data)

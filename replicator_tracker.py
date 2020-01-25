@@ -28,7 +28,7 @@ class TrackedTorrent:
     def from_sql_query(sql_query):
         if len(sql_query) >= 4:
             hash_, name, torrent_file, magnet = sql_query
-            tt = TrackedTorrent(str(hash_), str(name), str(magnet), str(torrent_file})
+            tt = TrackedTorrent(str(hash_), str(name), str(magnet), str(torrent_file))
             return tt
         return None
 
@@ -379,7 +379,7 @@ class FileTracer:
 
         delete_tt_sql = "DELETE FROM `TrackedTorrents` WHERE `hash`=%s;"
         get_ttf_with_torrent_hash_sql = "SELECT COUNT(1) FROM `TrackedTorrentFiles` WHERE `torrentHash`=%s LIMIT 1;"
-        for iF in self.dtf.interesting_files.itervalues():
+        for iF in self.dtf.interesting_files.values():
             # Clean up TrackedTorrentFiles DB
             delete = False
             # Remove if file does not exist (deleted, moved)
