@@ -155,10 +155,11 @@ class ReplicatorManager(AutomatedActionsExecutor):
         curs = DatabaseManager.Instance().cursor
         actions = self.actions["onTorrentDownloaded"]
         for id_, data in actions.items():
+            id_ = int(id_)
             try:
                 self.logger.info("try to execute action id=%d", id_)
                 success = self.execute_action(data)
-                self.logger.info("action (id=%d) result=%s", id_, success)
+                self.logger.info("action (id=%s) result=%s" % (id_, success))
                 delete = success
             except KeyError as e:
                 self.logger.exception("error while processing action (id=%d) torrent does not exist", id_)
@@ -167,7 +168,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
                 pass
 
             if delete:
-                self.logger.info("remove action with id=%d", id_)
+                self.logger.info("remove action with id=%s", id_)
                 del_query = "DELETE FROM AutomatedActions WHERE id=%s;"
                 curs.execute(del_query, (id_,))
                 DatabaseManager.Instance().connector.commit()
