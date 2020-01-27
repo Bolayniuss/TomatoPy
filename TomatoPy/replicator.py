@@ -140,8 +140,8 @@ class ReplicatorManager(AutomatedActionsExecutor):
                     prc = 0
                     try:
                         prc = float(torrent.downloaded) / torrent.size
-                    except Exception:
-                        self.logger.exception("Can't get prc")
+                    except ZeroDivisionError:
+                        pass
                     NotificationManager.Instance().add_notification(
                         "%s %s" % ('{0:.0%}'.format(prc), torrent.name),
                         "Replicator: Downloading", Expiration()
@@ -162,7 +162,7 @@ class ReplicatorManager(AutomatedActionsExecutor):
                 self.logger.info("action (id=%s) result=%s" % (id_, success))
                 delete = success
             except KeyError as e:
-                self.logger.exception("error while processing action (id=%d) torrent does not exist", id_)
+                self.logger.exception("error while processing action (id=%d) torrent does not exist" % (id_, ))
                 delete = True
             finally:
                 pass
