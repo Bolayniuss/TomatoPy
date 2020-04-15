@@ -204,11 +204,13 @@ class TvShowManager(AutomatedActionsExecutor):
 
                 torrent_providers = [self.registered_torrent_providers[provider_name]] + [v for k, v in self.registered_torrent_providers.items()if k != provider_name]
 
-                for torrentProvider in torrent_providers:
+                for torrent_provider in torrent_providers:
+                    self.logger.debug("looking at torrent provider: %s" % (torrent_provider, ))
                     torrent_search_string = ("%s S%02dE%02d" % (
                         episode.tracked_tv_show.search_string, episode.season, episode.episode_number))
                     try:
-                        torrent_items = torrentProvider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
+                        torrent_items = torrent_provider.get_torrents(torrent_search_string, episode.tracked_tv_show.torrent_filter)
+                        self.logger.debug("  found torrents: %s" % (torrent_items,))
                     except MultiHostError as e:
                         self.logger.exception(e.message)
                     if torrent_items:
