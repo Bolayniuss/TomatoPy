@@ -215,7 +215,7 @@ class TPBScrapper(TorrentProvider):
 class TPBOldScrapper(TorrentProvider):
     timeout = 10
 
-    host = "thepiratebay.org"
+    host = "thepiratebay10.org"
 
     def __init__(self, ):
         super(TPBOldScrapper, self).__init__()
