@@ -11,7 +11,7 @@ import rarfile
 import tools
 from TomatoPy.api.torrents import TorrentFile
 from TomatoPy.automated_action import AutomatedActionsExecutor
-from TomatoPy.scrappers import BetaserieRSSScrapper, TPBScrapper, T411Scrapper
+from TomatoPy.scrappers import BetaserieRSSScrapper, TPBScrapper, TPBOldScrapper
 from TomatoPy.scrappers.items import EpisodeItem
 from TomatoPy.source_mapper import DirectoryMapper, TorrentFilter, FileFilter, FileItem
 from database import DatabaseManager
@@ -115,6 +115,7 @@ class TvShowManager(AutomatedActionsExecutor):
         self.registered_episode_providers = [BetaserieRSSScrapper(self.beta_user)]
         self.registered_torrent_providers = {
             "TPB": TPBScrapper(),
+            "TPB-Old": TPBOldScrapper()
         }
 
         self.directory_mapper = DirectoryMapper(self.tv_show_directory, r"(.*)\.(mkv|avi|mp4|wmv)$",

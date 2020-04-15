@@ -206,19 +206,20 @@ class TPBScrapper(TorrentProvider):
                 leeches=int(torrent_item["leechers"]),
                 size=int(torrent_item["size"]),
                 author=torrent_item["username"],
+                date=torrent_item["date"]
             )
 
             item.content = TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
             self._torrentItems.append(item)
 
 
-class TPBScrapperOld(TorrentProvider):
+class TPBOldScrapper(TorrentProvider):
     timeout = 10
 
     host = "thepiratebay.org"
 
     def __init__(self, ):
-        super(TPBScrapperOld, self).__init__()
+        super(TPBOldScrapper, self).__init__()
         self.logger = logging.getLogger(__name__)
 
     def grab_torrents(self, search_string):

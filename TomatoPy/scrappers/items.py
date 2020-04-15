@@ -3,6 +3,8 @@ from __future__ import print_function, absolute_import, unicode_literals
 
 import re
 
+from TomatoPy.api.torrents import TorrentContent
+
 
 class EpisodeItem(object):
     def __init__(self, title, tv_show=None, season=None, episode_number=None, torrent_item=None):
@@ -63,12 +65,15 @@ class TorrentItem(object):
         self.size = size
         self.date = date
         self.link = link
-        self.is_magnet_link = is_magnet_link
         self.author = author
         self.title = title
 
         self._content = content
         self._cashed_content = None
+
+    @property
+    def is_magnet_link(self):
+        return self._content.type == TorrentContent.TYPE_MAGNET
 
     @property
     def content(self):
