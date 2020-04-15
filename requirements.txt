@@ -1,7 +1,7 @@
 bencode.py
 python-dotenv
 transmissionrpc
-mysql-connector==8.0.19
+mysql-connector-python==8.0.19
 rarfile
 beautifulsoup4
 lxml

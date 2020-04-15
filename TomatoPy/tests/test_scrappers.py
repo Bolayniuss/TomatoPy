@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, unicode_literals
 
 import unittest
 
-from TomatoPy.scrappers.scrappers import BetaserieRSSScrapper, T411Scrapper
+from TomatoPy.scrappers.scrappers import BetaserieRSSScrapper, TPBScrapper
 
 
 class BetaSeriesTestCase(unittest.TestCase):
@@ -18,17 +18,16 @@ class BetaSeriesTestCase(unittest.TestCase):
         self.assertEqual(self.episodes[0].episode_number, 1)
 
 
-# class T411TestCase(unittest.TestCase):
-#     def setUp(self):
-#         self.scrapper = T411Scrapper("bolay", "12081987")
-#         self.episodes = self.scrapper.get_torrents("Homeland")
-#
-#     def test_scrapper_result_ok(self):
-#         self.assertGreater(len(self.episodes), 0)
-#         e = self.episodes[0]
-#         self.assertIn("Homeland", e.title)
-#         self.assertTrue(callable(e._content))
-#         self.assertIsNotNone(e.content)
+class TestTPBScrapper(unittest.TestCase):
+    def setUp(self):
+        self.scrapper = TPBScrapper()
+
+    def test_scrapper_ok(self):
+
+        torrents = self.scrapper.get_torrents("Richard Jewell")
+
+        self.assertTrue(len(torrents) > 0)
+
 
 
 if __name__ == '__main__':

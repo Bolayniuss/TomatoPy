@@ -2,6 +2,7 @@
 from __future__ import print_function, absolute_import, unicode_literals
 
 import six
+import json
 
 from TomatoPy.api.torrents import TorrentContent
 
@@ -152,10 +153,72 @@ class TorrentProvider(object):
 class TPBScrapper(TorrentProvider):
     timeout = 10
 
-    host = "thepiratebay.org"
+    host = "apibay.org"
 
     def __init__(self, ):
         super(TPBScrapper, self).__init__()
+        self.logger = logging.getLogger(__name__)
+
+    def grab_torrents(self, search_string):
+        self._torrentItems = []
+
+        data_raw = MultiHostHandler.Instance().open_url(
+            "https://%s/q.php?q=%s&cat=0" % (self.host, quote(sub_special_tags(search_string))),
+            self.timeout
+        )
+
+        data = json.loads(data_raw)
+
+        # 0
+        # id	"36096995"
+        # name	"Richard.Jewell.2019.1080p.WEBRip.x264.AAC5.1"
+        # info_hash	"8679D25AB5B5BEA4239A05CD40BEF27C49C4E453"
+        # leechers	"54"
+        # seeders	"461"
+        # num_files	"3"
+        # size	"2496200363"
+        # username	"SeekNDstroy"
+        # added	"1583363396"
+        # status	"member"
+        # category	"207"
+        # imdb	"tt3513548"
+        # total_found	"52"
+
+        def magnet(ih, name):
+            mg = 'magnet:?xt=urn:btih:%s&dn=%s' % (ih, name)
+            mg += '&tr=' + quote('udp://tracker.coppersurfer.tk:6969/announce')
+            mg += '&tr=' + quote('udp://9.rarbg.to:2920/announce')
+            mg += '&tr=' + quote('udp://tracker.opentrackr.org:1337')
+            mg += '&tr=' + quote('udp://tracker.internetwarriors.net:1337/announce')
+            mg += '&tr=' + quote('udp://tracker.leechers-paradise.org:6969/announce')
+            mg += '&tr=' + quote('udp://tracker.coppersurfer.tk:6969/announce')
+            mg += '&tr=' + quote('udp://tracker.pirateparty.gr:6969/announce')
+            mg += '&tr=' + quote('udp://tracker.cyberia.is:6969/announce')
+            return mg
+
+        for torrent_item in data:
+            name = torrent_item["name"]
+
+            item = TorrentItem(
+                link=magnet(torrent_item["info_hash"], name),
+                title=name,
+                seeds=int(torrent_item["seeders"]),
+                leeches=int(torrent_item["leechers"]),
+                size=int(torrent_item["size"]),
+                author=torrent_item["username"],
+            )
+
+            item.content = TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
+            self._torrentItems.append(item)
+
+
+class TPBScrapperOld(TorrentProvider):
+    timeout = 10
+
+    host = "thepiratebay.org"
+
+    def __init__(self, ):
+        super(TPBScrapperOld, self).__init__()
         self.logger = logging.getLogger(__name__)
 
     def grab_torrents(self, search_string):
