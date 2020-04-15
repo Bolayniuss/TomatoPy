@@ -205,8 +205,7 @@ class TPBScrapper(TorrentProvider):
                 seeds=int(torrent_item["seeders"]),
                 leeches=int(torrent_item["leechers"]),
                 size=int(torrent_item["size"]),
-                author=torrent_item["username"],
-                date=torrent_item["date"]
+                author=torrent_item["username"]
             )
 
             item.content = TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
