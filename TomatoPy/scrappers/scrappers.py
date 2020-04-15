@@ -234,7 +234,6 @@ class TPBOldScrapper(TorrentProvider):
                 self.timeout
             )
         except MultiHostHandlerException as e:
-            #print e
             self.logger.warning(e)
         return None
 
@@ -266,6 +265,9 @@ class TPBOldScrapper(TorrentProvider):
             item.content = TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
 
             self._torrentItems.append(item)
+        self.logger.debug("Torrent found (pre-filtering):")
+        for i, t in enumerate(self._torrentItems):
+            self.logger.debug("    % 4d: %s" % (i, t))
 
 
 class KickAssTorrentScrapper(TorrentProvider):
