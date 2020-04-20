@@ -220,7 +220,12 @@ class TvShowManager(AutomatedActionsExecutor):
                 success = True
                 torrent_data = torrent_items[0].content
                 if torrent_data is not None:
-                    new_torrent = self.torrent_manager.add_torrent(torrent_data)
+                    try:
+                        new_torrent = self.torrent_manager.add_torrent(torrent_data)
+                    except Exception as e:
+                        self.logger.exception("Unable to add torrent with data: %s" % (torrent_data, ))
+                        raise
+
                     if new_torrent:
                         self.add_automated_actions(new_torrent.hash, episode.tracked_tv_show.title, episode.title)
                         self.logger.info("New torrent added for episode %s", episode.title)
