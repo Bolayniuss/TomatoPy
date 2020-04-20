@@ -184,7 +184,7 @@ class TPBScrapper(TorrentProvider):
         # imdb	"tt3513548"
         # total_found	"52"
 
-        def magnet(ih, name):
+        def make_magnet(ih, name):
             mg = 'magnet:?xt=urn:btih:%s&dn=%s' % (ih, name)
             mg += '&tr=' + quote('udp://tracker.coppersurfer.tk:6969/announce')
             mg += '&tr=' + quote('udp://9.rarbg.to:2920/announce')
@@ -199,8 +199,10 @@ class TPBScrapper(TorrentProvider):
         for torrent_item in data:
             name = torrent_item["name"]
 
+            magnet = make_magnet(torrent_item["info_hash"], name)
+
             item = TorrentItem(
-                link=magnet(torrent_item["info_hash"], name),
+                link=magnet,
                 title=name,
                 seeds=int(torrent_item["seeders"]),
                 leeches=int(torrent_item["leechers"]),
