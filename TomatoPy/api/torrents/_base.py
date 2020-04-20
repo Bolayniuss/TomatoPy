@@ -8,6 +8,15 @@ import re
 from database import DatabaseManager
 
 
+def _torrent_type_str(type_):
+    if type_ == TorrentContent.TYPE_MAGNET:
+        return "TYPE_MAGNET"
+    if type_ == TorrentContent.TYPE_DATA:
+        return "TYPE_DATA"
+    if type_ == TorrentContent.TYPE_FILE:
+        return "TYPE_FILE"
+
+
 class TorrentContent(object):
     TYPE_MAGNET = 0
     TYPE_DATA = 1
@@ -20,6 +29,9 @@ class TorrentContent(object):
             raise ValueError("'ctype' as to be a valid torrent content type")
         self.content = content
         self.type = ctype
+
+    def __str__(self):
+        return "TorrentContent(type=%s, content=%s)" % (self.type, self.content)
 
 
 class TorrentObject(object):
