@@ -197,21 +197,23 @@ class TPBScrapper(TorrentProvider):
             return mg
 
         for torrent_item in data:
-            name = torrent_item["name"]
+            if torrent_item["status"] in ["trusted", "vip"]:
 
-            magnet = make_magnet(torrent_item["info_hash"], name)
+                name = torrent_item["name"]
 
-            item = TorrentItem(
-                link=magnet,
-                title=name,
-                seeds=int(torrent_item["seeders"]),
-                leeches=int(torrent_item["leechers"]),
-                size=int(torrent_item["size"]),
-                author=torrent_item["username"]
-            )
+                magnet = make_magnet(torrent_item["info_hash"], name)
 
-            item.content = TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
-            self._torrentItems.append(item)
+                item = TorrentItem(
+                    link=magnet,
+                    title=name,
+                    seeds=int(torrent_item["seeders"]),
+                    leeches=int(torrent_item["leechers"]),
+                    size=int(torrent_item["size"]),
+                    author=torrent_item["username"]
+                )
+
+                item.content = TorrentContent(magnet, ctype=TorrentContent.TYPE_MAGNET)
+                self._torrentItems.append(item)
 
 
 class TPBOldScrapper(TorrentProvider):
